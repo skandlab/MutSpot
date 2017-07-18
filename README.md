@@ -2,8 +2,8 @@
 ### Workflow for hotspot analysis
 ###
 1.1 Calculate local mutation rate in 100kb non-overlapping bins<br />
-	mask: CDS regions, nonmappable regions, ig loci<br />
-	calculate local mutation rate in 100kb bins -> write precalculated rate in bed or wg format<br />
+mask: CDS regions, nonmappable regions, ig loci<br />
+calculate local mutation rate in 100kb bins -> write precalculated rate in bed or wg format<br />
 local_mut_rate.R<br /><br />
 1.2 discretize replication timing into n bins and calculate the mean value for each bin<br />
 RepTime_binMeans.R<br /><br />	
