@@ -14,7 +14,7 @@ mutrate_gastric_site_current.R<br /><br />
 3. feature selection for regional and site models<br />
 lasso_feature_selection.R<br /><br />
 4. nucleotide context feature selection<br />
-MotifLassoSelection.R<br /><br />
+MotifLassoSelection_v2.R<br /><br />
 5 create frequency table for logistic regression<br />
 mutCovariate_hotspot.R<br /><br />
 6. fit logistic regression<br />
