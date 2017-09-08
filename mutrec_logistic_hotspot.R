@@ -241,7 +241,7 @@ run.mutrec.lr <- function(roi, maf, model, features, motifs, discrete, min.count
     # pval = 1-ppoibin(k-1,p_dist,method='DFT-CF') # exact
     # trick to get other tail of distr.
     # only RF provides estimates for low p-values
-    pval = ppoibin(length(p.bg)-(k-1),1-p.bg,method='RF') # fast
+    pval = ppoibin(length(p.bg)-k,1-p.bg,method='RF') # fast
     # pval<-tryCatch(
     #   ppoibin(length(p.bg)-(k-1),1-p.bg,method='RF'),
     #   warning=function(x) {
