@@ -17,16 +17,13 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1,
   cutoff.features = 0.75, cutoff.features.new.snv = NULL,
   cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE,
   min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732,
-  hotspots = TRUE, cds.file = system.file("extdata", "Ensembl75.CDS.bed",
-  package = "MutSpot"), promoter.file = system.file("extdata",
+  hotspots = TRUE, promoter.file = system.file("extdata",
   "Ensembl75.promoters.coding.bed", package = "MutSpot"),
   utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package =
   "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
-  package = "MutSpot"), intron.file = system.file("extdata",
-  "Ensembl75.intron.bed", package = "MutSpot"), other.annotations = NULL,
-  fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1",
-  merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE,
-  top.no = 3)
+  package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1,
+  color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE,
+  color.muts = "orange", z.value = FALSE, top.no = 3)
 }
 \arguments{
 \item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.}
@@ -87,15 +84,11 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1,
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
-\item{cds.file}{Coding regions bed file, default file = Ensembl75.CDS.bed}
-
 \item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed}
 
 \item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed}
 
 \item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed}
-
-\item{intron.file}{Intron regions bed file, default file = Ensembl75.intron.coding.bed}
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 

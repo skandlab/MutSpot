@@ -29,11 +29,9 @@
 #' @param min.count.indel Minimum number of mutated samples in each indel hotspot, default = 2.
 #' @param genome.size Total number of hotspots to run analysis on, default = 2533374732.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
-#' @param cds.file Coding regions bed file, default file = Ensembl75.CDS.bed
 #' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed
 #' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed
 #' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed
-#' @param intron.file Intron regions bed file, default file = Ensembl75.intron.coding.bed
 #' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
 #' @param fdr.cutoff FDR cutoff, default = 0.1.
 #' @param color.line Color given FDR cutoff, default = red.
@@ -45,8 +43,8 @@
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
-MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations, indel.mutations, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE, cds.file = system.file("extdata", "Ensembl75.CDS.bed", package = "MutSpot"),
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), intron.file = system.file("extdata", "Ensembl75.intron.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3) {
+MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations, indel.mutations, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3) {
   
 ## check format of output directory ##
 if (substr(output.dir, nchar(output.dir), nchar(output.dir)) != "/") {
@@ -640,16 +638,16 @@ if (8 %in% run.to) {
   ## Step 8a ##
   if (file.exists(snv.hotspots.merged)) {
     
-    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots.merged, cds.file = cds.file, promoter.file = promoter.file, 
-                                      utr3.file = utr3.file, utr5.file = utr5.file, intron.file = intron.file,
+    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots.merged, promoter.file = promoter.file, 
+                                      utr3.file = utr3.file, utr5.file = utr5.file,
                                       other.annotations = other.annotations)
     
     write.table(ann.results.snv, file = ann.snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
     
   } else if (file.exists(snv.hotspots)) {
     
-    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots, cds.file = cds.file, promoter.file = promoter.file, 
-                                  utr3.file = utr3.file, utr5.file = utr5.file, intron.file = intron.file,
+    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots, promoter.file = promoter.file, 
+                                  utr3.file = utr3.file, utr5.file = utr5.file,
                                   other.annotations = other.annotations)
     
     write.table(ann.results.snv, file = ann.snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
@@ -660,15 +658,17 @@ if (8 %in% run.to) {
   ## Step 8b ##
   if (file.exists(indel.hotspots.merged)) {
     
-    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots.merged, cds.file = cds.file, promoter.file = promoter.file,
-                                         utr3.file = utr3.file, utr5.file = utr5.file, intron.file = intron.file)
+    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots.merged, promoter.file = promoter.file,
+                                         utr3.file = utr3.file, utr5.file = utr5.file,
+                                    other.annotations = other.annotations)
     
     write.table(ann.results.indel, file = ann.indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
     
   } else if (file.exists(indel.hotspots)) {
     
-    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots, cds.file = cds.file, promoter.file = promoter.file,
-                                    utr3.file = utr3.file, utr5.file = utr5.file, intron.file = intron.file)
+    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots, promoter.file = promoter.file,
+                                    utr3.file = utr3.file, utr5.file = utr5.file, 
+                                    other.annotations = other.annotations)
     
     write.table(ann.results.indel, file = ann.indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
     
