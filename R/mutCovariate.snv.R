@@ -71,7 +71,25 @@ chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
 for (i in 1:nrow(nucleotide.selected)) {
   
   print(nucleotide.selected[i, ])
+  if (nucleotide.selected$type[i] %in% c("oneMer","threeMer","fiveMer")){
   precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] <- unique(c(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])), BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))))
+  } else if (nucleotide.selected$type[i] == "threeRight") {
+    a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+    b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
+    precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+  } else if (nucleotide.selected$type[i]=="threeLeft") {
+    a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
+    b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+    precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+  }  else if (nucleotide.selected$type[i] =="fiveRight") {
+    a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+    b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
+    precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+  } else if (nucleotide.selected$type[i]=="fiveLeft") {
+    a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
+    b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+    precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+  }
   
 }
 } else {

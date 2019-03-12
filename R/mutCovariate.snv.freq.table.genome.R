@@ -101,7 +101,7 @@ mutCovariate.snv.freq.table.genome = function(continuous.features, discrete.feat
           mot = paste(j, k, sep = "")
           colnames(df) = mot
           GenomicRanges::values(sites) = data.frame(GenomicRanges::values(sites), df, check.names = FALSE)
-          GenomicRanges::values(sites)[which((GenomicRanges::start(sites) - 1) %in% precompute.motif.pos[[mot]]), mot] = 1
+          GenomicRanges::values(sites)[which(GenomicRanges::start(sites) %in% precompute.motif.pos[[mot]]), mot] = 1
           rm(df)
           
         } else if (j == "fiveMer") {
@@ -128,7 +128,7 @@ mutCovariate.snv.freq.table.genome = function(continuous.features, discrete.feat
           mot = paste(j, k, sep = "")
           colnames(df) = mot
           GenomicRanges::values(sites) = data.frame(GenomicRanges::values(sites), df, check.names = FALSE)
-          GenomicRanges::values(sites)[which((GenomicRanges::start(sites) - 2) %in% precompute.motif.pos[[mot]]), mot] = 1
+          GenomicRanges::values(sites)[which(GenomicRanges::start(sites) %in% precompute.motif.pos[[mot]]), mot] = 1
           rm(df)
           
         }
