@@ -99,7 +99,7 @@ if (!is.null(sample.specific.features.url.file)) {
 }
 
 # Remove masked regions from indel mutations
-maf.masked.indel <- maf.indel[-IRanges::subjectHits(IRanges::findOverlaps(mask.regions, maf.indel))]
+maf.masked.indel <- maf.indel[-S4Vectors::subjectHits(IRanges::findOverlaps(mask.regions, maf.indel))]
 dupl.indel = duplicated(maf.masked.indel)
 maf.uniq.indel = maf.masked.indel[!dupl.indel, ]
 
@@ -233,8 +233,8 @@ if (merge.hotspots) {
   hotspots=IRanges::reduce(mut.rec.hotspot2)
   hotspots$hs=paste("hs",1:length(hotspots),sep="")
   ovl.mut=IRanges::findOverlaps(maf.indel,hotspots)
-  hotspots2=hotspots[IRanges::subjectHits(ovl.mut)]
-  hotspots2$sample=maf.indel[IRanges::queryHits(ovl.mut)]$sid
+  hotspots2=hotspots[S4Vectors::subjectHits(ovl.mut)]
+  hotspots2$sample=maf.indel[S4Vectors::queryHits(ovl.mut)]$sid
   hotspots2=GenomicRanges::as.data.frame(hotspots2)
   hotspots2=aggregate(sample~hs,hotspots2,FUN=function(k) length(unique(k)))
   colnames(hotspots2)[2]="k"
@@ -247,11 +247,11 @@ if (merge.hotspots) {
   }
   
   ovl=IRanges::findOverlaps(mut.rec.hotspot2,hotspots)
-  mut.rec.hotspot2=mut.rec.hotspot2[IRanges::queryHits(ovl)]
-  mut.rec.hotspot2$hs=hotspots[IRanges::subjectHits(ovl)]$hs
-  mut.rec.hotspot2$region.start=IRanges::start(hotspots[IRanges::subjectHits(ovl)])
-  mut.rec.hotspot2$region.end=IRanges::end(hotspots[IRanges::subjectHits(ovl)])
-  mut.rec.hotspot2$new.k=hotspots[IRanges::subjectHits(ovl)]$k
+  mut.rec.hotspot2=mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+  mut.rec.hotspot2$hs=hotspots[S4Vectors::subjectHits(ovl)]$hs
+  mut.rec.hotspot2$region.start=IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+  mut.rec.hotspot2$region.end=IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+  mut.rec.hotspot2$new.k=hotspots[S4Vectors::subjectHits(ovl)]$k
   mut.rec.hotspot2=GenomicRanges::as.data.frame(mut.rec.hotspot2)
   mut.rec.hotspot2=mut.rec.hotspot2[order(mut.rec.hotspot2$pval,decreasing=FALSE),]
   mut.rec.hotspot2=mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs),]

@@ -1,9 +1,9 @@
 #' Runs all or selected steps in MutSpot analysis.
 #'
-#' @param run.to Numeric vector defining which steps to run, default = 1, 2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.
+#' @param run.to Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.
 #' @param chromosomes Character vector defining which chromosomes to compute feature matrix on, default = chr1-chrX.
-#' @param snv.mutations SNV mutations MAF file.
-#' @param indel.mutations Indel mutations MAF file.
+#' @param snv.mutations SNV mutations MAF file, default = NULL.
+#' @param indel.mutations Indel mutations MAF file, default = NULL.
 #' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
 #' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
 #' @param region.of.interest Region of interest bed file, default = NULL.
@@ -43,21 +43,21 @@
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
-MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations, indel.mutations, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
+MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
                   promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3) {
   
-## check format of output directory ##
-if (substr(output.dir, nchar(output.dir), nchar(output.dir)) != "/") {
+## check format of working directory ##
+if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
   
-  output.dir = paste(output.dir, "/", sep = "")
+  working.dir = paste(working.dir, "/", sep = "")
   
 }  
 
 ## Step 1 ##
-sampled.sites.snv.file = paste(output.dir, "sampled.sites.snv.RDS", sep = "")
-snv.mutations.region.file = paste(output.dir, "SNV_region.MAF", sep = "")
-sampled.sites.indel.file = paste(output.dir, "sampled.sites.indel.RDS", sep = "")
-indel.mutations.region.file = paste(output.dir, "indel_region.MAF", sep = "")
+sampled.sites.snv.file = paste(working.dir, "sampled.sites.snv.RDS", sep = "")
+snv.mutations.region.file = paste(working.dir, "SNV_region.MAF", sep = "")
+sampled.sites.indel.file = paste(working.dir, "sampled.sites.indel.RDS", sep = "")
+indel.mutations.region.file = paste(working.dir, "indel_region.MAF", sep = "")
   
 if (1 %in% run.to) {
     
@@ -138,8 +138,8 @@ if (is.null(indel.mutations) | !file.exists(sampled.sites.indel.file)) {
 
 
 ## Step 2 ##
-local.mutrate.snv.file = paste(output.dir, "localmutrate_snv.bed", sep = "")
-local.mutrate.indel.file = paste(output.dir, "localmutrate_indel.bed", sep = "")
+local.mutrate.snv.file = paste(working.dir, "localmutrate_snv.bed", sep = "")
+local.mutrate.indel.file = paste(working.dir, "localmutrate_indel.bed", sep = "")
 
   if (2 %in% run.to) {
     
@@ -164,9 +164,9 @@ if (!is.null(local_mutrate[[2]])) {
 }
 
 ## Step 3 ##
-nucleotide.stabs.freq.file = paste(output.dir, "nucleotide_stabs_freq.RDS", sep = "")
-nucleotide.selected.file = paste(output.dir, "nucleotide_selected.RDS", sep = "")
-indels.polyAT.file = paste(output.dir, "indel_polyAT.MAF", sep = "")
+nucleotide.stabs.freq.file = paste(working.dir, "nucleotide_stabs_freq.RDS", sep = "")
+nucleotide.selected.file = paste(working.dir, "nucleotide_selected.RDS", sep = "")
+indels.polyAT.file = paste(working.dir, "indel_polyAT.MAF", sep = "")
 
 ## Step 3I ##
 if (3.1 %in% run.to) {
@@ -222,12 +222,12 @@ saveRDS(nucleotide_selection_adjust, file = nucleotide.selected.file)
 }
 
 ## Step 4 ##
-features.stabs.snv.file = paste(output.dir, "features_stabs_snv.RDS", sep = "")
-continuous.features.selected.snv.url.file = paste(output.dir, "continuous_features_selected_snv_url.txt", sep = "")
-discrete.features.selected.snv.url.file = paste(output.dir, "discrete_features_selected_snv_url.txt", sep = "")
-features.stabs.indel.file = paste(output.dir, "features_stabs_indel.RDS", sep = "")
-continuous.features.selected.indel.url.file = paste(output.dir, "continuous_features_selected_indel_url.txt", sep = "")
-discrete.features.selected.indel.url.file = paste(output.dir, "discrete_features_selected_indel_url.txt", sep = "")
+features.stabs.snv.file = paste(working.dir, "features_stabs_snv.RDS", sep = "")
+continuous.features.selected.snv.url.file = paste(working.dir, "continuous_features_selected_snv_url.txt", sep = "")
+discrete.features.selected.snv.url.file = paste(working.dir, "discrete_features_selected_snv_url.txt", sep = "")
+features.stabs.indel.file = paste(working.dir, "features_stabs_indel.RDS", sep = "")
+continuous.features.selected.indel.url.file = paste(working.dir, "continuous_features_selected_indel_url.txt", sep = "")
+discrete.features.selected.indel.url.file = paste(working.dir, "discrete_features_selected_indel_url.txt", sep = "")
 
 if (4.1 %in% run.to) {
   
@@ -352,12 +352,12 @@ if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
   }
   
 ## Step 5 ##
-mutCovariate.snv.output.file = paste(output.dir, "mutCovariate-compile-part1.RDS", sep = "")
-mutCovariate.snv.output.p1 = paste(output.dir, "mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.snv.output.p2 = paste(output.dir, "mutCovariate-sparse-p2.RDS", sep = "")
-mutCovariate.indel.output.file = paste(output.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
-mutCovariate.indel.output.p1 = paste(output.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.indel.output.p2 = paste(output.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
+mutCovariate.snv.output.file = paste(working.dir, "mutCovariate-compile-part1.RDS", sep = "")
+mutCovariate.snv.output.p1 = paste(working.dir, "mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.snv.output.p2 = paste(working.dir, "mutCovariate-sparse-p2.RDS", sep = "")
+mutCovariate.indel.output.file = paste(working.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
+mutCovariate.indel.output.p1 = paste(working.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.indel.output.p2 = paste(working.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
 
 if (file.exists(indels.polyAT.file)) {
   
@@ -399,11 +399,242 @@ if (5.1 %in% run.to) {
     ## Step 5a ##
   if ((!is.null(continuous.features.selected.snv.url.file) | !is.null(discrete.features.selected.snv.url.file) | !is.null(sample.snv.features) | !is.null(nucleotide.selected.file)) & !is.null(sampled.sites.snv.file)) {
     
-    for (i in paste("chr", chromosomes, sep="")) {
+    sample.specific.features.url.file = sample.snv.features
+    snv.mutations.file = snv.mutations.int
+    snv.mutations.file2 = snv.mutations
+    
+    # Chr1-X
+    chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+    seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    
+    # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
+    mask.regions = readRDS(mask.regions.file)
+    mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+    
+    # Define all sites in whole genome
+    all.sites = readRDS(all.sites.file)
+    all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% seqnames]
+    all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
+    # sum(as.numeric(GenomicRanges::width(all.sites.masked)))
+    
+    # If specified region, redefine all sites to be in specified region
+    if (!is.null(region.of.interest)) {
       
-mutCovariate.snv(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, nucleotide.selected.file = nucleotide.selected.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, 
-                 discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, sample.specific.features.url.file = sample.snv.features, snv.mutations.file = snv.mutations.int, region.of.interest = region.of.interest, snv.mutations.file2 = snv.mutations, cores = cores, chr.interest = i)
+      print("specified region")
+      
+      all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+      all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+      all.sites.masked = subtract.regions.from.roi(all.sites,mask.regions, cores = cores)
+      all.sites.masked = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) %in% seqnames]
+      
+    }
+    
+    # Read feature file paths
+    if (!is.null(continuous.features.selected.snv.url.file)) {
+      
+      selected.continuous.urls <- read.delim(continuous.features.selected.snv.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+      continuous.selected.features = parallel::mclapply(selected.continuous.urls[ ,2], function(f) {
+        print(f)
+        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
+        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4))
+        
+      }, mc.cores = cores)
+      
+      names(continuous.selected.features) = as.character(selected.continuous.urls[ ,1])
+      
+    } else {
+      
+      continuous.selected.features = NULL
+      
+    }
+    
+    if (!is.null(discrete.features.selected.snv.url.file)) {
+      
+      selected.discrete.urls <- read.delim(discrete.features.selected.snv.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+      discrete.selected.features = parallel::mclapply(selected.discrete.urls[ ,2], function(f) {
+        
+        print(f)
+        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
+        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+        
+      }, mc.cores = cores)
+      
+      names(discrete.selected.features) = as.character(selected.discrete.urls[ ,1])
+      
+    } else {
+      
+      discrete.selected.features = NULL
+      
+    }
+    
+    # Define SNV mutations 
+    maf.mutations <- maf.to.granges(snv.mutations.file)
+    maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% seqnames]
+    mut.masked <- maf.mutations[S4Vectors::subjectHits(IRanges::findOverlaps(all.sites.masked, maf.mutations))]
+    
+    # Define SNV sample mutation count based on full SNV mutations file
+    maf.mutations2 <- maf.to.granges(snv.mutations.file2)
+    maf.mutations2 = maf.mutations2[as.character(GenomicRanges::seqnames(maf.mutations2)) %in% seqnames]
+    maf.ind = GenomicRanges::split(maf.mutations2, maf.mutations2$sid)
+    ind.mut.count = sapply(maf.ind, length)
+    nind = length(ind.mut.count) 
+    
+    # Define sample-specific features e.g. CIN index, COSMIC signatures
+    if (!is.null(sample.specific.features.url.file)) {
+      
+      sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
+      rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
+      sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)),]
+      sample.specific.features$sample.count=ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+      
+      sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+        
+        print(colnames(sample.specific.features)[x])
+        if(class(sample.specific.features[,x])=="character") {
+          
+          t=factor(sample.specific.features[,x])
+          t=model.matrix(~t)[,-1]
+          colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
+          colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
+          rownames(t)=rownames(sample.specific.features)
+          
+        } else {
+          
+          t=as.data.frame(sample.specific.features[,x])
+          colnames(t)=colnames(sample.specific.features)[x]
+          rownames(t)=rownames(sample.specific.features)
+          
+        }
+        return(t)
+        
+      },mc.cores=cores)
+      
+      sample.specific.features=do.call(cbind,sample.specific.features2)
+      
+    } else {
+      
+      sample.specific.features=as.data.frame(ind.mut.count)
+      colnames(sample.specific.features)="sample.count"
+      
+    }
+    
+    # Remove larger objects before tabulating
+    sort(sapply(ls(), function(x) { object.size(get(x)) / 10 ^ 6 }))
+    rm(list = c("maf.mutations", "maf.ind", "mask.regions", "all.sites", "maf.mutations2"))
+    gc(reset = T)
+    
+    # Tabulate covariates for mutations
+    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomicRanges::seqnames(mut.masked)))
+    mut.chr = GenomicRanges::split(mut.masked, GenomicRanges::seqnames(mut.masked))
+    chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
+    mut.chr = mut.chr[names(mut.chr) %in% chrs]
+    
+    
+    for (chr.interest in paste("chr", chromosomes, sep="")) {
+      
+      
+      if (!is.null(nucleotide.selected.file)) {
+        
+        nucleotide.selected = readRDS(nucleotide.selected.file)
+        nucleotide.selected = as.data.frame(nucleotide.selected)
+        colnames(nucleotide.selected) = "sequence"
+        nucleotide.selected$type = "type"
+        nucleotide.selected$type = ifelse(grepl("one",nucleotide.selected$sequence), "oneMer", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("three", nucleotide.selected$sequence), "threeMer", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("three.right", nucleotide.selected$sequence), "threeRight", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("three.left", nucleotide.selected$sequence), "threeLeft", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("five", nucleotide.selected$sequence), "fiveMer", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("five.right", nucleotide.selected$sequence), "fiveRight", nucleotide.selected$type)
+        nucleotide.selected$type = ifelse(grepl("five.left", nucleotide.selected$sequence), "fiveLeft", nucleotide.selected$type)
+        nucleotide.selected$sequence = gsub("one", "", nucleotide.selected$sequence)
+        nucleotide.selected$sequence = gsub("three", "", nucleotide.selected$sequence)
+        nucleotide.selected$sequence = gsub("five", "", nucleotide.selected$sequence)
+        nucleotide.selected$sequence = gsub("*.*right", "", nucleotide.selected$sequence)
+        nucleotide.selected$sequence = gsub("*.*left", "", nucleotide.selected$sequence)
+        
+        precompute.motif.pos = as.list(numeric(nrow(nucleotide.selected)))
+        names(precompute.motif.pos) = paste(nucleotide.selected$type, nucleotide.selected$sequence, sep = "")
+        chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
+        
+        # Extract all nucleotide contexts' positions in specific chromosome
+        for (i in 1:nrow(nucleotide.selected)) {
+          
+          print(paste(chr.interest,nucleotide.selected[i, "sequence"], nucleotide.selected[i,"type"],sep=":"))
+          if (nucleotide.selected$type[i] %in% c("oneMer","threeMer","fiveMer")){
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] <- unique(c(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])), BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))))
+          } else if (nucleotide.selected$type[i] == "threeRight") {
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+          } else if (nucleotide.selected$type[i]=="threeLeft") {
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+          }  else if (nucleotide.selected$type[i] =="fiveRight") {
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+          } else if (nucleotide.selected$type[i]=="fiveLeft") {
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+          }
+          
+        }
+      } else {
+        
+        precompute.motif.pos = NULL
+        nucleotide.selected = NULL
+        
+      }
+      
+      if (chr.interest %in% names(mut.chr)) {
+        
+        mut.freq <- mutCovariate.snv.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, precompute.motif.pos = precompute.motif.pos, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, sites = mut.chr[[chr.interest]])
 
+      } else {
+        
+        mut.freq = NULL
+        
+      }
+      
+      if (chr.interest %in% as.character(GenomicRanges::seqnames(all.sites.masked))) {
+        
+        all.sites.masked2 = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) == chr.interest]
+        len = sapply(GenomicRanges::split(all.sites.masked2, GenomicRanges::seqnames(all.sites.masked2)), length)
+        len = len[len != 0]
+        len2 = sapply(1:length(len), function(i) { sum(len[1:i]) })
+        len2 = c(0, len2)
+        chunk.size = 5000
+        chunks <- lapply(1:length(len), function(j) { lapply(1:ceiling(len[j] / chunk.size), function(i) ((len2[j] + (i-1) * chunk.size + 1):(len2[j] + min((i) * chunk.size, len[j])))) })
+        chunks = do.call(c, chunks)
+        
+        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.snv.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, precompute.motif.pos = precompute.motif.pos, nucleotide.selected = nucleotide.selected, sites = all.sites.masked2[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
+        genome.freq = data.table::rbindlist(genome.freq)
+        genome.freq = data.frame(genome.freq, check.names = F)
+        # Sum up number of sites with same covariates combination
+        if (ncol(genome.freq) > 2) {
+          
+          genome.freq.aggregated = aggregate(genome.freq$freq, by = genome.freq[ ,1:(ncol(genome.freq) - 1)], FUN = sum)
+          
+        } else { # Special case: only 1 feature
+          
+          genome.freq.aggregated = aggregate(genome.freq$freq ~ genome.freq[,colnames(genome.freq)[1]], FUN = sum)
+          colnames(genome.freq.aggregated) = c(colnames(genome.freq)[1], "x")
+          
+        }
+        rm(list = c("genome.freq"))
+        
+      } else {
+        
+        genome.freq.aggregated = NULL
+        
+      }
+      
+      saveRDS(list(mut.freq, genome.freq.aggregated), file = paste("mutCovariate_", chr.interest, ".RDS", sep = ""))
+      
     }
     
   }
@@ -411,10 +642,245 @@ mutCovariate.snv(mask.regions.file = mask.regions.file, all.sites.file = all.sit
   ## Step 5b ##
   if ((!is.null(continuous.features.selected.indel.url.file) | !is.null(discrete.features.selected.indel.url.file) | !is.null(sample.indel.features)) & !is.null(sampled.sites.indel.file)) {
     
-    for (i in paste("chr", chromosomes, sep="")) {
+    sample.specific.features.url.file = sample.indel.features
+    indel.mutations.file = indel.mutations.int
+    indel.mutations.file2 = indel.mutations
+    
+    chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+    seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    
+    # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
+    mask.regions = readRDS(mask.regions.file)
+    mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+    
+    # Define all sites in whole genome
+    all.sites = readRDS(all.sites.file)
+    all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% seqnames]
+    all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
+    sum(as.numeric(GenomicRanges::width(all.sites.masked)))
+    
+    # If specified region, redefine all sites to be in specified region
+    if (!is.null(region.of.interest)) {
       
-      mutCovariate.indel(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, 
-                         discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features, indel.mutations.file = indel.mutations.int, region.of.interest = region.of.interest, indel.mutations.file2 = indel.mutations, cores = cores, chr.interest = i)
+      print("specified region")
+      
+      all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+      all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+      all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
+      all.sites.masked = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) %in% seqnames]
+      
+    }
+    
+    # Extract all polyA, poly C, poly G and poly T positions in a specific chromosome
+    chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
+    
+    # Read feature file paths
+    if (!is.null(continuous.features.selected.indel.url.file)) {
+      
+      selected.continuous.urls <- read.delim(continuous.features.selected.indel.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+      continuous.selected.features = parallel::mclapply(selected.continuous.urls[ ,2], function(f) {
+        
+        print(f)
+        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
+        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4)) }, mc.cores = cores)
+      names(continuous.selected.features) = as.character(selected.continuous.urls[ ,1])
+      
+    } else {
+      
+      continuous.selected.features = NULL
+      
+    }
+    
+    if (!is.null(discrete.features.selected.indel.url.file)) {
+      
+      selected.discrete.urls <- read.delim(discrete.features.selected.indel.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+      discrete.selected.features = parallel::mclapply(selected.discrete.urls[ ,2], function(f) {
+        
+        print(f)
+        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
+        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3))) }, mc.cores = cores)
+      names(discrete.selected.features) = as.character(selected.discrete.urls[ ,1])
+      
+    } else {
+      
+      discrete.selected.features = NULL
+      
+    }
+    
+    # Define indel mutations
+    maf.mutations <- maf.to.granges(indel.mutations.file)
+    maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% seqnames]
+    mut.masked <- maf.mutations[S4Vectors::subjectHits(IRanges::findOverlaps(all.sites.masked, maf.mutations))]
+    mut.masked.sites = mut.masked
+    GenomicRanges::start(mut.masked.sites) = GenomicRanges::start(mut.masked.sites) + ceiling((GenomicRanges::width(mut.masked.sites) - 1) / 2)
+    GenomicRanges::end(mut.masked.sites) = GenomicRanges::start(mut.masked.sites)
+    
+    # Define indel sample mutation count based on full indel mutations file
+    maf.mutations2 = maf.to.granges(indel.mutations.file2)
+    maf.mutations2 = maf.mutations2[as.character(GenomicRanges::seqnames(maf.mutations2)) %in% seqnames]
+    maf.ind = GenomicRanges::split(maf.mutations2, maf.mutations2$sid)
+    ind.mut.count = sapply(maf.ind, length)
+    nind = length(ind.mut.count) 
+    
+    # Define sample-specific features e.g. CIN index, COSMIC signatures
+    if (!is.null(sample.specific.features.url.file)) {
+      
+      sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
+      rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
+      sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)),]
+      sample.specific.features$sample.count=ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+      
+      sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+        
+        print(colnames(sample.specific.features)[x])
+        if(class(sample.specific.features[,x])=="character") {
+          
+          t=factor(sample.specific.features[,x])
+          t=model.matrix(~t)[,-1]
+          colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
+          colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
+          rownames(t)=rownames(sample.specific.features)
+          
+        } else {
+          
+          t=as.data.frame(sample.specific.features[,x])
+          colnames(t)=colnames(sample.specific.features)[x]
+          rownames(t)=rownames(sample.specific.features)
+          
+        }
+        return(t)
+        
+      },mc.cores=cores)
+      
+      sample.specific.features=do.call(cbind,sample.specific.features2)
+      
+    } else {
+      
+      sample.specific.features=as.data.frame(ind.mut.count)
+      colnames(sample.specific.features)="sample.count"
+      
+    }
+    
+    # Remove larger objects before tabulating
+    sort(sapply(ls(), function(x) { object.size(get(x)) / 10 ^ 6 } ))
+    rm(list = c("maf.mutations", "maf.ind", "mask.regions", "all.sites", "maf.mutations2"))
+    gc(reset = T)
+    
+    # Tabulate covariates for mutations
+    GenomeInfoDb::seqlevels(mut.masked.sites) = as.character(unique(GenomicRanges::seqnames(mut.masked.sites)))
+    mut.chr = GenomicRanges::split(mut.masked.sites, GenomicRanges::seqnames(mut.masked.sites))
+    mut.chr = mut.chr[names(mut.chr) %in% chrs]
+    mut.indel.chr = GenomicRanges::split(mut.indel, GenomicRanges::seqnames(mut.indel))
+    mut.indel.chr = mut.indel.chr[names(mut.indel.chr) %in% chrs]
+    
+    # Tabulate covariates for all positions in indels
+    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomicRanges::seqnames(mut.masked)))
+    mut.indel = mut.masked
+    
+    for (chr.interest in paste("chr", chromosomes, sep="")) {
+      
+      polyA <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("AAAAA",
+                                                                                         BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      names(polyA) <- chr.interest
+      polyAs = parallel::mclapply(chr.interest, FUN = function(x) {
+        
+        print(x)
+        gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyA[[x]], polyA[[x]] + 5 - 1))
+        
+      } )
+      polyAs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyAs))
+      
+      polyC <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("CCCCC",
+                                                                                         BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      names(polyC) <- chr.interest
+      polyCs = parallel::mclapply(chr.interest, FUN = function(x) {
+        
+        print(x)
+        gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyC[[x]], polyC[[x]] + 5 - 1))
+        
+      } )
+      polyCs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyCs))
+      
+      polyG <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("GGGGG",
+                                                                                         BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      names(polyG) <- chr.interest
+      polyGs = parallel::mclapply(chr.interest, FUN = function(x) {
+        
+        print(x)
+        gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyG[[x]], polyG[[x]] + 5 - 1))
+        
+      } )
+      polyGs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyGs))
+      
+      polyT <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("TTTTT",
+                                                                                         BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      names(polyT) <- chr.interest
+      polyTs = parallel::mclapply(chr.interest, FUN = function(x) {
+        
+        print(x)
+        gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyT[[x]], polyT[[x]] + 5 - 1))
+        
+      } )
+      polyTs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyTs))
+      
+      if (chr.interest %in% names(mut.chr)) {
+        
+        mut.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.chr[[chr.interest]])
+        # rm(list = c("mut.chr"))
+        
+      } else {
+        
+        mut.freq = NULL
+        
+      }
+      
+      if (chr.interest %in% names(mut.indel.chr)) {
+        
+        indel.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.indel.chr[[chr.interest]])
+        # rm(list = c("mut.indel.chr"))
+        
+      } else {
+        
+        indel.freq = NULL
+        
+      }
+      
+      if (chr.interest %in% as.character(GenomicRanges::seqnames(all.sites.masked))) {
+        
+        all.sites.masked2 = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) == chr.interest]
+        len = sapply(GenomicRanges::split(all.sites.masked2, GenomicRanges::seqnames(all.sites.masked2)), length)
+        len = len[len != 0]
+        len2 = sapply(1:length(len), function(i) { sum(len[1:i]) })
+        len2 = c(0, len2)
+        chunk.size = 5000
+        chunks <- lapply(1:length(len), function(j) { lapply(1:ceiling(len[j] / chunk.size), function(i) ((len2[j] + (i-1) * chunk.size + 1):(len2[j] + min((i) * chunk.size, len[j])))) })
+        chunks = do.call(c, chunks)
+        
+        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.indel.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = all.sites.masked[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
+        genome.freq = data.table::rbindlist(genome.freq)
+        genome.freq = data.frame(genome.freq, check.names = F)
+        # Sum up number of sites with same covariates combination
+        if (ncol(genome.freq) > 2) {
+          
+          genome.freq.aggregated = aggregate(genome.freq$freq, by = genome.freq[ ,1:(ncol(genome.freq) - 1)], FUN = sum)
+          
+        } else { # Special case: only 1 feature
+          
+          genome.freq.aggregated = aggregate(genome.freq$freq ~ genome.freq[,colnames(genome.freq)[1]], FUN = sum)
+          colnames(genome.freq.aggregated) = c(colnames(genome.freq)[1], "x")
+          
+        }
+        rm(list = c("genome.freq"))
+        
+      } else {
+        
+        genome.freq.aggregated = NULL
+        
+      }
+      
+      saveRDS(list(mut.freq, indel.freq, genome.freq.aggregated), file = paste("mutCovariate_indel_", chr.interest, ".RDS", sep = ""))
       
     }
     
@@ -481,8 +947,8 @@ saveRDS(mutCovariate_indel_sparse[[2]], file = mutCovariate.indel.output.p2)
 }
 
 ## Step 6 ##
-LRmodel.snv.file = paste(output.dir, "snv-LRmodel", sep = "")
-LRmodel.indel.file = paste(output.dir, "indel-LRmodel", sep = "")
+LRmodel.snv.file = paste(working.dir, "snv-LRmodel", sep = "")
+LRmodel.indel.file = paste(working.dir, "indel-LRmodel", sep = "")
 
 if (6 %in% run.to) {
   
@@ -576,10 +1042,10 @@ if (class(LRmodel)[1]!="list") {
 }
   
 ## Step 7 ##
-snv.hotspots = paste(output.dir, "snv_hotspots.tsv", sep = "")
-snv.hotspots.merged = paste(output.dir,"snv_hotspots_merged.tsv",sep="")
-indel.hotspots = paste(output.dir, "indel_hotspots.tsv", sep = "")
-indel.hotspots.merged=paste(output.dir,"indel_hotspots_merged.tsv",sep="")
+snv.hotspots = paste(working.dir, "snv_hotspots.tsv", sep = "")
+snv.hotspots.merged = paste(working.dir,"snv_hotspots_merged.tsv",sep="")
+indel.hotspots = paste(working.dir, "indel_hotspots.tsv", sep = "")
+indel.hotspots.merged=paste(working.dir,"indel_hotspots_merged.tsv",sep="")
 
 if (7 %in% run.to) {
   
@@ -628,8 +1094,8 @@ if (!is.null(results.indel[[2]])) {
 }
 
 ## Step 8 ##
-ann.snv.hotspots = paste(output.dir, "snv_hotspots_annotated.tsv", sep = "")
-ann.indel.hotspots = paste(output.dir, "indel_hotspots_annotated.tsv", sep = "")
+ann.snv.hotspots = paste(working.dir, "snv_hotspots_annotated.tsv", sep = "")
+ann.indel.hotspots = paste(working.dir, "indel_hotspots_annotated.tsv", sep = "")
 
 if (8 %in% run.to) {
   
@@ -698,8 +1164,8 @@ if (9.1 %in% run.to) {
   
 }
 
-manhattan.snv = paste(output.dir, "snv_manhattan.pdf", sep = "")
-manhattan.indel = paste(output.dir, "indel_manhattan.pdf", sep = "")
+manhattan.snv = paste(working.dir, "snv_manhattan.pdf", sep = "")
+manhattan.indel = paste(working.dir, "indel_manhattan.pdf", sep = "")
 
 if (9.2 %in% run.to) {
   
