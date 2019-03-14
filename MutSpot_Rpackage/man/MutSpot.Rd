@@ -4,8 +4,8 @@
 \alias{MutSpot}
 \title{Runs all or selected steps in MutSpot analysis.}
 \usage{
-MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1,
-  9.2, 9.3), chromosomes = c(1:22, "X"), snv.mutations = NULL,
+MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
+  9.3), chromosomes = c(1:22, "X"), snv.mutations = NULL,
   indel.mutations = NULL, mask.regions.file = system.file("extdata",
   "mask_regions.RDS", package = "MutSpot"),
   all.sites.file = system.file("extdata", "all_sites.RDS", package =
