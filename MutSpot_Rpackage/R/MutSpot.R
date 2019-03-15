@@ -772,12 +772,12 @@ if (5.1 %in% run.to) {
     GenomeInfoDb::seqlevels(mut.masked.sites) = as.character(unique(GenomicRanges::seqnames(mut.masked.sites)))
     mut.chr = GenomicRanges::split(mut.masked.sites, GenomicRanges::seqnames(mut.masked.sites))
     mut.chr = mut.chr[names(mut.chr) %in% chrs]
-    mut.indel.chr = GenomicRanges::split(mut.indel, GenomicRanges::seqnames(mut.indel))
-    mut.indel.chr = mut.indel.chr[names(mut.indel.chr) %in% chrs]
-    
+
     # Tabulate covariates for all positions in indels
     GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomicRanges::seqnames(mut.masked)))
     mut.indel = mut.masked
+    mut.indel.chr = GenomicRanges::split(mut.indel, GenomicRanges::seqnames(mut.indel))
+    mut.indel.chr = mut.indel.chr[names(mut.indel.chr) %in% chrs]
     
     for (chr.interest in paste("chr", chromosomes, sep="")) {
       
