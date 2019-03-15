@@ -52,7 +52,98 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
   working.dir = paste(working.dir, "/", sep = "")
   
 }  
-
+  
+  ## Load all dependencies ##
+  if("data.table" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [data.table]")
+    install.packages("data.table")
+    
+  }
+  if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [BSgenome.Hsapiens.UCSC.hg19]")
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("BSgenome.Hsapiens.UCSC.hg19")
+    
+  }
+  if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [Biostrings]")
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("Biostrings")
+    
+  }
+  if("GenomicRanges" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [GenomicRanges]")
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("GenomicRanges")
+    
+  }
+  if("ggplot2" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [ggplot2]")
+    install.packages("ggplot2")
+    
+  }
+  if("glmnet" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [glmnet]")
+    install.packages("glmnet")
+    
+  }
+  if("Matrix" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [Matrix]")
+    install.packages("Matrix")
+    
+  }
+  if("poibin" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [poibin]")
+    install.packages("poibin")
+    
+  }
+  if("stringi" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [stringi]")
+    install.packages("stringi")
+    
+  }
+  if("stringr" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [stringr]")
+    install.packages("stringr")
+    
+  }
+  if("plyr" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [plyr]")
+    install.packages("plyr")
+    
+  }
+  if("parallel" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [parallel]")
+    install.packages("parallel")
+    
+  }
+  
+  ## Load all required packages ##
+  suppressWarnings(suppressMessages(library(Biostrings)))
+  suppressWarnings(suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19)))
+  suppressWarnings(suppressMessages(library(GenomicRanges)))
+  suppressWarnings(suppressMessages(library(data.table)))
+  suppressWarnings(suppressMessages(library(ggplot2)))
+  suppressWarnings(suppressMessages(library(glmnet)))
+  suppressWarnings(suppressMessages(library(Matrix)))
+  suppressWarnings(suppressMessages(library(parallel)))
+  suppressWarnings(suppressMessages(library(plyr)))
+  suppressWarnings(suppressMessages(library(stringr)))
+  suppressWarnings(suppressMessages(library(stringi)))
+  suppressWarnings(suppressMessages(library(poibin)))
+  
 ## Step 1 ##
 sampled.sites.snv.file = paste(working.dir, "sampled.sites.snv.RDS", sep = "")
 snv.mutations.region.file = paste(working.dir, "SNV_region.MAF", sep = "")
