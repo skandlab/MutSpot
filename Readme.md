@@ -9,7 +9,7 @@ This package systematically scans cancer genomes to detect small, focal regions 
 ```{r}
 install.packages("devtools")
 library(devtools)
-install_github("changmmm/MutSpot", subdir="MutSpot_Rpackage")
+install_github("skandlab/MutSpot", subdir="MutSpot_Rpackage")
 ```
 
 ----------------------------------------------------------------------------------
