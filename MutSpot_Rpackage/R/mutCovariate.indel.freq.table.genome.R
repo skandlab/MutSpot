@@ -30,7 +30,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
     ovl = IRanges::findOverlaps(sites, continuous.features[[i]])
     if (length(ovl) != 0) {
       
-      GenomicRanges::values(sites)[IRanges::queryHits(ovl), i] = continuous.features[[i]][IRanges::subjectHits(ovl)]$score
+      GenomicRanges::values(sites)[S4Vectors::queryHits(ovl), i] = continuous.features[[i]][S4Vectors::subjectHits(ovl)]$score
       
       }
     rm(ovl)
@@ -53,7 +53,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
     ovl = IRanges::findOverlaps(sites, discrete.features[[i]])
     if (length(ovl) != 0) {
       
-      GenomicRanges::values(sites)[IRanges::queryHits(ovl), i] = 1
+      GenomicRanges::values(sites)[S4Vectors::queryHits(ovl), i] = 1
       
       }
     rm(ovl)
@@ -75,7 +75,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
   ovl = IRanges::findOverlaps(polyTs, sites, type = "within")
   if (length(ovl) != 0) {
     
-    sites[IRanges::subjectHits(ovl)]$polyT = 1
+    sites[S4Vectors::subjectHits(ovl)]$polyT = 1
     
     }
   rm(ovl)
@@ -83,7 +83,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
   ovl = IRanges::findOverlaps(polyAs, sites, type = "within")
   if (length(ovl) != 0) {
     
-    sites[IRanges::subjectHits(ovl)]$polyA = 1
+    sites[S4Vectors::subjectHits(ovl)]$polyA = 1
     
     }
   rm(ovl)
@@ -91,7 +91,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
   ovl = IRanges::findOverlaps(polyGs, sites, type = "within")
   if (length(ovl) != 0) {
     
-    sites[IRanges::subjectHits(ovl)]$polyG = 1
+    sites[S4Vectors::subjectHits(ovl)]$polyG = 1
     
     }
   rm(ovl)
@@ -99,7 +99,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
   ovl = IRanges::findOverlaps(polyCs, sites, type = "within")
   if (length(ovl) != 0) {
     
-    sites[IRanges::subjectHits(ovl)]$polyC = 1
+    sites[S4Vectors::subjectHits(ovl)]$polyC = 1
     
     }
   rm(ovl)

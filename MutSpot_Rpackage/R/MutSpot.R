@@ -858,7 +858,7 @@ if (5.1 %in% run.to) {
         chunks <- lapply(1:length(len), function(j) { lapply(1:ceiling(len[j] / chunk.size), function(i) ((len2[j] + (i-1) * chunk.size + 1):(len2[j] + min((i) * chunk.size, len[j])))) })
         chunks = do.call(c, chunks)
         
-        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.indel.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = all.sites.masked[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
+        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.indel.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = all.sites.masked2[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
         genome.freq = data.table::rbindlist(genome.freq)
         genome.freq = data.frame(genome.freq, check.names = F)
         # Sum up number of sites with same covariates combination
