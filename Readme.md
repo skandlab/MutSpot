@@ -54,7 +54,6 @@ setwd(working.dir)
 ```
 
 Download the test data sets from https://github.com/skandlab/MutSpot/tree/master/test-data into your working directory. 
-Unzip the subset_snv_mutations_sid.MAF.gz file
 
 Run the analysis using the following commands:
 
