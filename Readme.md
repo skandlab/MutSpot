@@ -87,7 +87,6 @@ sample.snv.features = "sample_features_table_snv.txt", drop = TRUE)
  fit.sparse                                   | To fit background model using sparse matrix with GLMNET (default=FALSE)
  region.of.interest                           | Restrict hotspot analysis to regions in the given bed file
 
-----------------------------------------------------------------------------------
 
 ## Input files
 #####1. Mutations
