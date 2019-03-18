@@ -1,3 +1,6 @@
+MutSpot
+====================================
+
 ## Non-coding MUTation hotSPOT dectection in cancer genomes
 
 This package systematically scans cancer genomes to detect small, focal regions with higher than expected mutation recurrence (mutation hotspots) through binomial logistic modelling. Such regions display signatures of positive selection and therefore are likely to be causal to cancer development.
@@ -5,6 +8,7 @@ This package systematically scans cancer genomes to detect small, focal regions 
 ------------------------------------------------------------------------------------
 
 ## Installation
+MutSpot runs on R (requires at least 3.2.0)
 
 ```{r}
 install.packages("devtools")
@@ -37,36 +41,40 @@ The full MutSpot workflow include the following 9 steps:
 
 By default, the MutSpot() function runs the entire workflow. However, it is possible to run specific steps of the workflow by specifiying the *run.to* parameter (see full documentation).
 
+-----------------------------------------------------------------------------------
+
 ## Usage example
-All intermediate and output files will be saved in the output directory specified by the user. Package should be run in the same directory.
+All intermediate and output files will be saved in the working directory specified by the user. Package should be run in the same directory.
 
 Install the package using the following commands.
 ```r
 library("MutSpot")
-output.dir = "./"
-setwd(output.dir)
+working.dir = "./"
+setwd(working.dir)
 ```
 
-Download the test data sets from https://github.com/skandlab/MutSpot/tree/master/test-data into your working directory.
+Download the test data sets from https://github.com/skandlab/MutSpot/tree/master/test-data into your working directory. 
+Unzip the subset_snv_mutations_sid.MAF.gz file
 
 Run the analysis using the following commands:
+
 
 Identify SNV and indel hotspots genome-wide
 
 *Whole genome analysis will take up to 1 day using 2 cores*
-
 ```r
 MutSpot(snv.mutations = "subset_snv_mutations_sid.MAF", indel.mutations = "subset_indel_mutations_sid.MAF", genomic.features = "genomic_features_genome.txt", fit.sparse = TRUE, min.count.snv = 3, min.count.indel = 3)
 ```
 
-Identify SNV hotspots in CTCF binding site only, including clinical subtype and cosmic signatures as sample specific features.
+Identify SNV hotspots in CTCF binding site only, including clinical subytpe and cosmic signatures as sample specific features.
 
 *CTCF analysis will take up to 2 hours using 1 core*
-
 ```r
-MutSpot(snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "gastric_ctcf_motif.bed", cores = 9, genomic.features = "genomic_features_ctcf.txt",
+MutSpot(snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "gastric_ctcf_motif.bed", cores = 2, genomic.features = "genomic_features_ctcf.txt",
 sample.snv.features = "sample_features_table_snv.txt", drop = TRUE)
 ```
+
+----------------------------------------------------------------------------------
 
 ## Main arguments
 
@@ -80,20 +88,22 @@ sample.snv.features = "sample_features_table_snv.txt", drop = TRUE)
  fit.sparse                                   | To fit background model using sparse matrix with GLMNET (default=FALSE)
  region.of.interest                           | Restrict hotspot analysis to regions in the given bed file
 
+----------------------------------------------------------------------------------
+
 ## Input files
-##### 1. Mutations
-Mutation files contain all SNVs or all indels of all tumors in the study in the MAF format. MAF file should be tab delimited with exactly 6 columns: chromosome, start position (1-based), end position (1-based), reference allele, alternate allele, and sample ID. There is no header row in MAF files.
+#####1. Mutations
+Mutation files contain all SNVs or all indels of all tumors in the study in the MAF format. MAF file should be tab delimited with exactly 6 columns: chromosome, start position (1-based), end position (1-based), reference allele, alternate allele, and sample ID. There is no header row in a MAF file.
 Example MAF file:
 
-|      |          |          |   |   |         |
-|------|----------|----------|---|---|---------|
-| chr1 | 16265287 | 16265287 | G | C | patient1|
-| chr1 | 17320166 | 17320166 | C | T | patient2|
-| chr1 | 19497536 | 19497536 | G | C | patient3|
-| ...  | ...      | ...      | ..| ..| ...     |
+<!-- -->|<!-- -->|<!-- -->|<!-- -->|<!-- -->|<!-- -->
+----- | -------- | -------- | - | - | --------
+ chr1 | 16265287 | 16265287 | G | C | patient1
+ chr1 | 17320166 | 17320166 | C | T | patient2
+ chr1 | 19497536 | 19497536 | G | C | patient3
+ ...  | ...      | ...      | ..| ..| ...      
 
 
-##### 2. Genomic features
+#####2. Genomic features
 Genomic features can be continuous or binary. Continuous features, such as replication timing profile, are input as bigwig files. Binary features, such as peak calls of histone modifications, are input as bed files. All continuous features will be discretized into n bins (n is specified by the user). The the logistic regression model will be fit from a frequency table of the counts of mutated and non-mutated sites for all combinations of the covariates. It is recommended for the user to input genomic covariates as binary features where possible to reduce the memory usage of the function.
 
 The genomic features are input as a tab delimited file with 4 columns:
@@ -121,7 +131,7 @@ A binary feature bed file should include the following columns:
 *Genomic regions in the bed file are considered 1 for the binary feature and regions not in the bed file are considered 0 for the binary feature*
 
 
-##### 3. Sample specific features
+#####3. Sample specific features
 The user can choose to include sample specific features in the background mutation model, such as the clinical subtype of the tumor. Note that sample specific features will not undergo LASSO feature selection and will be automatically included in the final model. Sample specific features are to be supplied as a tab delimited file where each row corresponds to a sample and each column corresponds to a feature.
 
 Example format:
@@ -134,7 +144,7 @@ Example format:
  ...      | ...     | ...      | ...      
 
 
-##### 4. Region of interest
+#####4. Region of interest
 Instead of finding mutation hotspots genome-wide, the user could restrict the hotspot analysis to certain regions of interest, such as promoters, enhancers, or UTRs, by supplying a bed file with the following columns:
 
   1. Chromosome
@@ -164,19 +174,19 @@ sample.snv.features = "sample_features_table_snv.txt", cutoff.features.new.snv =
 ## Output files
 
 #### Hotspot summary file
-MutSpot outputs a TSV file of all hotspot regions found, ordered by significance of recurrence. Overlapping hotspot regions are merged and annotations columns are added to indicate if the hotspots are in gene promoters, UTRs or introns. The output file has the following fields:
+MutSpot outputs a TSV file of all hotspot regions found, ordered by significance of recurrence. Overlapping hotspot regions are merged and annotations columns are added to indicate if the hotspots are in gene promoters or UTRs. The output file has the following fields:
 
 1. Chromosome
 2. Start position
 3. End position
 4. p-value
-5. Number of bases
-6. Background p-value
+5. length of hotspot (bp)
+6. Mean background mutation probability
 7. Number of mutated samples
 8. FDR
-9. Promoters
-10. 3'UTR
-11. 5'UTR
+9. Transcripts overlapping hotspot in their promoters
+10. Transcripts overlapping hotspot in their 3'UTRs
+11. Transcripts overlapping hotspot in their 5'UTRs
 
 -----------------------------------------------------------------------------------
 
