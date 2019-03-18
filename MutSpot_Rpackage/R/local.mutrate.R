@@ -17,7 +17,7 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file){
     maf.snv.mutations <- maf.to.granges(snv.mutations.file)
     
     # Chr1-ChrX
-    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomicRanges::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomicRanges::seqnames(maf.snv.mutations)))]
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.snv.mutations)))]
     nind.snv = length(unique(maf.snv.mutations$sid))
     
     # Tile genome into equally sized bins (100Kb)
@@ -55,7 +55,7 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file){
     GenomicRanges::values(genome.bins) = data.frame(mutrate = genome.bins.mutrate2[names(genome.bins)])
     
     # Adjust start coordinate to be 0-based
-    df.snv <- data.frame(seqnames = GenomicRanges::seqnames(genome.bins), starts = as.integer(GenomicRanges::start(genome.bins) - 1), ends = GenomicRanges::end(genome.bins), mutrate = genome.bins$mutrate)
+    df.snv <- data.frame(seqnames = GenomeInfoDb::seqnames(genome.bins), starts = as.integer(GenomicRanges::start(genome.bins) - 1), ends = GenomicRanges::end(genome.bins), mutrate = genome.bins$mutrate)
 
     # Divide local mutation rate into n bins and calculate the mean rate in each bin
     nbins = 10
@@ -81,7 +81,7 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file){
     maf.indel.mutations <- maf.to.granges(indel.mutations.file)
     
     # Chr1-ChrX
-    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomicRanges::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomicRanges::seqnames(maf.indel.mutations)))]
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.indel.mutations)))]
     nind.indel = length(unique(maf.indel.mutations$sid))
     
     # Tile genome into equally sized bins (100kb)
@@ -117,7 +117,7 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file){
     GenomicRanges::values(genome.bins) = data.frame(mutrate = genome.bins.mutrate2[names(genome.bins)])
     
     # Adjust start coordinate to be 0-based
-    df.indel <- data.frame(seqnames = GenomicRanges::seqnames(genome.bins), starts = as.integer(GenomicRanges::start(genome.bins) - 1), ends = GenomicRanges::end(genome.bins), mutrate = genome.bins$mutrate)
+    df.indel <- data.frame(seqnames = GenomeInfoDb::seqnames(genome.bins), starts = as.integer(GenomicRanges::start(genome.bins) - 1), ends = GenomicRanges::end(genome.bins), mutrate = genome.bins$mutrate)
 
     # Divide local mutation rate in to n bins and calculate the mean rate in each bin
     nbins = 10

@@ -15,15 +15,15 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
 
   # Chr1-ChrX
   chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
-  seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+  seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
   
   # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
   mask.regions = readRDS(mask.regions.file)
-  mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+  mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
   
   # Define all sites in whole genome
   all.sites = readRDS(all.sites.file)
-  all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% as.character(GenomicRanges::seqnames(seqi))]
+  all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
   
   # To sample or not to sample for non-mutated sites, if the specified region is too small, may choose not to sample sites and use all sites in the specified region
   if (sample) {
@@ -37,7 +37,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     
     # Define SNV mutations
     maf.snv.mutations <- maf.to.granges(snv.mutations.file)
-    maf.snv.mutations = maf.snv.mutations[as.character(GenomicRanges::seqnames(maf.snv.mutations)) %in% as.character(GenomicRanges::seqnames(seqi))]
+    maf.snv.mutations = maf.snv.mutations[as.character(GenomeInfoDb::seqnames(maf.snv.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
     
     # If specified region, redefine SNV mutations to be in specified region
     if (!is.null(region.of.interest)) {
@@ -46,7 +46,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       regions = read.delim(region.of.interest, header=FALSE, sep="\t", stringsAsFactors = FALSE)
       regions = with(regions, GenomicRanges::GRanges(V1, IRanges::IRanges(V2,V3)))
       regions = GenomicRanges::reduce(regions)
-      regions = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
       ovl = IRanges::findOverlaps(maf.snv.mutations, regions)
       maf.snv.mutations = maf.snv.mutations[unique(S4Vectors::queryHits(ovl))]
@@ -72,10 +72,10 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     # If specified region, redefine all sites to be specified region and not whole genome
     if (!is.null(region.of.interest)) {
       
-      all.sites.snv = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      all.sites.snv = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
       # Number of sites to sample per chromosome
-      t = GenomicRanges::split(all.sites.snv, GenomicRanges::seqnames(all.sites.snv))
+      t = GenomicRanges::split(all.sites.snv, GenomeInfoDb::seqnames(all.sites.snv))
       nsites.snv.chrom = round(unlist(lapply(t, FUN=function(x) sum(as.numeric(GenomicRanges::width(x))))) / sum(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x)))))) * nsites.snv)
       seed.rand.snv = seq(1:length(t)) * 4 
       
@@ -89,7 +89,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         
         if (length(pos) > 0) {
           
-        gr = GenomicRanges::GRanges(unique(as.character(GenomicRanges::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
+        gr = GenomicRanges::GRanges(unique(as.character(GenomeInfoDb::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
         return(gr)
         
         } else {
@@ -115,7 +115,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         pos = sample(GenomicRanges::start(all.sites.snv)[i]:GenomicRanges::end(all.sites.snv)[i], nsites.snv.chrom[i])
         if (length(pos) > 0) {
           
-        gr = GenomicRanges::GRanges(as.character(GenomicRanges::seqnames(all.sites.snv)[i]), IRanges::IRanges(pos, pos))
+        gr = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(all.sites.snv)[i]), IRanges::IRanges(pos, pos))
         
         } else { 
           
@@ -160,7 +160,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     
     # Define indel mutations
     maf.indel.mutations <- maf.to.granges(indel.mutations.file)
-    maf.indel.mutations = maf.indel.mutations[as.character(GenomicRanges::seqnames(maf.indel.mutations)) %in% as.character(GenomicRanges::seqnames(seqi))]
+    maf.indel.mutations = maf.indel.mutations[as.character(GenomeInfoDb::seqnames(maf.indel.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
     
     # If specified region, redefine indel mutations to be in specified region
     if (!is.null(region.of.interest)) {
@@ -168,7 +168,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       regions = read.delim(region.of.interest ,header=FALSE, sep="\t", stringsAsFactors = FALSE)
       regions = with(regions,GenomicRanges::GRanges(V1,IRanges::IRanges(V2,V3)))
       regions = GenomicRanges::reduce(regions)
-      regions = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
       ovl = IRanges::findOverlaps(maf.indel.mutations, regions)
       maf.indel.mutations = maf.indel.mutations[unique(S4Vectors::queryHits(ovl))]
@@ -194,10 +194,10 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     # If specified region, redefine all sites to be specified region and not whole genome
     if (!is.null(region.of.interest)) {
       
-      all.sites.indel = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      all.sites.indel = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
       # Number of sites to sample per chromosome
-      t = GenomicRanges::split(all.sites.indel, GenomicRanges::seqnames(all.sites.indel))
+      t = GenomicRanges::split(all.sites.indel, GenomeInfoDb::seqnames(all.sites.indel))
       nsites.indel.chrom = round(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x))))) / sum(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x)))))) * nsites.indel)
       seed.rand.indel = seq(1:length(t)) * 4    
       
@@ -210,7 +210,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         pos = sample(GenomicRanges::start(pop), nsites.indel.chrom[i])
         if (length(pos) > 0) {
           
-        gr = GenomicRanges::GRanges(unique(as.character(GenomicRanges::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
+        gr = GenomicRanges::GRanges(unique(as.character(GenomeInfoDb::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
         return(gr)
         
         } else {
@@ -235,7 +235,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       pos = sample(GenomicRanges::start(all.sites.indel)[i]:GenomicRanges::end(all.sites.indel)[i], nsites.indel.chrom[i])
       if (length(pos) > 0) {
         
-      gr = GenomicRanges::GRanges(as.character(GenomicRanges::seqnames(all.sites.indel)[i]), IRanges::IRanges(pos, pos))
+      gr = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(all.sites.indel)[i]), IRanges::IRanges(pos, pos))
       
       } else {
         
@@ -308,7 +308,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         
       }
 
-      maf.snv.mutations = maf.snv.mutations[as.character(GenomicRanges::seqnames(maf.snv.mutations)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      maf.snv.mutations = maf.snv.mutations[as.character(GenomeInfoDb::seqnames(maf.snv.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       npatients.snv = length(unique(maf.snv.mutations$sid))
       maf.snv.mutations <- unique(maf.snv.mutations)
 
@@ -318,7 +318,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       # If specified region, redefine all sites to be specified region and not whole genome
       if (!is.null(region.of.interest)) {
         
-        all.sites.snv = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+        all.sites.snv = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
         
       } else {
         
@@ -371,7 +371,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         
       }
       
-      maf.indel.mutations = maf.indel.mutations[as.character(GenomicRanges::seqnames(maf.indel.mutations)) %in% as.character(GenomicRanges::seqnames(seqi))]
+      maf.indel.mutations = maf.indel.mutations[as.character(GenomeInfoDb::seqnames(maf.indel.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       npatients.indel = length(unique(maf.indel.mutations$sid))
       maf.indel.mutations <- unique(maf.indel.mutations)
       
@@ -381,7 +381,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       # If specified region, redefine all sites to be specified region and not whole genome
       if (!is.null(region.of.interest)) {
         
-        all.sites.indel = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+        all.sites.indel = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
         
       } else {
         

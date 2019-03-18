@@ -7,23 +7,24 @@
 #' @param region.of.interest Region of interest bed file, default = NULL.
 #' @param cores Number of cores, default = 1.
 #' @param snv.mutations.file2 SNV mutations MAF file.
+#' @param chrom.dir Directory containing feature matrix of each chromosome.
 #' @return Full covariates matrix for all chromosomes together.
 #' @export
 
-mutCovariate.snv.compile = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), snv.mutations.file, sample.specific.features.url.file = NULL, region.of.interest, cores = 1, snv.mutations.file2){
+mutCovariate.snv.compile = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), snv.mutations.file, sample.specific.features.url.file = NULL, region.of.interest, cores = 1, snv.mutations.file2, chrom.dir){
 
   # Chr1-X
   chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
-seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
-seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
 
 # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
 mask.regions = readRDS(mask.regions.file)
-mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% seqnames]
 
 # Define all sites in whole genome
 all.sites = readRDS(all.sites.file)
-all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% seqnames]
+all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% seqnames]
 all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
 sum(as.numeric(GenomicRanges::width(all.sites.masked)))
 
@@ -34,18 +35,18 @@ if (!is.null(region.of.interest)) {
   all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
   all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
-  all.sites.masked = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) %in% seqnames]
+  all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
   
 }
 
 # Define SNV mutations
 maf.mutations <- maf.to.granges(snv.mutations.file)
-maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% seqnames]
+maf.mutations = maf.mutations[as.character(GenomeInfoDb::seqnames(maf.mutations)) %in% seqnames]
 mut.masked <- maf.mutations[S4Vectors::subjectHits(IRanges::findOverlaps(all.sites.masked, maf.mutations))]
 
 # Define SNV sample mutation count based on full SNV mutations file
 maf.mutations2 <- maf.to.granges(snv.mutations.file2)
-maf.mutations2 = maf.mutations2[as.character(GenomicRanges::seqnames(maf.mutations2)) %in% seqnames]
+maf.mutations2 = maf.mutations2[as.character(GenomeInfoDb::seqnames(maf.mutations2)) %in% seqnames]
 maf.ind = GenomicRanges::split(maf.mutations2, maf.mutations2$sid)
 ind.mut.count = sapply(maf.ind, length)
 nind = length(ind.mut.count) 
@@ -66,9 +67,19 @@ if (!is.null(sample.specific.features.url.file)) {
       
       t=factor(sample.specific.features[,x])
       t=model.matrix(~t)[,-1]
+      if (class(t) == "matrix") {
+        
       colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
       colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
       rownames(t)=rownames(sample.specific.features)
+      
+      } else {
+        
+        t = as.data.frame(t)
+        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+        rownames(t) = rownames(sample.specific.features)
+        
+      }
       
     } else {
       
@@ -95,7 +106,7 @@ sort(sapply(ls(), function(x) { object.size(get(x)) / 10 ^ 6 } ))
 rm(list = c("maf.mutations", "maf.ind", "mask.regions", "all.sites", "maf.mutations2"))
 gc(reset = T)
 
-files = Sys.glob("mutCovariate_chr*.RDS")
+files = Sys.glob(paste(chrom.dir, "mutCovariate_chr*.RDS", sep = ""))
 
 # Tabulate covariates for mutations
 mut.freq = parallel::mclapply(files, FUN = function(x) readRDS(x)[[1]], mc.cores = cores)

@@ -5,7 +5,8 @@
 \title{Plot feature importance.}
 \usage{
 plot_feature_importance(model, mutCovariate.table.file, mutCovariate.count.file,
-  continuous.features.selected.url.file, z.value = FALSE, mutation.type)
+  continuous.features.selected.url.file, z.value = FALSE, mutation.type,
+  output.dir)
 }
 \arguments{
 \item{model}{Prediction model.}
@@ -19,6 +20,8 @@ plot_feature_importance(model, mutCovariate.table.file, mutCovariate.count.file,
 \item{z.value}{To use z-value for plot or coefficients, default = FALSE.}
 
 \item{mutation.type}{SNV or indel mutation.}
+
+\item{output.dir}{Save plot in given output directory.}
 }
 \value{
 Variable importance plot.

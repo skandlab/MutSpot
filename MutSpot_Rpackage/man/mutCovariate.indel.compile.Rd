@@ -8,7 +8,7 @@ mutCovariate.indel.compile(mask.regions.file = system.file("extdata",
   "mask_regions.RDS", package = "MutSpot"),
   all.sites.file = system.file("extdata", "all_sites.RDS", package =
   "MutSpot"), indel.mutations.file, sample.specific.features.url.file = NULL,
-  region.of.interest, cores = 1, indel.mutations.file2)
+  region.of.interest, cores = 1, indel.mutations.file2, chrom.dir)
 }
 \arguments{
 \item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
@@ -24,6 +24,8 @@ mutCovariate.indel.compile(mask.regions.file = system.file("extdata",
 \item{cores}{Number of cores, default = 1.}
 
 \item{indel.mutations.file2}{Indel mutations MAF file.}
+
+\item{chrom.dir}{Directory containing feature matrix of each chromosome.}
 }
 \value{
 Full covariates matrix for all chromosomes together.

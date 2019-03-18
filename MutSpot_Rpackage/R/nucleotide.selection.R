@@ -18,7 +18,7 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     gr = readRDS(sampled.sites.snv.file)
 
     # Extend to 5 bp regions
-    gr2 = GenomicRanges::GRanges(as.character(GenomicRanges::seqnames(gr)), IRanges::IRanges(IRanges::start(gr)-2, IRanges::end(gr)+2), mut = gr$mut)
+    gr2 = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(gr)), IRanges::IRanges(IRanges::start(gr)-2, IRanges::end(gr)+2), mut = gr$mut)
     
     # Extract sequence for all sites in gr2
     extrSeq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg19::Hsapiens,gr2)
@@ -152,11 +152,11 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     
     # Chr1-ChrX
     chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
-    seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
     
     # Define indel mutations
     maf.mutations <- maf.to.granges(indel.mutations.file)
-    maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% as.character(GenomicRanges::seqnames(seqi))]
+    maf.mutations = maf.mutations[as.character(GenomeInfoDb::seqnames(maf.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
     
     # Extend 9 bp on each side of the indel
     maf.mutations = maf.mutations+9

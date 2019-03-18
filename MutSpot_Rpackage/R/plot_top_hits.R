@@ -1,15 +1,16 @@
 #' Plot top hotspots.
 #'
 #' @param hotspots.file Hotspots generated.
-#' @param fdr.cutoff FDR cutoff, default = 0.01.
+#' @param fdr.cutoff FDR cutoff, default = 0.1.
 #' @param color.muts Color points, default = orange.
 #' @param mutations.file Mutations found in region of interest MAF file.
 #' @param mutation.type SNV or indel mutations.
 #' @param top.no Number of top hotspots to plot, default = 3.
+#' @param output.dir Save plots in given output directory.
 #' @return Top hotspots figures.
 #' @export
 
-plot_top_hits = function(hotspots.file, fdr.cutoff = 0.01, color.muts ="orange", mutations.file, mutation.type, top.no = 3) {
+plot_top_hits = function(hotspots.file, fdr.cutoff = 0.1, color.muts ="orange", mutations.file, mutation.type, top.no = 3, output.dir) {
   
   hotspots.plot = read.delim(hotspots.file, stringsAsFactors = FALSE)
   hotspots.plot$region = rownames(hotspots.plot)
@@ -43,7 +44,7 @@ plot_top_hits = function(hotspots.file, fdr.cutoff = 0.01, color.muts ="orange",
     colnames(mut.hits) = c("position", "mut.count")
     data = merge(data, mut.hits, by = "position", all = TRUE)
       
-    pdf(paste(mutation.type, "_hotspot_", i, ".pdf", sep = ""))
+    pdf(paste(output.dir, mutation.type, "_hotspot_", i, ".pdf", sep = ""))
     suppressWarnings(print(ggplot2::ggplot(data, ggplot2::aes(x = position, y = mut.count)) +
       ggplot2::geom_segment(ggplot2::aes(x = position, xend = position, y = 0, yend = mut.count), color = "grey") +
       ggplot2::geom_point(color = color.muts, size = 4) +

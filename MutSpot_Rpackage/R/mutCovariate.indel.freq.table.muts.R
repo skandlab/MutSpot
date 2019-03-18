@@ -13,7 +13,7 @@
 
 mutCovariate.indel.freq.table.muts = function(continuous.features, discrete.features, sample.specific.features, polyAs, polyTs, polyCs, polyGs, sites) {
   
-  print (as.character(GenomicRanges::seqnames(sites[1])))
+  print (as.character(GenomeInfoDb::seqnames(sites[1])))
   
   # Replace sid by sample mutation count
   if (sum(GenomicRanges::width(sites)) == length(sites)) {

@@ -21,21 +21,21 @@ mutPredict.snv = function(mask.regions.file = system.file("extdata", "mask_regio
   
 # Chr1-X
 chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
-seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
-seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
 
 # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
 mask.regions = readRDS(mask.regions.file)
-mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% seqnames]
 
 # Define SNV mutations in region of interest
 maf.snv <- maf.to.granges(snv.mutations.file)
-maf.snv = maf.snv[as.character(GenomicRanges::seqnames(maf.snv)) %in% seqnames]
-GenomeInfoDb::seqlevels(maf.snv) = as.character(unique(GenomicRanges::seqnames(maf.snv)))
+maf.snv = maf.snv[as.character(GenomeInfoDb::seqnames(maf.snv)) %in% seqnames]
+GenomeInfoDb::seqlevels(maf.snv) = as.character(unique(GenomeInfoDb::seqnames(maf.snv)))
 
 # Define SNV sample mutation count based on full SNV mutations file
 maf.snv2 <- maf.to.granges(snv.mutations.file2)
-maf.snv2 = maf.snv2[as.character(GenomicRanges::seqnames(maf.snv2)) %in% seqnames]
+maf.snv2 = maf.snv2[as.character(GenomeInfoDb::seqnames(maf.snv2)) %in% seqnames]
 maf.ind.snv = GenomicRanges::split(maf.snv2, maf.snv2$sid)
 ind.mut.count.snv = sapply(maf.ind.snv, length)
 
@@ -56,9 +56,19 @@ if (!is.null(sample.specific.features.url.file)) {
       
       t=factor(sample.specific.features[,x])
       t=model.matrix(~t)[,-1]
+      if (class(t) == "matrix") {
+        
       colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
       colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
       rownames(t)=rownames(sample.specific.features)
+      
+      } else {
+        
+        t = as.data.frame(t)
+        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+        rownames(t) = rownames(sample.specific.features)
+        
+      }
       
     } else {
       
@@ -228,14 +238,14 @@ if (is.null(region.of.interest)) {
   mut.rec <- mutPredict.snv.run.lr(roi = mut.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific=continuous.sample.specific, min.count = min.count, genome.size = genome.size, cores = cores)
 
   mut.regions2 = mut.regions[names(mut.regions) %in% rownames(mut.rec)]
-  mut.rec.hotspot = data.frame(chrom = as.character(GenomicRanges::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
+  mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
   
 } else {
   
   # Redefine hotspots if not whole genome analysis
   regions = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   regions = with(regions, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
-  regions = regions[as.character(GenomicRanges::seqnames(regions)) %in% as.character(GenomicRanges::seqnames(seqi))]
+  regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
   names(regions) = paste("Region", c(1:length(regions)), sep = "")
   
   # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
@@ -249,14 +259,14 @@ if (is.null(region.of.interest)) {
   mut.rec <- mutPredict.snv.run.lr(roi = mut.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific = continuous.sample.specific, min.count = min.count, genome.size = sum(GenomicRanges::width(maf.masked.regions)), cores = cores)
   
   mut.regions2 = mut.regions[names(mut.regions) %in% rownames(mut.rec)]
-  mut.rec.hotspot = data.frame(chrom = as.character(GenomicRanges::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
+  mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
   
   } else {
     
     mut.rec <- mutPredict.snv.run.lr(roi = maf.masked.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific=continuous.sample.specific, min.count = min.count, genome.size = length(maf.masked.regions), cores = cores)
     
     mut.regions2 = maf.masked.regions[names(maf.masked.regions) %in% rownames(mut.rec)]
-    mut.rec.hotspot = data.frame(chrom = as.character(GenomicRanges::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
+    mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
     
   }
   

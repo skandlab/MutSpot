@@ -40,11 +40,12 @@
 #' @param color.muts Color points, default = orange.
 #' @param z.value To use z-value for plot or coefficients, default = FALSE.
 #' @param top.no Number of top hotspots to plot, default = 3.
+#' @param debug To keep intermediate output files or not, default = FALSE.
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
 MutSpot = function(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3) {
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3, debug = FALSE) {
   
 ## check format of working directory ##
 if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
@@ -52,6 +53,9 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
   working.dir = paste(working.dir, "/", sep = "")
   
 }  
+  setwd(working.dir)
+  output.dir = paste(working.dir, "results/", sep = "")
+  dir.create(output.dir)
   
   ## Load all dependencies ##
   if("data.table" %in% rownames(installed.packages()) == FALSE) {
@@ -145,10 +149,10 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
   suppressWarnings(suppressMessages(library(poibin)))
   
 ## Step 1 ##
-sampled.sites.snv.file = paste(working.dir, "sampled.sites.snv.RDS", sep = "")
-snv.mutations.region.file = paste(working.dir, "SNV_region.MAF", sep = "")
-sampled.sites.indel.file = paste(working.dir, "sampled.sites.indel.RDS", sep = "")
-indel.mutations.region.file = paste(working.dir, "indel_region.MAF", sep = "")
+sampled.sites.snv.file = paste(output.dir, "sampled.sites.snv.RDS", sep = "")
+snv.mutations.region.file = paste(output.dir, "SNV_region.MAF", sep = "")
+sampled.sites.indel.file = paste(output.dir, "sampled.sites.indel.RDS", sep = "")
+indel.mutations.region.file = paste(output.dir, "indel_region.MAF", sep = "")
   
 if (1 %in% run.to) {
     
@@ -229,8 +233,8 @@ if (is.null(indel.mutations) | !file.exists(sampled.sites.indel.file)) {
 
 
 ## Step 2 ##
-local.mutrate.snv.file = paste(working.dir, "localmutrate_snv.bed", sep = "")
-local.mutrate.indel.file = paste(working.dir, "localmutrate_indel.bed", sep = "")
+local.mutrate.snv.file = paste(working.dir, "features/", "localmutrate_snv.bed", sep = "")
+local.mutrate.indel.file = paste(working.dir, "features/", "localmutrate_indel.bed", sep = "")
 
   if (2 %in% run.to) {
     
@@ -255,9 +259,9 @@ if (!is.null(local_mutrate[[2]])) {
 }
 
 ## Step 3 ##
-nucleotide.stabs.freq.file = paste(working.dir, "nucleotide_stabs_freq.RDS", sep = "")
-nucleotide.selected.file = paste(working.dir, "nucleotide_selected.RDS", sep = "")
-indels.polyAT.file = paste(working.dir, "indel_polyAT.MAF", sep = "")
+nucleotide.stabs.freq.file = paste(output.dir, "nucleotide_stabs_freq.RDS", sep = "")
+nucleotide.selected.file = paste(output.dir, "nucleotide_selected.RDS", sep = "")
+indels.polyAT.file = paste(output.dir, "indel_polyAT.MAF", sep = "")
 
 ## Step 3I ##
 if (3.1 %in% run.to) {
@@ -313,12 +317,12 @@ saveRDS(nucleotide_selection_adjust, file = nucleotide.selected.file)
 }
 
 ## Step 4 ##
-features.stabs.snv.file = paste(working.dir, "features_stabs_snv.RDS", sep = "")
-continuous.features.selected.snv.url.file = paste(working.dir, "continuous_features_selected_snv_url.txt", sep = "")
-discrete.features.selected.snv.url.file = paste(working.dir, "discrete_features_selected_snv_url.txt", sep = "")
-features.stabs.indel.file = paste(working.dir, "features_stabs_indel.RDS", sep = "")
-continuous.features.selected.indel.url.file = paste(working.dir, "continuous_features_selected_indel_url.txt", sep = "")
-discrete.features.selected.indel.url.file = paste(working.dir, "discrete_features_selected_indel_url.txt", sep = "")
+features.stabs.snv.file = paste(output.dir, "features_stabs_snv.RDS", sep = "")
+continuous.features.selected.snv.url.file = paste(output.dir, "continuous_features_selected_snv_url.txt", sep = "")
+discrete.features.selected.snv.url.file = paste(output.dir, "discrete_features_selected_snv_url.txt", sep = "")
+features.stabs.indel.file = paste(output.dir, "features_stabs_indel.RDS", sep = "")
+continuous.features.selected.indel.url.file = paste(output.dir, "continuous_features_selected_indel_url.txt", sep = "")
+discrete.features.selected.indel.url.file = paste(output.dir, "discrete_features_selected_indel_url.txt", sep = "")
 
 if (4.1 %in% run.to) {
   
@@ -443,12 +447,12 @@ if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
   }
   
 ## Step 5 ##
-mutCovariate.snv.output.file = paste(working.dir, "mutCovariate-compile-part1.RDS", sep = "")
-mutCovariate.snv.output.p1 = paste(working.dir, "mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.snv.output.p2 = paste(working.dir, "mutCovariate-sparse-p2.RDS", sep = "")
-mutCovariate.indel.output.file = paste(working.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
-mutCovariate.indel.output.p1 = paste(working.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.indel.output.p2 = paste(working.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
+mutCovariate.snv.output.file = paste(output.dir, "mutCovariate-compile-part1.RDS", sep = "")
+mutCovariate.snv.output.p1 = paste(output.dir, "mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.snv.output.p2 = paste(output.dir, "mutCovariate-sparse-p2.RDS", sep = "")
+mutCovariate.indel.output.file = paste(output.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
+mutCovariate.indel.output.p1 = paste(output.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.indel.output.p2 = paste(output.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
 
 if (file.exists(indels.polyAT.file)) {
   
@@ -496,16 +500,16 @@ if (5.1 %in% run.to) {
     
     # Chr1-X
     chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
-    seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
-    seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
     
     # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
     mask.regions = readRDS(mask.regions.file)
-    mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+    mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% seqnames]
     
     # Define all sites in whole genome
     all.sites = readRDS(all.sites.file)
-    all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% seqnames]
+    all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% seqnames]
     all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
     # sum(as.numeric(GenomicRanges::width(all.sites.masked)))
     
@@ -517,7 +521,7 @@ if (5.1 %in% run.to) {
       all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
       all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
       all.sites.masked = subtract.regions.from.roi(all.sites,mask.regions, cores = cores)
-      all.sites.masked = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) %in% seqnames]
+      all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
       
     }
     
@@ -561,12 +565,12 @@ if (5.1 %in% run.to) {
     
     # Define SNV mutations 
     maf.mutations <- maf.to.granges(snv.mutations.file)
-    maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% seqnames]
+    maf.mutations = maf.mutations[as.character(GenomeInfoDb::seqnames(maf.mutations)) %in% seqnames]
     mut.masked <- maf.mutations[S4Vectors::subjectHits(IRanges::findOverlaps(all.sites.masked, maf.mutations))]
     
     # Define SNV sample mutation count based on full SNV mutations file
     maf.mutations2 <- maf.to.granges(snv.mutations.file2)
-    maf.mutations2 = maf.mutations2[as.character(GenomicRanges::seqnames(maf.mutations2)) %in% seqnames]
+    maf.mutations2 = maf.mutations2[as.character(GenomeInfoDb::seqnames(maf.mutations2)) %in% seqnames]
     maf.ind = GenomicRanges::split(maf.mutations2, maf.mutations2$sid)
     ind.mut.count = sapply(maf.ind, length)
     nind = length(ind.mut.count) 
@@ -587,9 +591,19 @@ if (5.1 %in% run.to) {
           
           t=factor(sample.specific.features[,x])
           t=model.matrix(~t)[,-1]
+          if (class(t) == "matrix") {
+            
           colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
-          colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
+          colnames(t)=paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
           rownames(t)=rownames(sample.specific.features)
+          
+          } else {
+            
+            t = as.data.frame(t)
+            colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+            rownames(t) = rownames(sample.specific.features)
+            
+          }
           
         } else {
           
@@ -617,8 +631,8 @@ if (5.1 %in% run.to) {
     gc(reset = T)
     
     # Tabulate covariates for mutations
-    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomicRanges::seqnames(mut.masked)))
-    mut.chr = GenomicRanges::split(mut.masked, GenomicRanges::seqnames(mut.masked))
+    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomeInfoDb::seqnames(mut.masked)))
+    mut.chr = GenomicRanges::split(mut.masked, GenomeInfoDb::seqnames(mut.masked))
     chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
     mut.chr = mut.chr[names(mut.chr) %in% chrs]
     
@@ -691,10 +705,10 @@ if (5.1 %in% run.to) {
         
       }
       
-      if (chr.interest %in% as.character(GenomicRanges::seqnames(all.sites.masked))) {
+      if (chr.interest %in% as.character(GenomeInfoDb::seqnames(all.sites.masked))) {
         
-        all.sites.masked2 = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) == chr.interest]
-        len = sapply(GenomicRanges::split(all.sites.masked2, GenomicRanges::seqnames(all.sites.masked2)), length)
+        all.sites.masked2 = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) == chr.interest]
+        len = sapply(GenomicRanges::split(all.sites.masked2, GenomeInfoDb::seqnames(all.sites.masked2)), length)
         len = len[len != 0]
         len2 = sapply(1:length(len), function(i) { sum(len[1:i]) })
         len2 = c(0, len2)
@@ -724,7 +738,7 @@ if (5.1 %in% run.to) {
         
       }
       
-      saveRDS(list(mut.freq, genome.freq.aggregated), file = paste("mutCovariate_", chr.interest, ".RDS", sep = ""))
+      saveRDS(list(mut.freq, genome.freq.aggregated), file = paste(output.dir,"mutCovariate_", chr.interest, ".RDS", sep = ""))
       
     }
     
@@ -738,16 +752,16 @@ if (5.1 %in% run.to) {
     indel.mutations.file2 = indel.mutations
     
     chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
-    seqi = GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomicRanges::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
-    seqnames = GenomicRanges::seqnames(GenomicRanges::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
     
     # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
     mask.regions = readRDS(mask.regions.file)
-    mask.regions = mask.regions[as.character(GenomicRanges::seqnames(mask.regions)) %in% seqnames]
+    mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% seqnames]
     
     # Define all sites in whole genome
     all.sites = readRDS(all.sites.file)
-    all.sites = all.sites[as.character(GenomicRanges::seqnames(all.sites)) %in% seqnames]
+    all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% seqnames]
     all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
     sum(as.numeric(GenomicRanges::width(all.sites.masked)))
     
@@ -759,7 +773,7 @@ if (5.1 %in% run.to) {
       all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
       all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
       all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
-      all.sites.masked = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) %in% seqnames]
+      all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
       
     }
     
@@ -801,7 +815,7 @@ if (5.1 %in% run.to) {
     
     # Define indel mutations
     maf.mutations <- maf.to.granges(indel.mutations.file)
-    maf.mutations = maf.mutations[as.character(GenomicRanges::seqnames(maf.mutations)) %in% seqnames]
+    maf.mutations = maf.mutations[as.character(GenomeInfoDb::seqnames(maf.mutations)) %in% seqnames]
     mut.masked <- maf.mutations[S4Vectors::subjectHits(IRanges::findOverlaps(all.sites.masked, maf.mutations))]
     mut.masked.sites = mut.masked
     GenomicRanges::start(mut.masked.sites) = GenomicRanges::start(mut.masked.sites) + ceiling((GenomicRanges::width(mut.masked.sites) - 1) / 2)
@@ -809,7 +823,7 @@ if (5.1 %in% run.to) {
     
     # Define indel sample mutation count based on full indel mutations file
     maf.mutations2 = maf.to.granges(indel.mutations.file2)
-    maf.mutations2 = maf.mutations2[as.character(GenomicRanges::seqnames(maf.mutations2)) %in% seqnames]
+    maf.mutations2 = maf.mutations2[as.character(GenomeInfoDb::seqnames(maf.mutations2)) %in% seqnames]
     maf.ind = GenomicRanges::split(maf.mutations2, maf.mutations2$sid)
     ind.mut.count = sapply(maf.ind, length)
     nind = length(ind.mut.count) 
@@ -830,9 +844,19 @@ if (5.1 %in% run.to) {
           
           t=factor(sample.specific.features[,x])
           t=model.matrix(~t)[,-1]
+          if (class(t) == "matrix") {
+            
           colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
           colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
           rownames(t)=rownames(sample.specific.features)
+          
+          } else {
+            
+            t = as.data.frame(t)
+            colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+            rownames(t) = rownames(sample.specific.features)
+            
+          }
           
         } else {
           
@@ -860,14 +884,14 @@ if (5.1 %in% run.to) {
     gc(reset = T)
     
     # Tabulate covariates for mutations
-    GenomeInfoDb::seqlevels(mut.masked.sites) = as.character(unique(GenomicRanges::seqnames(mut.masked.sites)))
-    mut.chr = GenomicRanges::split(mut.masked.sites, GenomicRanges::seqnames(mut.masked.sites))
+    GenomeInfoDb::seqlevels(mut.masked.sites) = as.character(unique(GenomeInfoDb::seqnames(mut.masked.sites)))
+    mut.chr = GenomicRanges::split(mut.masked.sites, GenomeInfoDb::seqnames(mut.masked.sites))
     mut.chr = mut.chr[names(mut.chr) %in% chrs]
 
     # Tabulate covariates for all positions in indels
-    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomicRanges::seqnames(mut.masked)))
+    GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomeInfoDb::seqnames(mut.masked)))
     mut.indel = mut.masked
-    mut.indel.chr = GenomicRanges::split(mut.indel, GenomicRanges::seqnames(mut.indel))
+    mut.indel.chr = GenomicRanges::split(mut.indel, GenomeInfoDb::seqnames(mut.indel))
     mut.indel.chr = mut.indel.chr[names(mut.indel.chr) %in% chrs]
     
     for (chr.interest in paste("chr", chromosomes, sep="")) {
@@ -938,10 +962,10 @@ if (5.1 %in% run.to) {
         
       }
       
-      if (chr.interest %in% as.character(GenomicRanges::seqnames(all.sites.masked))) {
+      if (chr.interest %in% as.character(GenomeInfoDb::seqnames(all.sites.masked))) {
         
-        all.sites.masked2 = all.sites.masked[as.character(GenomicRanges::seqnames(all.sites.masked)) == chr.interest]
-        len = sapply(GenomicRanges::split(all.sites.masked2, GenomicRanges::seqnames(all.sites.masked2)), length)
+        all.sites.masked2 = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) == chr.interest]
+        len = sapply(GenomicRanges::split(all.sites.masked2, GenomeInfoDb::seqnames(all.sites.masked2)), length)
         len = len[len != 0]
         len2 = sapply(1:length(len), function(i) { sum(len[1:i]) })
         len2 = c(0, len2)
@@ -971,7 +995,7 @@ if (5.1 %in% run.to) {
         
       }
       
-      saveRDS(list(mut.freq, indel.freq, genome.freq.aggregated), file = paste("mutCovariate_indel_", chr.interest, ".RDS", sep = ""))
+      saveRDS(list(mut.freq, indel.freq, genome.freq.aggregated), file = paste(output.dir, "mutCovariate_indel_", chr.interest, ".RDS", sep = ""))
       
     }
     
@@ -985,9 +1009,16 @@ if (5.2 %in% run.to) {
   
   if ((!is.null(continuous.features.selected.snv.url.file) | !is.null(discrete.features.selected.snv.url.file) | !is.null(sample.snv.features)) & !is.null(sampled.sites.snv.file)) {
   
-mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, snv.mutations.file = snv.mutations.int, sample.specific.features.url.file = sample.snv.features, region.of.interest = region.of.interest, cores = cores, snv.mutations.file2 = snv.mutations)
+mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, snv.mutations.file = snv.mutations.int, sample.specific.features.url.file = sample.snv.features, region.of.interest = region.of.interest, cores = cores, snv.mutations.file2 = snv.mutations, chrom.dir = output.dir)
 
 saveRDS(mutCovariate_snv_compile, file = mutCovariate.snv.output.file)
+
+delete.files = Sys.glob(paste(output.dir, "mutCovariate_chr*.RDS", sep = ""))
+for (i in delete.files) {
+  
+  unlink(i)
+  
+}
 
   }
   
@@ -1004,6 +1035,8 @@ mutCovariate_snv_sparse = mutCovariate.snv.sparse(compiled = mutCovariate.snv.ou
 saveRDS(mutCovariate_snv_sparse[[1]], file = mutCovariate.snv.output.p1)
 saveRDS(mutCovariate_snv_sparse[[2]], file = mutCovariate.snv.output.p2)
   
+unlink(mutCovariate.snv.output.file)
+
   }
   
 }
@@ -1017,6 +1050,13 @@ if (5.4 %in% run.to) {
 mutCovariate_indel_compile = mutCovariate.indel.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, indel.mutations.file = indel.mutations.int, sample.specific.features.url.file = sample.indel.features, region.of.interest = region.of.interest, cores = cores, indel.mutations.file2 = indel.mutations)
 
 saveRDS(mutCovariate_indel_compile, file = mutCovariate.indel.output.file)
+
+delete.files = Sys.glob(paste(output.dir, "mutCovariate_indel_chr*.RDS", sep = ""))
+for (i in delete.files) {
+  
+  unlink(i)
+  
+}
 
 }
 
@@ -1033,13 +1073,15 @@ mutCovariate_indel_sparse = mutCovariate.indel.sparse(compiled = mutCovariate.in
 saveRDS(mutCovariate_indel_sparse[[1]], file = mutCovariate.indel.output.p1)
 saveRDS(mutCovariate_indel_sparse[[2]], file = mutCovariate.indel.output.p2)
   
+unlink(mutCovariate.indel.output.file)
+
   }
   
 }
 
 ## Step 6 ##
-LRmodel.snv.file = paste(working.dir, "snv-LRmodel", sep = "")
-LRmodel.indel.file = paste(working.dir, "indel-LRmodel", sep = "")
+LRmodel.snv.file = paste(output.dir, "snv-LRmodel", sep = "")
+LRmodel.indel.file = paste(output.dir, "indel-LRmodel", sep = "")
 
 if (6 %in% run.to) {
   
@@ -1133,10 +1175,10 @@ if (class(LRmodel)[1]!="list") {
 }
   
 ## Step 7 ##
-snv.hotspots = paste(working.dir, "snv_hotspots.tsv", sep = "")
-snv.hotspots.merged = paste(working.dir,"snv_hotspots_merged.tsv",sep="")
-indel.hotspots = paste(working.dir, "indel_hotspots.tsv", sep = "")
-indel.hotspots.merged=paste(working.dir,"indel_hotspots_merged.tsv",sep="")
+snv.hotspots = paste(output.dir, "snv_hotspots.tsv", sep = "")
+snv.hotspots.merged = paste(output.dir,"snv_hotspots_merged.tsv",sep="")
+indel.hotspots = paste(output.dir, "indel_hotspots.tsv", sep = "")
+indel.hotspots.merged=paste(output.dir,"indel_hotspots_merged.tsv",sep="")
 
 if (7 %in% run.to) {
   
@@ -1185,8 +1227,8 @@ if (!is.null(results.indel[[2]])) {
 }
 
 ## Step 8 ##
-ann.snv.hotspots = paste(working.dir, "snv_hotspots_annotated.tsv", sep = "")
-ann.indel.hotspots = paste(working.dir, "indel_hotspots_annotated.tsv", sep = "")
+ann.snv.hotspots = paste(output.dir, "snv_hotspots_annotated.tsv", sep = "")
+ann.indel.hotspots = paste(output.dir, "indel_hotspots_annotated.tsv", sep = "")
 
 if (8 %in% run.to) {
   
@@ -1242,21 +1284,21 @@ if (9.1 %in% run.to) {
   ## Step 9a ##
   if (file.exists(LRmodel.snv.file)) {
     
-    plot_feature_importance(model = LRmodel.snv.file, mutCovariate.table.file = mutCovariate.snv.output.p1, mutCovariate.count.file = mutCovariate.snv.output.p2, continuous.features.selected.url.file = continuous.features.selected.snv.url.file, z.value = z.value, mutation.type = "SNV")
+    plot_feature_importance(model = LRmodel.snv.file, mutCovariate.table.file = mutCovariate.snv.output.p1, mutCovariate.count.file = mutCovariate.snv.output.p2, continuous.features.selected.url.file = continuous.features.selected.snv.url.file, z.value = z.value, mutation.type = "SNV", output.dir = output.dir)
     
   }
   
   ## Step 9b ##
   if (file.exists(LRmodel.indel.file)) {
     
-    plot_feature_importance(model = LRmodel.indel.file, mutCovariate.table.file = mutCovariate.indel.output.p1, mutCovariate.count.file = mutCovariate.indel.output.p2, continuous.features.selected.url.file = continuous.features.selected.indel.url.file, z.value = z.value, mutation.type = "indel")
+    plot_feature_importance(model = LRmodel.indel.file, mutCovariate.table.file = mutCovariate.indel.output.p1, mutCovariate.count.file = mutCovariate.indel.output.p2, continuous.features.selected.url.file = continuous.features.selected.indel.url.file, z.value = z.value, mutation.type = "indel", output.dir = output.dir)
     
   }
   
 }
 
-manhattan.snv = paste(working.dir, "snv_manhattan.pdf", sep = "")
-manhattan.indel = paste(working.dir, "indel_manhattan.pdf", sep = "")
+manhattan.snv = paste(output.dir, "snv_manhattan.pdf", sep = "")
+manhattan.indel = paste(output.dir, "indel_manhattan.pdf", sep = "")
 
 if (9.2 %in% run.to) {
   
@@ -1303,11 +1345,11 @@ if (9.3 %in% run.to) {
   ## Step 9a
   if (file.exists(snv.hotspots.merged)) {
     
-    plot_top_hits(hotspots.file = snv.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no)
+    plot_top_hits(hotspots.file = snv.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no, output.dir = output.dir)
     
   } else if (file.exists(snv.hotspots)) {
     
-    plot_top_hits(hotspots.file = snv.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no)
+    plot_top_hits(hotspots.file = snv.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no, output.dir = output.dir)
     
     
   }
@@ -1315,11 +1357,11 @@ if (9.3 %in% run.to) {
   ## Step 9b
   if (file.exists(indel.hotspots.merged)) {
     
-    plot_top_hits(hotspots.file = indel.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no)
+    plot_top_hits(hotspots.file = indel.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
     
   } else if (file.exists(indel.hotspots)) {
     
-    plot_top_hits(hotspots.file = indel.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no)
+    plot_top_hits(hotspots.file = indel.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
     
   }
   

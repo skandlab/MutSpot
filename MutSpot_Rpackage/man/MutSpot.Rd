@@ -24,7 +24,7 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
   "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
   package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1,
   color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE,
-  color.muts = "orange", z.value = FALSE, top.no = 3)
+  color.muts = "orange", z.value = FALSE, top.no = 3, debug = FALSE)
 }
 \arguments{
 \item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.}
@@ -106,6 +106,8 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 \item{z.value}{To use z-value for plot or coefficients, default = FALSE.}
 
 \item{top.no}{Number of top hotspots to plot, default = 3.}
+
+\item{debug}{To keep intermediate output files or not, default = FALSE.}
 }
 \value{
 Corresponding output from each step in MutSpot analysis.

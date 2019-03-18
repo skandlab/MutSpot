@@ -9,10 +9,10 @@
 subtract.regions.from.roi <- function(rois, sub, cores = 1) {
   
   # In parallel for all chromosomes
-  chromosomes <- unique(as.character(seqnames(BiocGenerics::unlist(rois))))
-  rois.subtracted <- mclapply(chromosomes, function(chr) { subtract.regions.from.roi.chr(rois, sub, chr) },mc.cores = cores, mc.preschedule = FALSE)
+  chromosomes <- unique(as.character(GenomeInfoDb::seqnames(BiocGenerics::unlist(rois))))
+  rois.subtracted <- parallel::mclapply(chromosomes, function(chr) {subtract.regions.from.roi.chr(rois, sub, chr)},mc.cores = cores, mc.preschedule = FALSE)
   rois.subtracted <- do.call(c, rois.subtracted)
-  seqlevels(rois.subtracted) = seqlevels(rois)
+  GenomeInfoDb::seqlevels(rois.subtracted) = GenomeInfoDb::seqlevels(rois)
   rois.subtracted
   
 }

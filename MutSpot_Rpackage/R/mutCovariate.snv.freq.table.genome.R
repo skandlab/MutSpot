@@ -10,7 +10,7 @@
 
 mutCovariate.snv.freq.table.genome = function(continuous.features, discrete.features, precompute.motif.pos, nucleotide.selected, sites) {
   
-  print(as.character(GenomicRanges::seqnames(sites[1])))
+  print(as.character(GenomeInfoDb::seqnames(sites[1])))
   
   sites = IRanges::tile(sites, width = 1)
   sites = BiocGenerics::unlist(sites)

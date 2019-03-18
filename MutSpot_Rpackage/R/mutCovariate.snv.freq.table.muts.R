@@ -11,7 +11,7 @@
 
 mutCovariate.snv.freq.table.muts = function(continuous.features, discrete.features, precompute.motif.pos, nucleotide.selected, sample.specific.features, sites) {
   
-  print (as.character(GenomicRanges::seqnames(sites[1])))
+  print (as.character(GenomeInfoDb::seqnames(sites[1])))
   
   # Replace sid by sample mutation count
   # sites$sid = ind.mut.count[as.character(sites$sid)]

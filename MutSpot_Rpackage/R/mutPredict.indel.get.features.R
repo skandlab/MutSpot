@@ -13,7 +13,7 @@ mutPredict.indel.get.features <- function(roi, continuous.features.indel, discre
   sites = BiocGenerics::unlist(sites)  
   
   # Extract DNA sequence for +/-10bp around each site in roi
-  seq = GenomicRanges::GRanges(GenomicRanges::seqnames(sites), IRanges::IRanges(IRanges::ranges(sites)@start - 5, IRanges::ranges(sites)@start + 5))
+  seq = GenomicRanges::GRanges(GenomeInfoDb::seqnames(sites), IRanges::IRanges(IRanges::ranges(sites)@start - 5, IRanges::ranges(sites)@start + 5))
   seq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg19::Hsapiens, seq)
   seq = as.data.frame(seq)
   

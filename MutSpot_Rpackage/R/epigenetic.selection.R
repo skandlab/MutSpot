@@ -60,7 +60,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
       
       # If no epigenetic features provided, will automatically choose to keep local mutation rate
       freq.snv = NULL
-      features.continuous.url.snv = data.frame(V1 = "local_mutrate", V2 = "localmutrate_snv.bed")
+      features.continuous.url.snv = data.frame(V1 = "local_mutrate", V2 = "./features/localmutrate_snv.bed")
       features.discrete.url.snv = NULL
       
     }
@@ -111,7 +111,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
       
       # If no epigenetic features provided, will automatically choose to keep local mutation rate
       freq.indel = NULL
-      features.continuous.url.indel = data.frame(V1 = "local_mutrate", V2 = "localmutrate_indel.bed")
+      features.continuous.url.indel = data.frame(V1 = "local_mutrate", V2 = "./features/localmutrate_indel.bed")
       features.discrete.url.indel = NULL
       
     }

@@ -4,13 +4,13 @@
 \alias{plot_top_hits}
 \title{Plot top hotspots.}
 \usage{
-plot_top_hits(hotspots.file, fdr.cutoff = 0.01, color.muts = "orange",
-  mutations.file, mutation.type, top.no = 3)
+plot_top_hits(hotspots.file, fdr.cutoff = 0.1, color.muts = "orange",
+  mutations.file, mutation.type, top.no = 3, output.dir)
 }
 \arguments{
 \item{hotspots.file}{Hotspots generated.}
 
-\item{fdr.cutoff}{FDR cutoff, default = 0.01.}
+\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
 
 \item{color.muts}{Color points, default = orange.}
 
@@ -19,6 +19,8 @@ plot_top_hits(hotspots.file, fdr.cutoff = 0.01, color.muts = "orange",
 \item{mutation.type}{SNV or indel mutations.}
 
 \item{top.no}{Number of top hotspots to plot, default = 3.}
+
+\item{output.dir}{Save plots in given output directory.}
 }
 \value{
 Top hotspots figures.

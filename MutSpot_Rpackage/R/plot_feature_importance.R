@@ -6,10 +6,11 @@
 #' @param continuous.features.selected.url.file Text file containing URLs of SNV continuous features selected for model.
 #' @param z.value To use z-value for plot or coefficients, default = FALSE.
 #' @param mutation.type SNV or indel mutation.
+#' @param output.dir Save plot in given output directory.
 #' @return Variable importance plot.
 #' @export
 
-plot_feature_importance = function(model, mutCovariate.table.file, mutCovariate.count.file, continuous.features.selected.url.file, z.value = FALSE, mutation.type) {
+plot_feature_importance = function(model, mutCovariate.table.file, mutCovariate.count.file, continuous.features.selected.url.file, z.value = FALSE, mutation.type, output.dir) {
 
     load(model)
   if (!"glmnet" %in% class(LRmodel)) {
@@ -80,7 +81,7 @@ plot_feature_importance = function(model, mutCovariate.table.file, mutCovariate.
     
   }
   
-  pdf(paste(mutation.type, "_features.pdf", sep = ""))
+  pdf(paste(output.dir, mutation.type, "_features.pdf", sep = ""))
   print(ggplot2::ggplot(df, ggplot2::aes(x = feat, y = imp)) + ggplot2::geom_bar(stat = "identity") +
     ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),

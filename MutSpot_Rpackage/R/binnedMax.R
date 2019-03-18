@@ -11,7 +11,7 @@ binnedMax = function(bins, numvar, mcolname) {
   stopifnot(is(bins, "GRanges"))
   stopifnot(is(numvar, "RleList"))
   stopifnot(identical(sort(GenomeInfoDb::seqlevels(bins)), sort(names(numvar))))
-  bins.per.chrom <- GenomicRanges::split(IRanges::ranges(bins), as.character(GenomicRanges::seqnames(bins)))
+  bins.per.chrom <- GenomicRanges::split(IRanges::ranges(bins), as.character(GenomeInfoDb::seqnames(bins)))
   means.list <- lapply(GenomeInfoDb::seqlevels(bins),
                        function(seqname) {
                          
@@ -19,7 +19,7 @@ binnedMax = function(bins, numvar, mcolname) {
                          IRanges::viewMaxs(views)
                          
                        })
-  new.mcol <- suppressWarnings(BiocGenerics::unsplit(means.list, as.factor(as.character(GenomicRanges::seqnames(bins)))))
+  new.mcol <- suppressWarnings(BiocGenerics::unsplit(means.list, as.factor(as.character(GenomeInfoDb::seqnames(bins)))))
   S4Vectors::mcols(bins)[[mcolname]] <- new.mcol
   bins
   

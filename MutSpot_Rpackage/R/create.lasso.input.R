@@ -45,7 +45,7 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
   continuous.features.urls=continuous.features.urls[,c("feature_name","file_path")]
   
   # Add local mutation rate to continuous file
-  continuous.features.urls = rbind(continuous.features.urls, c("local_mutrate", paste("localmutrate_", mutation.type, ".bed", sep = "")))
+  continuous.features.urls = rbind(continuous.features.urls, c("local_mutrate", paste("./features/localmutrate_", mutation.type, ".bed", sep = "")))
   
   # Assign continuous epigenetic scores to each site
   selected.continuous.features.site1 = parallel::mclapply(1:nrow(continuous.features.urls), function(f) {
@@ -76,7 +76,7 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
   } else {
     
     # Add local mutation rate as the only continuous feature
-    continuous.features.urls = data.frame(V1 = "local_mutrate", V2 = paste("localmutrate_", mutation.type, ".bed", sep = ""))
+    continuous.features.urls = data.frame(V1 = "local_mutrate", V2 = paste("./features/localmutrate_", mutation.type, ".bed", sep = ""))
     continuous.features.urls$V1 = as.character(continuous.features.urls$V1)
     continuous.features.urls$V2 = as.character(continuous.features.urls$V2)
     
