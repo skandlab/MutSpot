@@ -135,8 +135,9 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
     } else {
       
-    all.sites.snv.samples = suppressWarnings(do.call(getMethod(c, "GenomicRanges"), all.sites.snv.samples))
-    
+    # all.sites.snv.samples = suppressWarnings(do.call(getMethod(c, "GenomicRanges"), all.sites.snv.samples))
+      all.sites.snv.samples = suppressWarnings(do.call(c, all.sites.snv.samples))
+      
     # Mask selected sites that are mutated or in masked region
     mask.snv.regions = GenomicRanges::reduce(c(maf.snv.mutations, mask.regions))
     nonmut.snv.sample = subtract.regions.from.roi(all.sites.snv.samples, mask.snv.regions, cores = cores)
@@ -255,8 +256,9 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
     }  else {
       
-    all.sites.indel.samples = suppressWarnings(do.call(getMethod(c, "GenomicRanges"), all.sites.indel.samples))
-    
+    # all.sites.indel.samples = suppressWarnings(do.call(getMethod(c, "GenomicRanges"), all.sites.indel.samples))
+      all.sites.indel.samples = suppressWarnings(do.call(c, all.sites.indel.samples))
+      
     # Mask selected sites that are mutated or in nonmapple regions
     mask.indel.regions = GenomicRanges::reduce(c(maf.indel.mutations, mask.regions))
     nonmut.indel.sample = subtract.regions.from.roi(all.sites.indel.samples, mask.indel.regions, cores = cores)

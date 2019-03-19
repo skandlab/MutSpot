@@ -55,9 +55,14 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
 }  
   setwd(working.dir)
   output.dir = paste(working.dir, "results/", sep = "")
+  if (!dir.exists(output.dir)) {
+    
   dir.create(output.dir)
+    
+  }
   
   ## Load all dependencies ##
+  
   if("data.table" %in% rownames(installed.packages()) == FALSE) {
     
     print("install [data.table]")

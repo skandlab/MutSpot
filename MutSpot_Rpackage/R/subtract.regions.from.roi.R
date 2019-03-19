@@ -9,7 +9,15 @@
 subtract.regions.from.roi <- function(rois, sub, cores = 1) {
   
   # In parallel for all chromosomes
+  if (class(rois) == "GRangesList") {
+    
   chromosomes <- unique(as.character(GenomeInfoDb::seqnames(BiocGenerics::unlist(rois))))
+  
+  } else if (class(rois) == "GRanges") {
+    
+    chromosomes <- unique(as.character(GenomeInfoDb::seqnames((rois))))
+    
+  }
   rois.subtracted <- parallel::mclapply(chromosomes, function(chr) {subtract.regions.from.roi.chr(rois, sub, chr)},mc.cores = cores, mc.preschedule = FALSE)
   rois.subtracted <- do.call(c, rois.subtracted)
   GenomeInfoDb::seqlevels(rois.subtracted) = GenomeInfoDb::seqlevels(rois)
