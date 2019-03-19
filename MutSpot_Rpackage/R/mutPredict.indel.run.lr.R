@@ -93,7 +93,7 @@ mutPredict.indel.run.lr <- function(roi, maf.indel, maf.indel2, model.indel, con
     x.idx = which(names(roi) == x)[1]
     
     # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
-    roi.feat.indel = mutPredict.indel.get.features(BiocGenerics::unlist(GenomicRanges::reduce(roi[x.idx])), continuous.features.indel, discrete.features.indel)
+    roi.feat.indel = mutPredict.indel.get.features(GenomicRanges::reduce(roi[x.idx]), continuous.features.indel, discrete.features.indel)
     
     x.len.indel = nrow(roi.feat.indel)
     

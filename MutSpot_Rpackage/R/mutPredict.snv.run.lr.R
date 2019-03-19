@@ -95,7 +95,8 @@ mutPredict.snv.run.lr <- function(roi, maf.snv, maf.snv2, model.snv, continuous.
     x.idx = which(names(roi) == x)[1]
     
     # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
-    roi.feat.snv = mutPredict.snv.get.features(BiocGenerics::unlist(GenomicRanges::reduce(roi[x.idx])), continuous.features.snv, discrete.features.snv, motifs)
+    # roi.feat.snv = mutPredict.snv.get.features(BiocGenerics::unlist(GenomicRanges::reduce(roi[x.idx])), continuous.features.snv, discrete.features.snv, motifs)
+    roi.feat.snv = mutPredict.snv.get.features(GenomicRanges::reduce(roi[x.idx]), continuous.features.snv, discrete.features.snv, motifs)
     
     x.len.snv = nrow(roi.feat.snv)
     
