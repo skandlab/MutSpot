@@ -38,7 +38,7 @@ mutCovariate.indel.freq.table.muts = function(continuous.features, discrete.feat
     colnames(df) = i
     GenomicRanges::values(sites) = data.frame(GenomicRanges::values(sites), df, check.names = FALSE)
     names(GenomicRanges::mcols(sites))[length(names(GenomicRanges::mcols(sites)))] = i
-    GenomicRanges::values(sites)[ ,i] = sample.specific.features[as.character(sites$sid),i]
+    GenomicRanges::values(sites)[ ,i] = sample.specific.features[as.character(sites$sid), i]
     
   }
   features = c(features, colnames(sample.specific.features))
@@ -52,7 +52,7 @@ mutCovariate.indel.freq.table.muts = function(continuous.features, discrete.feat
     colnames(df) = i
     GenomicRanges::values(sites) = data.frame(GenomicRanges::values(sites), df, check.names = FALSE)
     names(GenomicRanges::mcols(sites))[length(names(GenomicRanges::mcols(sites)))] = i
-    ovl = IRanges::findOverlaps(sites,continuous.features[[i]])
+    ovl = IRanges::findOverlaps(sites, continuous.features[[i]])
     if (length(ovl) != 0) {
       
       GenomicRanges::values(sites)[S4Vectors::queryHits(ovl), i] = continuous.features[[i]][S4Vectors::subjectHits(ovl)]$score

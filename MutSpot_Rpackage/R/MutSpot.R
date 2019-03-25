@@ -523,9 +523,8 @@ if (5.1 %in% run.to) {
       
       print("specified region")
       
-      all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-      all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
-      all.sites.masked = subtract.regions.from.roi(all.sites,mask.regions, cores = cores)
+      all.sites = bed.to.granges(region.of.interest)
+      all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
       all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
       
     }
@@ -535,9 +534,9 @@ if (5.1 %in% run.to) {
       
       selected.continuous.urls <- read.delim(continuous.features.selected.snv.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
       continuous.selected.features = parallel::mclapply(selected.continuous.urls[ ,2], function(f) {
+        
         print(f)
-        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4))
+        df = bed.to.granges(as.character(f))
         
       }, mc.cores = cores)
       
@@ -555,8 +554,7 @@ if (5.1 %in% run.to) {
       discrete.selected.features = parallel::mclapply(selected.discrete.urls[ ,2], function(f) {
         
         print(f)
-        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+        df = bed.to.granges(as.character(f))
         
       }, mc.cores = cores)
       
@@ -583,24 +581,24 @@ if (5.1 %in% run.to) {
     # Define sample-specific features e.g. CIN index, COSMIC signatures
     if (!is.null(sample.specific.features.url.file)) {
       
-      sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
-      rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
-      sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)),]
-      sample.specific.features$sample.count=ind.mut.count[rownames(sample.specific.features)]
-      sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+      sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
+      rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
+      sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
+      sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
       
-      sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+      sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
         
         print(colnames(sample.specific.features)[x])
-        if(class(sample.specific.features[,x])=="character") {
+        if(class(sample.specific.features[ ,x]) == "character") {
           
-          t=factor(sample.specific.features[,x])
-          t=model.matrix(~t)[,-1]
+          t = factor(sample.specific.features[ ,x])
+          t = model.matrix( ~ t)[ ,-1]
           if (class(t) == "matrix") {
             
-          colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
-          colnames(t)=paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
-          rownames(t)=rownames(sample.specific.features)
+          colnames(t) = substr(colnames(t), 2, nchar(colnames(t)))
+          colnames(t) = paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
+          rownames(t) = rownames(sample.specific.features)
           
           } else {
             
@@ -612,21 +610,21 @@ if (5.1 %in% run.to) {
           
         } else {
           
-          t=as.data.frame(sample.specific.features[,x])
-          colnames(t)=colnames(sample.specific.features)[x]
-          rownames(t)=rownames(sample.specific.features)
+          t = as.data.frame(sample.specific.features[ ,x])
+          colnames(t) = colnames(sample.specific.features)[x]
+          rownames(t) = rownames(sample.specific.features)
           
         }
         return(t)
         
       },mc.cores=cores)
       
-      sample.specific.features=do.call(cbind,sample.specific.features2)
+      sample.specific.features = do.call(cbind, sample.specific.features2)
       
     } else {
       
-      sample.specific.features=as.data.frame(ind.mut.count)
-      colnames(sample.specific.features)="sample.count"
+      sample.specific.features = as.data.frame(ind.mut.count)
+      colnames(sample.specific.features) = "sample.count"
       
     }
     
@@ -641,9 +639,7 @@ if (5.1 %in% run.to) {
     chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
     mut.chr = mut.chr[names(mut.chr) %in% chrs]
     
-    
     for (chr.interest in paste("chr", chromosomes, sep="")) {
-      
       
       if (!is.null(nucleotide.selected.file)) {
         
@@ -666,8 +662,7 @@ if (5.1 %in% run.to) {
         
         precompute.motif.pos = as.list(numeric(nrow(nucleotide.selected)))
         names(precompute.motif.pos) = paste(nucleotide.selected$type, nucleotide.selected$sequence, sep = "")
-        chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
-        
+
         # Extract all nucleotide contexts' positions in specific chromosome
         for (i in 1:nrow(nucleotide.selected)) {
           
@@ -768,15 +763,14 @@ if (5.1 %in% run.to) {
     all.sites = readRDS(all.sites.file)
     all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% seqnames]
     all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
-    sum(as.numeric(GenomicRanges::width(all.sites.masked)))
+    # sum(as.numeric(GenomicRanges::width(all.sites.masked)))
     
     # If specified region, redefine all sites to be in specified region
     if (!is.null(region.of.interest)) {
       
       print("specified region")
       
-      all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-      all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+      all.sites = bed.to.granges(region.of.interest)
       all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
       all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
       
@@ -792,8 +786,9 @@ if (5.1 %in% run.to) {
       continuous.selected.features = parallel::mclapply(selected.continuous.urls[ ,2], function(f) {
         
         print(f)
-        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4)) }, mc.cores = cores)
+        df = bed.to.granges(as.character(f)) 
+        
+        }, mc.cores = cores)
       names(continuous.selected.features) = as.character(selected.continuous.urls[ ,1])
       
     } else {
@@ -808,8 +803,9 @@ if (5.1 %in% run.to) {
       discrete.selected.features = parallel::mclapply(selected.discrete.urls[ ,2], function(f) {
         
         print(f)
-        df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-        with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3))) }, mc.cores = cores)
+        df = bed.to.granges(as.character(f))
+        
+        }, mc.cores = cores)
       names(discrete.selected.features) = as.character(selected.discrete.urls[ ,1])
       
     } else {
@@ -836,50 +832,50 @@ if (5.1 %in% run.to) {
     # Define sample-specific features e.g. CIN index, COSMIC signatures
     if (!is.null(sample.specific.features.url.file)) {
       
-      sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
-      rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
-      sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)),]
-      sample.specific.features$sample.count=ind.mut.count[rownames(sample.specific.features)]
-      sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+      sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
+      rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
+      sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
+      sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
       
-      sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+      sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
         
         print(colnames(sample.specific.features)[x])
-        if(class(sample.specific.features[,x])=="character") {
+        if(class(sample.specific.features[ ,x]) == "character") {
           
-          t=factor(sample.specific.features[,x])
-          t=model.matrix(~t)[,-1]
+          t = factor(sample.specific.features[ ,x])
+          t = model.matrix( ~ t)[ ,-1]
           if (class(t) == "matrix") {
             
-          colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
-          colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
-          rownames(t)=rownames(sample.specific.features)
+          colnames(t) = substr(colnames(t), 2, nchar(colnames(t)))
+          colnames(t) = paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
+          rownames(t) = rownames(sample.specific.features)
           
           } else {
             
             t = as.data.frame(t)
-            colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+            colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[ ,x]))[2], sep = "")
             rownames(t) = rownames(sample.specific.features)
             
           }
           
         } else {
           
-          t=as.data.frame(sample.specific.features[,x])
-          colnames(t)=colnames(sample.specific.features)[x]
-          rownames(t)=rownames(sample.specific.features)
+          t = as.data.frame(sample.specific.features[ ,x])
+          colnames(t) = colnames(sample.specific.features)[x]
+          rownames(t) = rownames(sample.specific.features)
           
         }
         return(t)
         
-      },mc.cores=cores)
+      }, mc.cores = cores)
       
-      sample.specific.features=do.call(cbind,sample.specific.features2)
+      sample.specific.features = do.call(cbind, sample.specific.features2)
       
     } else {
       
-      sample.specific.features=as.data.frame(ind.mut.count)
-      colnames(sample.specific.features)="sample.count"
+      sample.specific.features = as.data.frame(ind.mut.count)
+      colnames(sample.specific.features) = "sample.count"
       
     }
     
@@ -906,10 +902,11 @@ if (5.1 %in% run.to) {
       names(polyA) <- chr.interest
       polyAs = parallel::mclapply(chr.interest, FUN = function(x) {
         
-        print(x)
+        print(paste(x, "polyA", sep = ":"))
         gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyA[[x]], polyA[[x]] + 5 - 1))
+        gr
         
-      } )
+      }, mc.cores = cores)
       polyAs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyAs))
       
       polyC <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("CCCCC",
@@ -917,10 +914,11 @@ if (5.1 %in% run.to) {
       names(polyC) <- chr.interest
       polyCs = parallel::mclapply(chr.interest, FUN = function(x) {
         
-        print(x)
+        print(paste(x, "polyC", sep = ":"))
         gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyC[[x]], polyC[[x]] + 5 - 1))
+        gr
         
-      } )
+      }, mc.cores = cores)
       polyCs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyCs))
       
       polyG <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("GGGGG",
@@ -928,10 +926,11 @@ if (5.1 %in% run.to) {
       names(polyG) <- chr.interest
       polyGs = parallel::mclapply(chr.interest, FUN = function(x) {
         
-        print(x)
+        print(paste(x, "polyG", sep = ":"))
         gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyG[[x]], polyG[[x]] + 5 - 1))
+        gr
         
-      } )
+      }, mc.cores = cores)
       polyGs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyGs))
       
       polyT <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("TTTTT",
@@ -939,16 +938,16 @@ if (5.1 %in% run.to) {
       names(polyT) <- chr.interest
       polyTs = parallel::mclapply(chr.interest, FUN = function(x) {
         
-        print(x)
+        print(paste(x, "polyT", sep = ":"))
         gr = GenomicRanges::GRanges(x, IRanges::IRanges(polyT[[x]], polyT[[x]] + 5 - 1))
+        gr
         
-      } )
+      }, mc.cores = cores)
       polyTs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyTs))
       
       if (chr.interest %in% names(mut.chr)) {
         
         mut.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.chr[[chr.interest]])
-        # rm(list = c("mut.chr"))
         
       } else {
         
@@ -959,8 +958,7 @@ if (5.1 %in% run.to) {
       if (chr.interest %in% names(mut.indel.chr)) {
         
         indel.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.indel.chr[[chr.interest]])
-        # rm(list = c("mut.indel.chr"))
-        
+
       } else {
         
         indel.freq = NULL
@@ -1018,11 +1016,15 @@ mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.reg
 
 saveRDS(mutCovariate_snv_compile, file = mutCovariate.snv.output.file)
 
+if (!debug) {
+  
 delete.files = Sys.glob(paste(output.dir, "mutCovariate_chr*.RDS", sep = ""))
 for (i in delete.files) {
   
   unlink(i)
   
+}
+
 }
 
   }
@@ -1040,7 +1042,11 @@ mutCovariate_snv_sparse = mutCovariate.snv.sparse(compiled = mutCovariate.snv.ou
 saveRDS(mutCovariate_snv_sparse[[1]], file = mutCovariate.snv.output.p1)
 saveRDS(mutCovariate_snv_sparse[[2]], file = mutCovariate.snv.output.p2)
   
+if (!debug) {
+  
 unlink(mutCovariate.snv.output.file)
+
+}
 
   }
   
@@ -1052,15 +1058,19 @@ if (5.4 %in% run.to) {
   
   if ((!is.null(continuous.features.selected.indel.url.file) | !is.null(discrete.features.selected.indel.url.file) | !is.null(sample.indel.features)) & !is.null(sampled.sites.indel.file)) {
     
-mutCovariate_indel_compile = mutCovariate.indel.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, indel.mutations.file = indel.mutations.int, sample.specific.features.url.file = sample.indel.features, region.of.interest = region.of.interest, cores = cores, indel.mutations.file2 = indel.mutations)
+mutCovariate_indel_compile = mutCovariate.indel.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, indel.mutations.file = indel.mutations.int, sample.specific.features.url.file = sample.indel.features, region.of.interest = region.of.interest, cores = cores, indel.mutations.file2 = indel.mutations, chrom.dir = output.dir)
 
 saveRDS(mutCovariate_indel_compile, file = mutCovariate.indel.output.file)
 
+if (!debug) {
+  
 delete.files = Sys.glob(paste(output.dir, "mutCovariate_indel_chr*.RDS", sep = ""))
 for (i in delete.files) {
   
   unlink(i)
   
+}
+
 }
 
 }
@@ -1078,7 +1088,11 @@ mutCovariate_indel_sparse = mutCovariate.indel.sparse(compiled = mutCovariate.in
 saveRDS(mutCovariate_indel_sparse[[1]], file = mutCovariate.indel.output.p1)
 saveRDS(mutCovariate_indel_sparse[[2]], file = mutCovariate.indel.output.p2)
   
+if (!debug) {
+  
 unlink(mutCovariate.indel.output.file)
+
+}
 
   }
   
@@ -1097,40 +1111,62 @@ if (6 %in% run.to) {
     
   LRmodel = mutLRFit.snv(mutCovariate.table.snv.file = mutCovariate.snv.output.p1, mutCovariate.count.snv.file = mutCovariate.snv.output.p2, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file = sample.snv.features, fit.sparse = fit.sparse, drop = drop)
 
-  if (class(LRmodel)[1]!="list") {
+  if (class(LRmodel)[1] != "list") {
     
 save(LRmodel, file = LRmodel.snv.file)
+    
   } else {
+    
     if (!"unchanged" %in% LRmodel[[2]]) {
-      saveRDS(LRmodel[[2]],file=nucleotide.selected.file)
+      
+      saveRDS(LRmodel[[2]], file = nucleotide.selected.file)
+      
     }
-    if (!"unchanged" %in% LRmodel[[3]]){
-      if(!is.null(LRmodel[[3]])) {
-      write.table(LRmodel[[3]],file=continuous.features.selected.snv.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+    if (!"unchanged" %in% LRmodel[[3]]) {
+      
+      if (!is.null(LRmodel[[3]])) {
+        
+      write.table(LRmodel[[3]], file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+        
       } else {
-        z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-        write.table(z,file=continuous.features.selected.snv.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+        
+        z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+        write.table(z, file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+        
       }
+      
     }
-    if (!"unchanged" %in% LRmodel[[4]]){
-      if(!is.null(LRmodel[[4]])) {
-      write.table(LRmodel[[4]],file=discrete.features.selected.snv.url.file,sep="\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+    if (!"unchanged" %in% LRmodel[[4]]) {
+      
+      if (!is.null(LRmodel[[4]])) {
+        
+      write.table(LRmodel[[4]], file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+        
       } else {
-        z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-        write.table(z,file=discrete.features.selected.snv.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+        
+        z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+        write.table(z, file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+        
       }
+      
     }
-    if (!"unchanged" %in% LRmodel[[5]]){
-      if(!is.null(LRmodel[[5]])) {
-      write.table(LRmodel[[5]], file=sample.snv.features,sep="\t",quote=FALSE,row.names=FALSE,col.names=TRUE)
+    if (!"unchanged" %in% LRmodel[[5]]) {
+      
+      if (!is.null(LRmodel[[5]])) {
+        
+      write.table(LRmodel[[5]], file = sample.snv.features, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+        
       } else {
-        z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-        write.table(z,file=sample.snv.features,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+        
+        z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+        write.table(z, file = sample.snv.features, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+        
       }
+      
     }
     
-    LRmodel=LRmodel[[1]]
-    save(LRmodel,file=LRmodel.snv.file)
+    LRmodel = LRmodel[[1]]
+    save(LRmodel, file = LRmodel.snv.file)
     
   }
 
@@ -1141,37 +1177,56 @@ save(LRmodel, file = LRmodel.snv.file)
     
 LRmodel = mutLRFit.indel(mutCovariate.table.indel.file = mutCovariate.indel.output.p1, mutCovariate.count.indel.file = mutCovariate.indel.output.p2, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features, fit.sparse = fit.sparse, drop = drop)
 
-if (class(LRmodel)[1]!="list") {
+if (class(LRmodel)[1] != "list") {
   
   save(LRmodel, file = LRmodel.indel.file)
+  
 } else {
-  if (!"unchanged" %in% LRmodel[[2]]){
+  
+  if (!"unchanged" %in% LRmodel[[2]]) {
+    
     if (!is.null(LRmodel[[2]])) {
-    write.table(LRmodel[[2]],file=continuous.features.selected.indel.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+      
+    write.table(LRmodel[[2]], file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+      
     } else {
-      z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-      write.table(z,file=continuous.features.selected.indel.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+      
+      z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+      write.table(z, file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+      
     }
+    
   }
-  if (!"unchanged" %in% LRmodel[[3]]){
+  if (!"unchanged" %in% LRmodel[[3]]) {
+    
     if (!is.null(LRmodel[[3]])) {
-    write.table(LRmodel[[3]],file=discrete.features.selected.indel.url.file,sep="\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+      
+    write.table(LRmodel[[3]], file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+      
     } else {
-      z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-      write.table(z,file=discrete.features.selected.indel.url.file,sep = "\t",quote=FALSE,row.names=FALSE,col.names=FALSE)
+      
+      z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+      write.table(z, file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+      
     }
+    
   }
-  if (!"unchanged" %in% LRmodel[[4]]){
+  if (!"unchanged" %in% LRmodel[[4]]) {
+    
     if (!is.null(LRmodel[[4]])) {
-    write.table(LRmodel[[4]], file=sample.indel.features,sep="\t",quote=FALSE,row.names=FALSE,col.names=TRUE)
+      
+    write.table(LRmodel[[4]], file = sample.indel.features, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+      
     } else {
-      z <- data.frame(V1=character(),V2=character(),stringsAsFactors=FALSE)
-      write.table(z,file=sample.indel.features,sep = "\t",quote=FALSE,row.names=FALSE,col.names=TRUE)
+      
+      z <- data.frame(V1 = character(), V2 = character(), stringsAsFactors = FALSE)
+      write.table(z, file = sample.indel.features, sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+      
     }
   }
   
-  LRmodel=LRmodel[[1]]
-  save(LRmodel,file=LRmodel.indel.file)
+  LRmodel = LRmodel[[1]]
+  save(LRmodel, file = LRmodel.indel.file)
   
 }
 

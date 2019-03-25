@@ -1,7 +1,7 @@
 #' Create covariates and response matrices as input for LASSO.
 #' 
 #' @param sampled.sites.file Sampled mutated and non-mutated sites RDS file.
-#' @param genomic.features.file Text file containing URLs of potential continuous and discrete epigenetic features to select from.
+#' @param genomic.features.file Dataframe containing URLs of potential continuous and discrete epigenetic features to select from.
 #' @param mutation.type Type of mutation, snv or indel.
 #' @param cores Number of cores, default = 1.
 #' @return List containing covariate matrix, response matrix, final continuous feature urls, final discrete feature urls.
@@ -13,36 +13,13 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
   sites = readRDS(sampled.sites.file)
   
   # Define all potential epigenetic features
-  all.features = read.delim(genomic.features.file, stringsAsFactors = FALSE, header = TRUE)
+  all.features = genomic.features.file
   
   # Define continuous epigenetic features, if exists
   if (sum(all.features$feature_type == 1) > 0) {
     
   continuous.features = all.features[which(all.features$feature_type == 1), ]
-  continuous.features.urls=continuous.features  
-  
-  # Bin features 
-  if (sum(!is.na(continuous.features$nbins)) > 0) {
-  
-    to.bin=which(!is.na(continuous.features$nbins))
-    
-  # Bin continuous features based on number of bins provided
-  for (x in to.bin) {
-    
-    print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep=""))
-    
-    continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
-
-    feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
-    write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
-    
-    continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
-    
-  }
-
-  }
-  
-  continuous.features.urls=continuous.features.urls[,c("feature_name","file_path")]
+  continuous.features.urls = continuous.features[ ,c("feature_name","file_path")]  
   
   # Add local mutation rate to continuous file
   continuous.features.urls = rbind(continuous.features.urls, c("local_mutrate", paste("./features/localmutrate_", mutation.type, ".bed", sep = "")))
@@ -51,8 +28,7 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
   selected.continuous.features.site1 = parallel::mclapply(1:nrow(continuous.features.urls), function(f) {
     
     print(continuous.features.urls[f, 2])
-    df = read.delim(as.character(continuous.features.urls[f, 2]), stringsAsFactors = FALSE, header = FALSE)
-    z = with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4))
+    z = bed.to.granges(continuous.features.urls[f, 2])
     sites.feat = sites
     sites.feat$score = 0
     sites.feat[S4Vectors::queryHits(suppressWarnings(IRanges::findOverlaps(sites.feat, z)))]$score = z[S4Vectors::subjectHits(suppressWarnings(IRanges::findOverlaps(sites.feat, z)))]$score
@@ -84,8 +60,7 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
     selected.continuous.features.site1 = parallel::mclapply(1:nrow(continuous.features.urls), function(f) {
       
       print(continuous.features.urls[f, 2])
-      df = read.delim(as.character(continuous.features.urls[f, 2]), stringsAsFactors = FALSE, header = FALSE)
-      z = with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3), score = V4))
+      z = bed.to.granges(continuous.features.urls[f, 2])
       sites.feat = sites
       sites.feat$score = 0
       sites.feat[S4Vectors::queryHits(suppressWarnings(IRanges::findOverlaps(sites.feat, z)))]$score = z[S4Vectors::subjectHits(suppressWarnings(IRanges::findOverlaps(sites.feat, z)))]$score
@@ -117,8 +92,7 @@ create.lasso.input = function(sampled.sites.file, genomic.features.file, mutatio
   selected.discrete.features.site1 = parallel::mclapply(1:nrow(discrete.features), function(f) {
     
     print(discrete.features[f, 2])
-    df = read.delim(as.character(discrete.features[f, 2]), stringsAsFactors = FALSE, header = FALSE)
-    z = with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+    z = bed.to.granges(discrete.features[f, 2])
     sites.feat = sites
     sites.feat$score = "1"
     if (length(unique(S4Vectors::queryHits(suppressWarnings(IRanges::findOverlaps(sites.feat, z))))) == 0) {

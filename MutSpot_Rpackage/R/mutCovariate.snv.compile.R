@@ -26,14 +26,13 @@ mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %
 all.sites = readRDS(all.sites.file)
 all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% seqnames]
 all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
-sum(as.numeric(GenomicRanges::width(all.sites.masked)))
+# sum(as.numeric(GenomicRanges::width(all.sites.masked)))
 
 if (!is.null(region.of.interest)) {
   
   print("specified region")
   
-  all.sites = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-  all.sites = with(all.sites, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+  all.sites = bed.to.granges(region.of.interest)
   all.sites.masked = subtract.regions.from.roi(all.sites, mask.regions, cores = cores)
   all.sites.masked = all.sites.masked[as.character(GenomeInfoDb::seqnames(all.sites.masked)) %in% seqnames]
   
@@ -54,50 +53,50 @@ nind = length(ind.mut.count)
 # Define sample-specific features e.g. CIN index, COSMIC signatures
 if (!is.null(sample.specific.features.url.file)) {
   
-  sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
-  rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
-  sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)),]
-  sample.specific.features$sample.count=ind.mut.count[rownames(sample.specific.features)]
-  sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+  sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
+  rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
+  sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
+  sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+  sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
   
-  sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+  sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
     
     print(colnames(sample.specific.features)[x])
-    if(class(sample.specific.features[,x])=="character") {
+    if(class(sample.specific.features[ ,x]) == "character") {
       
-      t=factor(sample.specific.features[,x])
-      t=model.matrix(~t)[,-1]
+      t = factor(sample.specific.features[ ,x])
+      t = model.matrix( ~ t)[ ,-1]
       if (class(t) == "matrix") {
         
-      colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
-      colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
-      rownames(t)=rownames(sample.specific.features)
+      colnames(t) = substr(colnames(t), 2, nchar(colnames(t)))
+      colnames(t) = paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
+      rownames(t) = rownames(sample.specific.features)
       
       } else {
         
         t = as.data.frame(t)
-        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[ ,x]))[2], sep = "")
         rownames(t) = rownames(sample.specific.features)
         
       }
       
     } else {
       
-      t=as.data.frame(sample.specific.features[,x])
-      colnames(t)=colnames(sample.specific.features)[x]
-      rownames(t)=rownames(sample.specific.features)
+      t = as.data.frame(sample.specific.features[ ,x])
+      colnames(t) = colnames(sample.specific.features)[x]
+      rownames(t) = rownames(sample.specific.features)
       
     }
     return(t)
     
-  },mc.cores=cores)
+  }, mc.cores = cores)
   
-  sample.specific.features=do.call(cbind,sample.specific.features2)
+  sample.specific.features = do.call(cbind, sample.specific.features2)
   
 } else {
   
-  sample.specific.features=as.data.frame(ind.mut.count)
-  colnames(sample.specific.features)="sample.count"
+  sample.specific.features = as.data.frame(ind.mut.count)
+  colnames(sample.specific.features) = "sample.count"
   
 }
 
@@ -130,7 +129,7 @@ genome.freq.aggregated = aggregate(genome.freq$x, by = genome.freq[ ,colnames(ge
 
 } else {
   
-  genome.freq.aggregated = aggregate(genome.freq$x ~ genome.freq[,colnames(genome.freq)[1]], FUN = sum)
+  genome.freq.aggregated = aggregate(genome.freq$x ~ genome.freq[ ,colnames(genome.freq)[1]], FUN = sum)
   colnames(genome.freq.aggregated) = c(colnames(genome.freq)[1], "x")
   
 }
@@ -140,34 +139,17 @@ sort(sapply(ls(), function(x) { object.size(get(x)) / 10 ^ 6 } ))
 rm(list = c("genome.freq", "files"))
 gc(reset = T)
 
-# sample.specific = data.frame(samples = names(sample.specific.features[["sample.count"]]), sample.count = sample.specific.features[["sample.count"]])
-# sample.specific$samples = as.character(sample.specific$samples)
-
 # Add sample-specific features to genome table
 if (!is.null(sample.specific.features.url.file)) {
   
-#   for (i in names(sample.specific.features)[names(sample.specific.features) != "sample.count"]) {
-#     
-#     sample.specific[ ,i] = sample.specific.features[[i]][as.character(sample.specific$samples)]
-#       
-#   }
-#   
-# }
-# 
-# if (!is.null(sample.specific.features.url.file)) {
-#   
-# sample.specific = sample.specific[ ,-1]
 rownames(sample.specific.features) = NULL
 
-# sample.specific = unique(sample.specific)
 nind = nrow(sample.specific.features)
 sample.specific.features = sample.specific.features[rep(1:nrow(sample.specific.features), each = nrow(genome.freq.aggregated)), ]
 
 } else {
   
-  # sample.specific = sample.specific[ ,-1]
-
-  rownames(sample.specific.features)=NULL
+  rownames(sample.specific.features) = NULL
   nind = nrow(sample.specific.features)
   sample.specific.features = sample.specific.features[rep(1:nrow(sample.specific.features), each = nrow(genome.freq.aggregated)),]
   sample.specific.features = as.data.frame(sample.specific.features)
@@ -184,8 +166,21 @@ if (ncol(genome.freq.aggregated) <= 3) {
 }
 colnames(genome.freq.aggregated)[ncol(genome.freq.aggregated)] = "x.tot"
 
+if (ncol(genome.freq.aggregated) > 2) {
+  
+  genome.freq.aggregated = aggregate(genome.freq.aggregated$x.tot, by = genome.freq.aggregated[ ,colnames(genome.freq.aggregated) != "x.tot"], FUN = sum)
+  
+} else {
+  
+  genome.freq.aggregated = aggregate(genome.freq.aggregated$x.tot ~ genome.freq.aggregated[ ,colnames(genome.freq.aggregated)[1]], FUN = sum)
+  colnames(genome.freq.aggregated) = c(colnames(genome.freq.aggregated)[1], "x.tot")
+  
+}
+
+colnames(genome.freq.aggregated)[ncol(genome.freq.aggregated)] = "x.tot"
+
 genome.freq.aggregated = data.table::setDT(genome.freq.aggregated)
-aggregated.table = merge(mutfreq.aggregated,genome.freq.aggregated, all = TRUE)
+aggregated.table = merge(mutfreq.aggregated, genome.freq.aggregated, all = TRUE)
 sort(sapply(ls(), function(x) { object.size(get(x)) / 10 ^ 6 } ))
 rm(list = c("genome.freq.aggregated", "mutfreq.aggregated"))
 gc(reset = T)

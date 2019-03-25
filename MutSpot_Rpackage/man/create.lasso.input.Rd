@@ -10,7 +10,7 @@ create.lasso.input(sampled.sites.file, genomic.features.file, mutation.type,
 \arguments{
 \item{sampled.sites.file}{Sampled mutated and non-mutated sites RDS file.}
 
-\item{genomic.features.file}{Text file containing URLs of potential continuous and discrete epigenetic features to select from.}
+\item{genomic.features.file}{Dataframe containing URLs of potential continuous and discrete epigenetic features to select from.}
 
 \item{mutation.type}{Type of mutation, snv or indel.}
 

@@ -19,11 +19,6 @@ mutAnnotate = function(hotspots.file, promoter.file = system.file("extdata", "En
   mut.regions <- with(hotspots.ann, GenomicRanges::GRanges(chrom, IRanges::IRanges(start, end), pval = pval, length = length, p.bg = p.bg, k = k, fdr = fdr))
   names(mut.regions) = rownames(hotspots.ann)
   
-  # roi.cds <- bed.to.grangeslist(cds.file)
-  # roi.transcripts = range(roi.cds)
-  # roi.transcripts = BiocGenerics::unlist(roi.transcripts)
-  # roi.transcripts = roi.transcripts + 10000
-  
   roi.prom <- bed.to.grangeslist(promoter.file)
   roi.3utr <- bed.to.grangeslist(utr3.file)
   roi.5utr <- bed.to.grangeslist(utr5.file)

@@ -5,7 +5,7 @@
 #' @return A list containing binned SNV local mutation rates and binned indel local mutation rates.
 #' @export
 
-local.mutrate = function(snv.mutations.file, indel.mutations.file){
+local.mutrate = function(snv.mutations.file, indel.mutations.file) {
   # local.mutrate = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "mutrec2"), cores = 1){
     
   # If SNV mutations available, else skip this
@@ -43,7 +43,6 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file){
     genome.bins.mutcount = tapply(maf.ovl.m[ ,2], names(genome.bins.grl.masked)[maf.ovl.m[ ,1]], function(s) length(s))
     genome.bins.mutcount = data.frame(name = names(genome.bins.mutcount), mutcount = genome.bins.mutcount)
     genome.bins.mutrate = merge(genome.bins.length, genome.bins.mutcount, all = T)
-    
     
     genome.bins.mutrate[is.na(genome.bins.mutrate)] = 0
     genome.bins.mutrate$mut.rate = genome.bins.mutrate$mutcount / genome.bins.mutrate$length / nind.snv

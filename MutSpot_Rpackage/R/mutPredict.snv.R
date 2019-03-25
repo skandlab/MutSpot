@@ -43,74 +43,76 @@ ind.mut.count.snv = sapply(maf.ind.snv, length)
 if (!is.null(sample.specific.features.url.file)) {
   
   sample.specific.features = read.delim(sample.specific.features.url.file,stringsAsFactors = FALSE)
-  if (nrow(sample.specific.features)!=0) {
-  rownames(sample.specific.features)=as.character(sample.specific.features$SampleID)
-  sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count.snv)),]
-  sample.specific.features$sample.count=ind.mut.count.snv[rownames(sample.specific.features)]
-  sample.specific.features=sample.specific.features[,-which(colnames(sample.specific.features)=="SampleID")]
+  if (nrow(sample.specific.features) != 0) {
+    
+  rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
+  sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count.snv)), ]
+  sample.specific.features$sample.count = ind.mut.count.snv[rownames(sample.specific.features)]
+  sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
   
-  sample.specific.features2=parallel::mclapply(1:ncol(sample.specific.features), FUN=function(x) {
+  sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
     
     print(colnames(sample.specific.features)[x])
-    if(class(sample.specific.features[,x])=="character") {
+    if (class(sample.specific.features[ ,x]) == "character") {
       
-      t=factor(sample.specific.features[,x])
-      t=model.matrix(~t)[,-1]
+      t = factor(sample.specific.features[ ,x])
+      t = model.matrix( ~ t)[ ,-1]
       if (class(t) == "matrix") {
         
-      colnames(t)=substr(colnames(t),2,nchar(colnames(t)))
-      colnames(t)=paste(colnames(sample.specific.features)[x],colnames(t),sep="")
-      rownames(t)=rownames(sample.specific.features)
+      colnames(t) = substr(colnames(t), 2, nchar(colnames(t)))
+      colnames(t) = paste(colnames(sample.specific.features)[x], colnames(t), sep = "")
+      rownames(t) = rownames(sample.specific.features)
       
       } else {
         
         t = as.data.frame(t)
-        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[,x]))[2], sep = "")
+        colnames(t) = paste(colnames(sample.specific.features)[x], levels(factor(sample.specific.features[ ,x]))[2], sep = "")
         rownames(t) = rownames(sample.specific.features)
         
       }
       
     } else {
       
-      t=as.data.frame(sample.specific.features[,x])
-      colnames(t)=colnames(sample.specific.features)[x]
-      rownames(t)=rownames(sample.specific.features)
+      t = as.data.frame(sample.specific.features[ ,x])
+      colnames(t) = colnames(sample.specific.features)[x]
+      rownames(t) = rownames(sample.specific.features)
       
     }
     return(t)
     
-  },mc.cores=cores)
+  }, mc.cores = cores)
   
-  sample.specific.features=do.call(cbind,sample.specific.features2)
+  sample.specific.features = do.call(cbind, sample.specific.features2)
   
   sample.specific.urls <- read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
-  continuous.sample.specific=NULL
+  continuous.sample.specific = NULL
   for (j in 1:ncol(sample.specific.urls)) {
     
     if (class(sample.specific.urls[,j]) != "character"){
       
-      continuous.sample.specific=c(continuous.sample.specific,colnames(sample.specific.urls)[j])
+      continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
       
     }
     
   }
   
 } else {
-  sample.specific.features=as.data.frame(ind.mut.count.snv)
-  colnames(sample.specific.features)="sample.count"
+  
+  sample.specific.features = as.data.frame(ind.mut.count.snv)
+  colnames(sample.specific.features) = "sample.count"
   continuous.sample.specific = "sample.count"
 }
   
 } else {
   
-  sample.specific.features=as.data.frame(ind.mut.count.snv)
-  colnames(sample.specific.features)="sample.count"
+  sample.specific.features = as.data.frame(ind.mut.count.snv)
+  colnames(sample.specific.features) = "sample.count"
   continuous.sample.specific = "sample.count"
   
 }
 
 # Remove masked regions from SNV mutations
-maf.masked.snv <-maf.snv[-S4Vectors::subjectHits(IRanges::findOverlaps(mask.regions, maf.snv))]
+maf.masked.snv <- maf.snv[-S4Vectors::subjectHits(IRanges::findOverlaps(mask.regions, maf.snv))]
 dupl.snv = duplicated(maf.masked.snv)
 maf.uniq.snv = maf.masked.snv[!dupl.snv, ]
 
@@ -126,7 +128,7 @@ if (length(maf.uniq.snv) == 0) {
                    fdr=numeric(),
                    stringsAsFactors=FALSE)
   
-  mut.rec.hotspot2=NULL
+  mut.rec.hotspot2 = NULL
   
 } else {
   
@@ -137,9 +139,6 @@ names(mut.regions) = paste("Mutation", c(1:length(mut.regions)), sep = "")
 rm(list = c("maf.uniq.snv", "mask.regions"))
 gc()
 
-k=glmnet::glmnet(x=matrix(sample(c(1,0),200,replace=TRUE),ncol=2),y=matrix(sample(c(1,0),100,replace=TRUE),ncol=1))
-rm(k)
-
 load(file = snv.model.file)
 LRmodel.snv = LRmodel
 
@@ -147,7 +146,8 @@ LRmodel.snv = LRmodel
 if (!is.null(nucleotide.selected.file)) {
   
 nucleotide.selected = readRDS(nucleotide.selected.file)
-if (!is.null(nucleotide.selected)){
+if (!is.null(nucleotide.selected)) {
+  
 nucleotide.selected = as.data.frame(nucleotide.selected)
 colnames(nucleotide.selected) = "sequence"
 nucleotide.selected$type = "type"
@@ -173,10 +173,13 @@ if ("threeLeft" %in% nucleotide.selected$type){ sel.motif$threeLeft = nucleotide
 if ("fiveMer" %in% nucleotide.selected$type){ sel.motif$fiveMer = nucleotide.selected[which(nucleotide.selected$type == "fiveMer"), "sequence"] }
 if ("fiveRight" %in% nucleotide.selected$type){ sel.motif$fiveRight = nucleotide.selected[which(nucleotide.selected$type == "fiveRight"), "sequence"] }
 if ("fiveLeft" %in% nucleotide.selected$type){ sel.motif$fiveLeft = nucleotide.selected[which(nucleotide.selected$type == "fiveLeft"), "sequence"] }
+
 } else {
+  
   nucleotide.selected = sel.motif = NULL
   
 }
+
 } else {
   
   nucleotide.selected = sel.motif = NULL
@@ -188,19 +191,22 @@ if (!is.null(continuous.features.selected.snv.url.file)) {
   
 selected.continuous.urls.snv <- read.delim(continuous.features.selected.snv.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
 
-if (nrow(selected.continuous.urls.snv)!=0) {
+if (nrow(selected.continuous.urls.snv) != 0) {
+  
 continuous.selected.features.snv = parallel::mclapply(selected.continuous.urls.snv[ ,2], function(f) {
   
   print(f)
-  df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-  with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3),score = V4))
+  df = bed.to.granges(as.character(f))
   
   }, mc.cores = cores)
 names(continuous.selected.features.snv) = as.character(selected.continuous.urls.snv[ ,1])
+
 } else {
+  
   continuous.selected.features.snv = NULL
   
 }
+
 } else {
   
   continuous.selected.features.snv = NULL
@@ -210,17 +216,18 @@ names(continuous.selected.features.snv) = as.character(selected.continuous.urls.
 if (!is.null(discrete.features.selected.snv.url.file)) {
   
 selected.discrete.urls.snv <- read.delim(discrete.features.selected.snv.url.file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
-if (nrow(selected.discrete.urls.snv)!=0) {
+if (nrow(selected.discrete.urls.snv) != 0) {
 
 discrete.selected.features.snv = parallel::mclapply(selected.discrete.urls.snv[ ,2], function(f) {
   
   print(f)
-  df = read.delim(as.character(f), stringsAsFactors = FALSE, header = FALSE)
-  with(df, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+  df = bed.to.granges(as.character(f))
   
   }, mc.cores = cores)
 names(discrete.selected.features.snv) = as.character(selected.discrete.urls.snv[ ,1])
+
 } else {
+  
   discrete.selected.features.snv = NULL
   
 }
@@ -230,12 +237,12 @@ names(discrete.selected.features.snv) = as.character(selected.discrete.urls.snv[
   
   }
 
-continuous.sample.specific=c(continuous.sample.specific,names(continuous.selected.features.snv))
+continuous.sample.specific = c(continuous.sample.specific, names(continuous.selected.features.snv))
 
 # Run hotspot recurrence analysis
 if (is.null(region.of.interest)) {
   
-  mut.rec <- mutPredict.snv.run.lr(roi = mut.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific=continuous.sample.specific, min.count = min.count, genome.size = genome.size, cores = cores)
+  mut.rec <- mutPredict.snv.run.lr(roi = mut.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific = continuous.sample.specific, min.count = min.count, genome.size = genome.size, cores = cores)
 
   mut.regions2 = mut.regions[names(mut.regions) %in% rownames(mut.rec)]
   mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
@@ -243,8 +250,7 @@ if (is.null(region.of.interest)) {
 } else {
   
   # Redefine hotspots if not whole genome analysis
-  regions = read.delim(region.of.interest, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-  regions = with(regions, GenomicRanges::GRanges(V1, IRanges::IRanges(V2, V3)))
+  regions = bed.to.granges(region.of.interest)
   regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
   names(regions) = paste("Region", c(1:length(regions)), sep = "")
   
@@ -263,7 +269,7 @@ if (is.null(region.of.interest)) {
   
   } else {
     
-    mut.rec <- mutPredict.snv.run.lr(roi = maf.masked.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific=continuous.sample.specific, min.count = min.count, genome.size = length(maf.masked.regions), cores = cores)
+    mut.rec <- mutPredict.snv.run.lr(roi = maf.masked.regions, maf.snv = maf.snv, maf.snv2 = maf.snv2, model.snv = LRmodel.snv, continuous.features.snv = continuous.selected.features.snv, discrete.features.snv = discrete.selected.features.snv, motifs = sel.motif, nucleotide.selected = nucleotide.selected, sample.specific.features = sample.specific.features, continuous.sample.specific = continuous.sample.specific, min.count = min.count, genome.size = length(maf.masked.regions), cores = cores)
     
     mut.regions2 = maf.masked.regions[names(maf.masked.regions) %in% rownames(mut.rec)]
     mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions2[rownames(mut.rec)])), start = GenomicRanges::start(mut.regions2[rownames(mut.rec)]), end = GenomicRanges::end(mut.regions2[rownames(mut.rec)]), mut.rec)
@@ -276,51 +282,48 @@ if (is.null(region.of.interest)) {
 if (merge.hotspots) {
   
   print("Merge overlapping hotspots in final results...")
-  mut.rec.hotspot2=mut.rec.hotspot
-  mut.rec.hotspot2$ID=as.character(rownames(mut.rec.hotspot2))
-  mut.rec.hotspot2=with(mut.rec.hotspot2,GenomicRanges::GRanges(chrom,IRanges::IRanges(start,end),pval=pval, length=length,p.bg=p.bg,k=k,fdr=fdr,ID=ID))
-  hotspots=IRanges::reduce(mut.rec.hotspot2)
-  hotspots$hs=paste("hs",1:length(hotspots),sep="")
-  ovl.mut=IRanges::findOverlaps(maf.snv,hotspots)
-  hotspots2=hotspots[S4Vectors::subjectHits(ovl.mut)]
-  hotspots2$sample=maf.snv[S4Vectors::queryHits(ovl.mut)]$sid
-  hotspots2=GenomicRanges::as.data.frame(hotspots2)
-  hotspots2=aggregate(sample~hs,hotspots2,FUN=function(k) length(unique(k)))
-  colnames(hotspots2)[2]="k"
-  rownames(hotspots2)=hotspots2$hs
-  hotspots$k=0
+  mut.rec.hotspot2 = mut.rec.hotspot
+  mut.rec.hotspot2$ID = as.character(rownames(mut.rec.hotspot2))
+  mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(chrom, IRanges::IRanges(start, end), pval = pval, length = length, p.bg = p.bg, k = k, fdr = fdr, ID = ID))
+  hotspots = IRanges::reduce(mut.rec.hotspot2)
+  hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+  ovl.mut = IRanges::findOverlaps(maf.snv, hotspots)
+  hotspots2 = hotspots[S4Vectors::subjectHits(ovl.mut)]
+  hotspots2$sample = maf.snv[S4Vectors::queryHits(ovl.mut)]$sid
+  hotspots2 = GenomicRanges::as.data.frame(hotspots2)
+  hotspots2 = aggregate(sample ~ hs, hotspots2, FUN = function(k) length(unique(k)))
+  colnames(hotspots2)[2] = "k"
+  rownames(hotspots2) = hotspots2$hs
+  hotspots$k = 0
   for (i in 1:length(hotspots)) {
     # print(i)
-    hotspots$k[i]=hotspots2[which(hotspots2$hs==hotspots$hs[i]),"k"]
+    hotspots$k[i] = hotspots2[which(hotspots2$hs == hotspots$hs[i]), "k"]
     
   }
 
-  ovl=IRanges::findOverlaps(mut.rec.hotspot2,hotspots)
-  mut.rec.hotspot2=mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
-  mut.rec.hotspot2$hs=hotspots[S4Vectors::subjectHits(ovl)]$hs
-  mut.rec.hotspot2$region.start=IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
-  mut.rec.hotspot2$region.end=IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
-  mut.rec.hotspot2$new.k=hotspots[S4Vectors::subjectHits(ovl)]$k
-  mut.rec.hotspot2=GenomicRanges::as.data.frame(mut.rec.hotspot2)
-  mut.rec.hotspot2=mut.rec.hotspot2[order(mut.rec.hotspot2$pval,decreasing=FALSE),]
-  mut.rec.hotspot2=mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs),]
-  mut.rec.hotspot2=mut.rec.hotspot2[,c("seqnames","region.start","region.end","pval","length","p.bg","new.k","fdr","ID")]
-  mut.rec.hotspot2$length=mut.rec.hotspot2$region.end-mut.rec.hotspot2$region.start+1
-  colnames(mut.rec.hotspot2)=c(colnames(mut.rec.hotspot),"ID")
-  rownames(mut.rec.hotspot2)=mut.rec.hotspot2$ID
-  mut.rec.hotspot2=mut.rec.hotspot2[,-ncol(mut.rec.hotspot2)]
+  ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+  mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+  mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+  mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+  mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+  mut.rec.hotspot2$new.k = hotspots[S4Vectors::subjectHits(ovl)]$k
+  mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+  mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$pval, decreasing = FALSE), ]
+  mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+  mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "pval", "length", "p.bg", "new.k", "fdr", "ID")]
+  mut.rec.hotspot2$length = mut.rec.hotspot2$region.end - mut.rec.hotspot2$region.start + 1
+  colnames(mut.rec.hotspot2) = c(colnames(mut.rec.hotspot), "ID")
+  rownames(mut.rec.hotspot2) = mut.rec.hotspot2$ID
+  mut.rec.hotspot2 = mut.rec.hotspot2[ ,-ncol(mut.rec.hotspot2)]
 
-  
-  
-  
-  
 } else {
-  mut.rec.hotspot2=NULL
+  
+  mut.rec.hotspot2 = NULL
+  
 }
 
-
 }
 
-return(list(mut.rec.hotspot,mut.rec.hotspot2))
+return(list(mut.rec.hotspot, mut.rec.hotspot2))
 
 }

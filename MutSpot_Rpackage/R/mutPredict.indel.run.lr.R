@@ -112,22 +112,20 @@ mutPredict.indel.run.lr <- function(roi, maf.indel, maf.indel2, model.indel, con
       # Assign sample specific feature scores to each site
       for (i in colnames(sample.specific.features)) {
         
-        df[ ,i] = sample.specific.features[as.character(s),i]
+        df[ ,i] = sample.specific.features[as.character(s), i]
         
       }
       
       df = df[ ,c(colnames(sample.specific.features), colnames(df)[!colnames(df) %in% names(sample.specific.features)])]
       
-      if (sum(!colnames(df) %in% c(continuous.sample.specific,"sample.count"))>0 ) {
+      if (sum(!colnames(df) %in% c(continuous.sample.specific, "sample.count")) > 0 ) {
         
-        for (i in colnames(df)[!colnames(df) %in% c(continuous.sample.specific,"sample.count")]) {
+        for (i in colnames(df)[!colnames(df) %in% c(continuous.sample.specific, "sample.count")]) {
           
-          # if (!colnames(roi.feat.snv)[i] %in% names(continuous.features.snv)) {
-          
-          # print(colnames(roi.feat.snv[i]))
-          df[ ,i] <- as.character(df[ ,i])
+           df[ ,i] <- as.character(df[ ,i])
           
         }
+        
       }
       
       # Compute background mutation rate foreach site in each individual

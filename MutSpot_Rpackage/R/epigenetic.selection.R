@@ -15,11 +15,120 @@
 
 epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, cores = 1, cutoff = 0.75) {
   
+  # Bin bigwig files
   if (!is.null(genomic.features)) {
     
-    genomic.features.snv = genomic.features.indel = genomic.features
+    # Define all potential epigenetic features
+    all.features = read.delim(genomic.features, stringsAsFactors = FALSE, header = TRUE)
     
+    # Define continuous epigenetic features, if exists
+    if (sum(all.features$feature_type == 1) > 0) {
+      
+      continuous.features = all.features[which(all.features$feature_type == 1), ]
+      continuous.features.urls=continuous.features  
+      
+      # Bin features 
+      if (sum(!is.na(continuous.features$nbins)) > 0) {
+        
+        to.bin=which(!is.na(continuous.features$nbins))
+        
+        # Bin continuous features based on number of bins provided
+        for (x in to.bin) {
+          
+          print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep=""))
+          
+          continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+          
+          feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
+          write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          
+          continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+          all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+          
+        }
+        
+      }
+      
+    }
+      
+    genomic.features.snv = genomic.features.indel = all.features
+    
+    } else if (!is.null(genomic.features.snv)) {
+    
+      # Define all potential epigenetic features
+      all.features = read.delim(genomic.features.snv, stringsAsFactors = FALSE, header = TRUE)
+      
+      # Define continuous epigenetic features, if exists
+      if (sum(all.features$feature_type == 1) > 0) {
+        
+        continuous.features = all.features[which(all.features$feature_type == 1), ]
+        continuous.features.urls=continuous.features  
+        
+        # Bin features 
+        if (sum(!is.na(continuous.features$nbins)) > 0) {
+          
+          to.bin=which(!is.na(continuous.features$nbins))
+          
+          # Bin continuous features based on number of bins provided
+          for (x in to.bin) {
+            
+            print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep=""))
+            
+            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+            
+            feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
+            write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+            
+            continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+            all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+            
+          }
+          
+        }
+        
+      }
+      
+        genomic.features.snv = all.features
+      
+    } else if (!is.null(genomic.features.indel)) {
+    
+      # Define all potential epigenetic features
+      all.features = read.delim(genomic.features.indel, stringsAsFactors = FALSE, header = TRUE)
+      
+      # Define continuous epigenetic features, if exists
+      if (sum(all.features$feature_type == 1) > 0) {
+        
+        continuous.features = all.features[which(all.features$feature_type == 1), ]
+        continuous.features.urls=continuous.features  
+        
+        # Bin features 
+        if (sum(!is.na(continuous.features$nbins)) > 0) {
+          
+          to.bin=which(!is.na(continuous.features$nbins))
+          
+          # Bin continuous features based on number of bins provided
+          for (x in to.bin) {
+            
+            print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep=""))
+            
+            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+            
+            feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
+            write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+            
+            continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+            all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
+            
+          }
+          
+        }
+        
+      }
+        
+        genomic.features.indel = all.features
+      
   }
+  
   
   # If SNV mutations available, else skip this
   if (!is.null(sampled.sites.snv.file)) {
@@ -127,17 +236,11 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
   # Consider fixed features that do not undergo selection
   if (!is.null(genomic.features.fixed)) {
     
-    genomic.features.fixed.snv = genomic.features.fixed.indel = genomic.features.fixed
-    
-  }
-  
-  if (!is.null(genomic.features.fixed.snv)) {
-
-    all.fixed.snv = read.delim(genomic.features.fixed.snv, stringsAsFactors = FALSE, header = TRUE)    
-    if (sum(all.fixed.snv$feature_type==1)>0) {
+    all.fixed = read.delim(genomic.features.fixed, stringsAsFactors = FALSE, header = TRUE)    
+    if (sum(all.fixed$feature_type == 1) > 0) {
       
-      fixed.continuous = all.fixed.snv[which(all.fixed.snv$feature_type == 1), ]
-      fixed.continuous.urls=fixed.continuous  
+      fixed.continuous = all.fixed[which(all.fixed$feature_type == 1), ]
+      fixed.continuous.urls = fixed.continuous  
       
       # Bin features 
       if (sum(!is.na(fixed.continuous$nbins)) > 0) {
@@ -160,27 +263,65 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
         
       }
       
-      fixed.continuous.urls=fixed.continuous.urls[,c("feature_name","file_path")]
-      features.continuous.url.snv = rbind(features.continuous.url.snv, fixed.continuous)
+      fixed.continuous.urls=fixed.continuous.urls[ ,c("feature_name","file_path")]
+      rownames(fixed.continuous.urls) = NULL
+      if (!is.null(features.continuous.url.snv)) {
+        
+        rownames(features.continuous.url.snv) = NULL
+        features.continuous.url.snv = rbind(features.continuous.url.snv, fixed.continuous.urls)
+        
+      } else {
+        
+        features.continuous.url.snv = fixed.continuous.urls
+        
+      }
+      if (!is.null(features.continuous.url.indel)) {
+        
+        rownames(features.continuous.url.indel) = NULL
+        features.continuous.url.indel = rbind(features.continuous.url.indel, fixed.continuous.urls)
+        
+      } else {
+        
+        features.continuous.url.indel = fixed.continuous.urls
+        
+      }
       
     } 
     
-  if (sum(all.fixed.snv$feature_type==0)>0) {
+    if (sum(all.fixed$feature_type == 0) > 0) {
+      
+      fixed.discrete = all.fixed[which(all.fixed$feature_type == 0), 1:2]
+      rownames(fixed.discrete) = NULL
+      if (!is.null(features.discrete.url.snv)) {
+        
+        rownames(features.discrete.url.snv) = NULL
+        features.discrete.url.snv = rbind(features.discrete.url.snv, fixed.discrete)
+        
+      } else {
+        
+        features.discrete.url.snv = fixed.discrete
+        
+      }
+      if (!is.null(features.discrete.url.indel)) {
+        
+        rownames(features.discrete.url.indel) = NULL
+        features.discrete.url.indel = rbind(features.discrete.url.indel, fixed.discrete)
+        
+      } else {
+        
+        features.discrete.url.indel = fixed.discrete
+        
+      }
+      
+    }
     
-    fixed.discrete = all.fixed.snv[which(all.fixed.snv$feature_type == 0), 1:2]
-    features.discrete.url.snv = rbind(features.discrete.url.snv, fixed.discrete)
+  } else if (!is.null(genomic.features.fixed.snv)) {
     
-  }
-  }
-  
-  if (!is.null(genomic.features.fixed.indel)) {
-    
-    all.fixed.indel=read.delim(genomic.features.fixed.indel, stringsAsFactors = FALSE, header=TRUE)
-
-    if (sum(all.fixed.indel$feature_type==1)>0) {
-
-      fixed.continuous = all.fixed.indel[which(all.fixed.indel$feature_type == 1), ]
-      fixed.continuous.urls=fixed.continuous  
+    all.fixed = read.delim(genomic.features.fixed.snv, stringsAsFactors = FALSE, header = TRUE)    
+    if (sum(all.fixed$feature_type == 1) > 0) {
+      
+      fixed.continuous = all.fixed[which(all.fixed$feature_type == 1), ]
+      fixed.continuous.urls = fixed.continuous  
       
       # Bin features 
       if (sum(!is.na(fixed.continuous$nbins)) > 0) {
@@ -203,17 +344,99 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
         
       }
       
-      fixed.continuous.urls=fixed.continuous.urls[,c("feature_name","file_path")]
-      features.continuous.url.indel = rbind(features.continuous.url.indel, fixed.continuous)
+      fixed.continuous.urls=fixed.continuous.urls[ ,c("feature_name","file_path")]
+      rownames(fixed.continuous.urls) = NULL
+      if (!is.null(features.continuous.url.snv)) {
+        
+        rownames(features.continuous.url.snv) = NULL
+        features.continuous.url.snv = rbind(features.continuous.url.snv, fixed.continuous.urls)
+        
+      } else {
+        
+        features.continuous.url.snv = fixed.continuous.urls
+        
+      }
+
+    } 
+    
+    if (sum(all.fixed$feature_type == 0) > 0) {
       
-    }    
+      fixed.discrete = all.fixed[which(all.fixed$feature_type == 0), 1:2]
+      rownames(fixed.discrete) = NULL
+      if (!is.null(features.discrete.url.snv)) {
+        
+        rownames(features.discrete.url.snv) = NULL
+        features.discrete.url.snv = rbind(features.discrete.url.snv, fixed.discrete)
+        
+      } else {
+        
+        features.discrete.url.snv = fixed.discrete
+        
+      }
+
+    }
     
-  if (sum(all.fixed.indel$feature_type==0)>0) {
+  } else if (!is.null(genomic.features.fixed.indel)) {
     
-    fixed.discrete = all.fixed.indel[which(all.fixed.indel$feature_type==0),1:2]
-    features.discrete.url.indel = rbind(features.discrete.url.indel, fixed.discrete)
+    all.fixed = read.delim(genomic.features.fixed, stringsAsFactors = FALSE, header = TRUE)    
+    if (sum(all.fixed$feature_type == 1) > 0) {
+      
+      fixed.continuous = all.fixed[which(all.fixed$feature_type == 1), ]
+      fixed.continuous.urls = fixed.continuous  
+      
+      # Bin features 
+      if (sum(!is.na(fixed.continuous$nbins)) > 0) {
+        
+        to.bin=which(!is.na(fixed.continuous$nbins))
+        
+        # Bin continuous features based on number of bins provided
+        for (x in to.bin) {
+          
+          print(paste("Binning ", fixed.continuous[x, "feature_name"], " into ", fixed.continuous[x, "nbins"], " bins", sep=""))
+          
+          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
+          
+          feature.dir=gsub( gsub(".*./","",fixed.continuous[x,"file_path"]),"",fixed.continuous[x,"file_path"])
+          write.table(fixed.continuous.binned, file = paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          
+          fixed.continuous.urls[x,"file_path"] <- paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep="")
+          
+        }
+        
+      }
+      
+      fixed.continuous.urls=fixed.continuous.urls[ ,c("feature_name","file_path")]
+      rownames(fixed.continuous.urls) = NULL
+      if (!is.null(features.continuous.url.indel)) {
+        
+        rownames(features.continuous.url.indel) = NULL
+        features.continuous.url.indel = rbind(features.continuous.url.indel, fixed.continuous.urls)
+        
+      } else {
+        
+        features.continuous.url.indel = fixed.continuous.urls
+        
+      }
+      
+    } 
     
-  }
+    if (sum(all.fixed$feature_type == 0) > 0) {
+      
+      fixed.discrete = all.fixed[which(all.fixed$feature_type == 0), 1:2]
+      rownames(fixed.discrete) = NULL
+      if (!is.null(features.discrete.url.indel)) {
+        
+        rownames(features.discrete.url.indel) = NULL
+        features.discrete.url.indel = rbind(features.discrete.url.indel, fixed.discrete)
+        
+      } else {
+        
+        features.discrete.url.indel = fixed.discrete
+        
+      }
+      
+    }
+    
   }
   
 return(list(freq.snv, features.continuous.url.snv, features.discrete.url.snv, freq.indel, features.continuous.url.indel, features.discrete.url.indel))

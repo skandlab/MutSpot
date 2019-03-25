@@ -43,8 +43,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     if (!is.null(region.of.interest)) {
       
       # Define specified region
-      regions = read.delim(region.of.interest, header=FALSE, sep="\t", stringsAsFactors = FALSE)
-      regions = with(regions, GenomicRanges::GRanges(V1, IRanges::IRanges(V2,V3)))
+      regions = bed.to.granges(region.of.interest)
       regions = GenomicRanges::reduce(regions)
       regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
@@ -116,6 +115,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         if (length(pos) > 0) {
           
         gr = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(all.sites.snv)[i]), IRanges::IRanges(pos, pos))
+        return (gr)
         
         } else { 
           
@@ -166,8 +166,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     # If specified region, redefine indel mutations to be in specified region
     if (!is.null(region.of.interest)) {
       
-      regions = read.delim(region.of.interest ,header=FALSE, sep="\t", stringsAsFactors = FALSE)
-      regions = with(regions,GenomicRanges::GRanges(V1,IRanges::IRanges(V2,V3)))
+      regions = bed.to.granges(region.of.interest)
       regions = GenomicRanges::reduce(regions)
       regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
@@ -237,6 +236,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       if (length(pos) > 0) {
         
       gr = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(all.sites.indel)[i]), IRanges::IRanges(pos, pos))
+      return(gr)
       
       } else {
         
@@ -294,8 +294,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       # If specified region, redefine SNV mutations to be in specified region
       if (!is.null(region.of.interest)) {
         
-        regions = read.delim(region.of.interest, header=FALSE, sep="\t", stringsAsFactors = FALSE)
-        regions = with(regions,GenomicRanges::GRanges(V1,IRanges::IRanges(V2,V3)))
+        regions = bed.to.granges(region.of.interest)
         regions = GenomicRanges::reduce(regions)
         
         ovl = IRanges::findOverlaps(maf.snv.mutations, regions)
@@ -357,8 +356,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       # If specified region, redefine indel mutations to be in specified region
       if (!is.null(region.of.interest)) {
         
-        regions = read.delim(region.of.interest,header=FALSE, sep="\t", stringsAsFactors = FALSE)
-        regions = with(regions,GenomicRanges::GRanges(V1,IRanges::IRanges(V2,V3)))
+        regions = bed.to.granges(region.of.interest)
         regions = GenomicRanges::reduce(regions)
         
         ovl = IRanges::findOverlaps(maf.indel.mutations, regions)
