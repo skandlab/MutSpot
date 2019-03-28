@@ -239,6 +239,8 @@ if (is.null(region.of.interest)) {
   }
 
 # merge overlapping hotspots in mut.rec.hotspot, assign smallest pvalue and recalculate k
+if (nrow(mut.rec.hotspot) != 0) {
+  
 if (merge.hotspots) {
   
   print("Merge overlapping hotspots in final results...")
@@ -276,6 +278,12 @@ if (merge.hotspots) {
   rownames(mut.rec.hotspot2) = mut.rec.hotspot2$ID
   mut.rec.hotspot2 = mut.rec.hotspot2[ ,-ncol(mut.rec.hotspot2)]
  
+} else {
+  
+  mut.rec.hotspot2 = NULL
+  
+}
+  
 } else {
   
   mut.rec.hotspot2 = NULL

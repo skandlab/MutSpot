@@ -8,7 +8,7 @@ epigenetic.selection(sampled.sites.snv.file, sampled.sites.indel.file,
   genomic.features.snv = NULL, genomic.features.indel = NULL,
   genomic.features = NULL, genomic.features.fixed.snv = NULL,
   genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL,
-  cores = 1, cutoff = 0.75)
+  cores = 1, cutoff = 0.75, feature.dir)
 }
 \arguments{
 \item{sampled.sites.snv.file}{Sampled SNV mutated and non-mutated sites RDS file.}
@@ -30,6 +30,8 @@ epigenetic.selection(sampled.sites.snv.file, sampled.sites.indel.file,
 \item{cores}{Number of cores, default = 1.}
 
 \item{cutoff}{Frequency cutoff/threshold to determine epigenetic features used in prediction model, ranges from 0.5 to 1, default = 0.75.}
+
+\item{feature.dir}{Directory containing binned feature bed files.}
 }
 \value{
 A list containing frequency of SNV epigenetic features selected through lasso, SNV continuous and discrete features that passed the threshold, frequency of indel epigenetic features selected through lasso, indel continuous and discrete features that passed the threshold.

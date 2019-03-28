@@ -245,8 +245,8 @@ if (is.null(indel.mutations) | !file.exists(sampled.sites.indel.file)) {
 
 
 ## Step 2 ##
-local.mutrate.snv.file = paste(working.dir, "features/", "localmutrate_snv.bed", sep = "")
-local.mutrate.indel.file = paste(working.dir, "features/", "localmutrate_indel.bed", sep = "")
+local.mutrate.snv.file = paste(features.dir, "localmutrate_snv.bed", sep = "")
+local.mutrate.indel.file = paste(features.dir, "localmutrate_indel.bed", sep = "")
 
   if (2 %in% run.to) {
     
@@ -341,7 +341,7 @@ if (4.1 %in% run.to) {
   print("Select epigenetic features for SNV/indel")
   
     ## Step 4I ##
-epigenetic_selection = epigenetic.selection(sampled.sites.snv.file = sampled.sites.snv.file, sampled.sites.indel.file = sampled.sites.indel.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv, genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed, cores = cores, cutoff = cutoff.features)
+epigenetic_selection = epigenetic.selection(sampled.sites.snv.file = sampled.sites.snv.file, sampled.sites.indel.file = sampled.sites.indel.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv, genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed, cores = cores, cutoff = cutoff.features, feature.dir = features.dir)
 
 # Check for need to change threshold for SNVs
 if (!is.null(epigenetic_selection[[1]])) {

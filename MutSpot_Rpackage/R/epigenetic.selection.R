@@ -10,10 +10,11 @@
 #' @param genomic.features.fixed Text file containing URLs of fixed continuous and discrete SNV and indel epigenetic features, default = NULL.
 #' @param cores Number of cores, default = 1.
 #' @param cutoff Frequency cutoff/threshold to determine epigenetic features used in prediction model, ranges from 0.5 to 1, default = 0.75.
+#' @param feature.dir Directory containing binned feature bed files.
 #' @return A list containing frequency of SNV epigenetic features selected through lasso, SNV continuous and discrete features that passed the threshold, frequency of indel epigenetic features selected through lasso, indel continuous and discrete features that passed the threshold.
 #' @export
 
-epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, cores = 1, cutoff = 0.75) {
+epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, cores = 1, cutoff = 0.75, feature.dir) {
   
   # Bin bigwig files
   if (!is.null(genomic.features)) {
@@ -39,8 +40,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
           
-          feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
-          write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
           continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
           all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
@@ -76,8 +76,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
             
             continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
             
-            feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
-            write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+             write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
             
             continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
             all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
@@ -113,8 +112,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
             
             continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
             
-            feature.dir=gsub( gsub(".*./","",continuous.features[x,"file_path"]),"",continuous.features[x,"file_path"])
-            write.table(continuous.features.binned, file = paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+            write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
             
             continuous.features.urls[x,"file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
             all.features[which(all.features$feature_name == continuous.features.urls[x, "feature_name"]), "file_path"] <- paste(feature.dir,continuous.features[x, "feature_name"],".bed",sep="")
@@ -254,8 +252,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
           
-          feature.dir=gsub( gsub(".*./","",fixed.continuous[x,"file_path"]),"",fixed.continuous[x,"file_path"])
-          write.table(fixed.continuous.binned, file = paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
           fixed.continuous.urls[x,"file_path"] <- paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep="")
           
@@ -335,8 +332,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
           
-          feature.dir=gsub( gsub(".*./","",fixed.continuous[x,"file_path"]),"",fixed.continuous[x,"file_path"])
-          write.table(fixed.continuous.binned, file = paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
           fixed.continuous.urls[x,"file_path"] <- paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep="")
           
@@ -396,8 +392,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
           
-          feature.dir=gsub( gsub(".*./","",fixed.continuous[x,"file_path"]),"",fixed.continuous[x,"file_path"])
-          write.table(fixed.continuous.binned, file = paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+          write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"],".bed",sep=""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
           fixed.continuous.urls[x,"file_path"] <- paste(feature.dir,fixed.continuous[x, "feature_name"],".bed",sep="")
           
