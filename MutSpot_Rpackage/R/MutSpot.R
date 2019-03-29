@@ -213,7 +213,15 @@ if (!is.null(sample_sites[[4]])) {
 
 if (!is.null(region.of.interest) & !is.null(snv.mutations)) {
   
+  if (file.exists(snv.mutations.region.file)) {
+    
   snv.mutations.int = snv.mutations.region.file
+  
+  } else {
+    
+    snv.mutations.int = NULL
+    
+  }
   
 } else {
   
@@ -223,7 +231,15 @@ if (!is.null(region.of.interest) & !is.null(snv.mutations)) {
 
 if (!is.null(region.of.interest) & !is.null(indel.mutations)) {
   
+  if (file.exists(indel.mutations.region.file)) {
+  
   indel.mutations.int = indel.mutations.region.file
+  
+  } else {
+    
+    indel.mutations.int = NULL
+    
+  }
   
 } else {
   

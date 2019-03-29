@@ -50,11 +50,14 @@ plot_top_hits = function(hotspots.file, fdr.cutoff = 0.1, color.muts ="orange", 
       ggplot2::geom_point(color = color.muts, size = 4) +
       ggplot2::theme_light() +
       ggplot2::theme(panel.grid.major.x = ggplot2::element_blank(),
-      panel.border = ggplot2::element_blank()) +
+      panel.border = ggplot2::element_blank(), panel.grid.minor.x = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_blank(), panel.grid.minor.y = ggplot2::element_blank(),
+      axis.line = ggplot2::element_line(colour = "black")) +
       ggplot2::xlab("Mutation position") +
       ggplot2::ylab("Number of mutated samples")+
       ggplot2::ggtitle(paste(top.hits$chrom[i], ":",top.hits$start[i], "-", top.hits$end[i], sep = "")) +
       ggplot2::scale_x_continuous(breaks = seq(min(data$position), max(data$position), by = 1), limits = c(data$position[1], data$position[nrow(data)])) +
+        ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, max(data[!is.na(data$mut.count),"mut.count"]) + 0.1))+
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))))
     dev.off()
     
