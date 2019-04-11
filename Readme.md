@@ -2,9 +2,9 @@ MutSpot
 ====================================
 
 ## Non-coding MUTation hotSPOT dectection in cancer genomes
-The MutSpot R package systematically and unbiasedly scans cancer whole genomes to detect mutation hotspots. MutSpot first builds a background mutation model that corrects for known covariates of mutation probability, such as local nucleotide context, replication timing and epigenomic features. Then Mutspot evaluates the mutation recurrence of focal DNA regions using a Poisson binomial model to account for varying mutation rates across different tumors. Mutation hotspots identified have significanlty higher mutation recurrence compared to the backgound genomic mutation rate, suggesting positive selection in cancer and involvement in tumorigenesis.
+The MutSpot R package systematically and unbiasedly scans cancer whole genomes to detect mutation hotspots. MutSpot first builds a background mutation model that corrects for known covariates of mutation probability, such as local nucleotide context, replication timing and epigenomic features. Then MutSpot evaluates the mutation recurrence of focal DNA regions using a Poisson binomial model to account for varying mutation rates across different tumors. Mutation hotspots identified have significanlty higher mutation recurrence compared to the backgound genomic mutation rate, suggesting positive selection in cancer and involvement in tumorigenesis.
 
-Reference:Guo et al., Nature Communications, 2018
+Reference: Guo et al., Nature Communications, 2018
 
 ------------------------------------------------------------------------------------
 
