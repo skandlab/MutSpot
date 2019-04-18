@@ -1,6 +1,7 @@
 #' Runs all or selected steps in MutSpot analysis.
 #'
 #' @param run.to Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.
+#' @param working.dir Working directory, default = NULL will use current working directory.
 #' @param chromosomes Character vector defining which chromosomes to compute feature matrix on, default = chr1-chrX.
 #' @param snv.mutations SNV mutations MAF file, default = NULL.
 #' @param indel.mutations Indel mutations MAF file, default = NULL.
@@ -44,8 +45,15 @@
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
-MutSpot = function(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), chromosomes = c(1:22,"X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
+MutSpot = function(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), working.dir = NULL, chromosomes = c(1:22,"X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
                   promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3, debug = FALSE) {
+  
+  # set working directory
+  if (is.null(working.dir)) {
+    
+    working.dir = getwd()
+    
+  }
   
 ## check format of working directory ##
 if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {

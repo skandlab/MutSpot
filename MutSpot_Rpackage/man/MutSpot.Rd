@@ -5,11 +5,11 @@
 \title{Runs all or selected steps in MutSpot analysis.}
 \usage{
 MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
-  9.3), chromosomes = c(1:22, "X"), snv.mutations = NULL,
-  indel.mutations = NULL, mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"),
-  all.sites.file = system.file("extdata", "all_sites.RDS", package =
-  "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T,
+  9.3), working.dir = NULL, chromosomes = c(1:22, "X"),
+  snv.mutations = NULL, indel.mutations = NULL,
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package =
+  "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package
+  = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T,
   cores = 1, cutoff.nucleotide = 0.9, cutoff.nucleotide.new = NULL,
   genomic.features.snv = NULL, genomic.features.indel = NULL,
   genomic.features = NULL, genomic.features.fixed.snv = NULL,
@@ -28,6 +28,8 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 }
 \arguments{
 \item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.}
+
+\item{working.dir}{Working directory, default = NULL will use current working directory.}
 
 \item{chromosomes}{Character vector defining which chromosomes to compute feature matrix on, default = chr1-chrX.}
 

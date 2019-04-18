@@ -160,31 +160,31 @@ print("Fit model using glm")
   nucleotide.context = readRDS(nucleotide.selected.file)
   nucleotide.context = gsub("one", "oneMer", nucleotide.context)
   
-  for (k in nucleotide.context) {
+  for (k in 1:length(nucleotide.context)) {
     
-  if (grepl("three.left", k)) {
+  if (grepl("three.left", nucleotide.context[k])) {
     
-  nucleotide.context = gsub("three.left", "threeLeft", nucleotide.context)
+  nucleotide.context[k] = gsub("three.left", "threeLeft", nucleotide.context[k])
   
-  } else if (grepl("three.right", k)) {
+  } else if (grepl("three.right", nucleotide.context[k])) {
     
-  nucleotide.context = gsub("three.right", "threeRight", nucleotide.context)
+  nucleotide.context[k] = gsub("three.right", "threeRight", nucleotide.context[k])
   
-  } else if (grepl("three", k)) {
+  } else if (grepl("three", nucleotide.context[k])) {
     
-  nucleotide.context = gsub("three", "threeMer", nucleotide.context)}
+  nucleotide.context[k] = gsub("three", "threeMer", nucleotide.context[k])}
     
-    if (grepl("five.left", k)) {
+    if (grepl("five.left", nucleotide.context[k])) {
       
-  nucleotide.context = gsub("five.left", "fiveLeft", nucleotide.context)
+  nucleotide.context[k] = gsub("five.left", "fiveLeft", nucleotide.context[k])
   
-    } else if (grepl("five.right", k)) {
+    } else if (grepl("five.right", nucleotide.context[k])) {
       
-  nucleotide.context = gsub("five.right", "fiveRight", nucleotide.context)
+  nucleotide.context[k] = gsub("five.right", "fiveRight", nucleotide.context[k])
   
-    } else if (grepl("five", k)) {
+    } else if (grepl("five", nucleotide.context[k])) {
       
-  nucleotide.context = gsub("five", "fiveMer", nucleotide.context)
+  nucleotide.context[k] = gsub("five", "fiveMer", nucleotide.context[k])
   
   }
   
@@ -498,33 +498,33 @@ if(!is.null(LRmodel$warning)) {
       nucleotide.context = readRDS(nucleotide.selected.file)
       nucleotide.context = gsub("one", "oneMer", nucleotide.context)
       
-      for (k in nucleotide.context) {
+      for (k in 1:length(nucleotide.context)) {
         
-        if (grepl("three.left", k)) {
+        if (grepl("three.left", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("three.left", "threeLeft", nucleotide.context)
+          nucleotide.context[k] = gsub("three.left", "threeLeft", nucleotide.context[k])
           
-        } else if (grepl("three.right", k)) {
+        } else if (grepl("three.right", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("three.right", "threeRight", nucleotide.context)
+          nucleotide.context[k] = gsub("three.right", "threeRight", nucleotide.context[k])
           
-        } else if (grepl("three", k)) {
+        } else if (grepl("three", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("three", "threeMer", nucleotide.context)
+          nucleotide.context[k] = gsub("three", "threeMer", nucleotide.context[k])
           
           }
         
-        if (grepl("five.left", k)) {
+        if (grepl("five.left", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("five.left", "fiveLeft", nucleotide.context)
+          nucleotide.context[k] = gsub("five.left", "fiveLeft", nucleotide.context[k])
           
-        } else if (grepl("five.right", k)) {
+        } else if (grepl("five.right", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("five.right", "fiveRight", nucleotide.context)
+          nucleotide.context[k] = gsub("five.right", "fiveRight", nucleotide.context[k])
           
-        } else if (grepl("five", k)) {
+        } else if (grepl("five", nucleotide.context[k])) {
           
-          nucleotide.context = gsub("five", "fiveMer", nucleotide.context)
+          nucleotide.context[k] = gsub("five", "fiveMer", nucleotide.context[k])
           
           }
         
