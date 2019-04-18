@@ -7,8 +7,11 @@ E094-H3K36me3	./features/E094-H3K36me3.bed	0	NA
 E094-H3K4me1	./features/E094-H3K4me1.bed	0	NA
 E094-H3K4me3	./features/E094-H3K4me3.bed	0	NA
 E094-H3K9me3	./features/E094-H3K9me3.bed	0	NA
-POL2B	./features/POL2B.bed	0	NA
-POL2	./features/POL2.bed	0	NA
-SMC3	./features/SMC3.bed	0	NA
-RAD21	./features/RAD21.bed	0	NA
+POL2B	./features/POL2B_ovl.bed	0	NA
+POL2	./features/POL2_ovl.bed	0	NA
+SMC3	./features/SMC3_ovl.bed	0	NA
+RAD21	./features/RAD21_ovl.bed	0	NA
+ZNF143	./features/ZNF143_ovl.bed	0	NA
+HDAC2	./fetures/HDAC2_ovl.bed	0	NA
+POL24H8	./features/POL24H8_ovl.bed	0	NA
 CTCF_boundary	./features/ctcf_boundary_flank.bed	0	NA

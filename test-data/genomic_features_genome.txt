@@ -7,4 +7,4 @@ E094-H3K36me3	./features/E094-H3K36me3.bed	0	NA
 E094-H3K4me1	./features/E094-H3K4me1.bed	0	NA
 E094-H3K4me3	./features/E094-H3K4me3.bed	0	NA
 E094-H3K9me3	./features/E094-H3K9me3.bed	0	NA
-ZNF143	./features/ZNF143.bed	0	NA
+ZNF143	./features/ZNF143_ovl.bed	0	NA
