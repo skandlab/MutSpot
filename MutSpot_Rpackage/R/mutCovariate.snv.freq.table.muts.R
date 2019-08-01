@@ -25,7 +25,7 @@ mutCovariate.snv.freq.table.muts = function(continuous.features, discrete.featur
     colnames(df) = i
     GenomicRanges::values(sites) = data.frame(GenomicRanges::values(sites), df, check.names = FALSE)
     names(GenomicRanges::mcols(sites))[length(names(GenomicRanges::mcols(sites)))] = i
-    GenomicRanges::values(sites)[ ,i] = sample.specific.features[as.character(sites$sid),i]
+    GenomicRanges::values(sites)[ ,i] = sample.specific.features[as.character(sites$sid), i]
   
   }
   features = c(features, colnames(sample.specific.features))
@@ -79,6 +79,8 @@ mutCovariate.snv.freq.table.muts = function(continuous.features, discrete.featur
   
   # Assign nucleotide contexts scores to each site
   if (!is.null(nucleotide.selected)) {
+    
+    feat = NULL
     
     for (j in unique(nucleotide.selected$type)) {
 
@@ -150,11 +152,12 @@ mutCovariate.snv.freq.table.muts = function(continuous.features, discrete.featur
           rm(df)
           
         }
+        feat = c(feat, paste(j, k, sep = ""))
         
       }
       
     }
-    features = c(features, paste(nucleotide.selected$type, nucleotide.selected$sequence, sep = ""))
+    features = c(features, feat)
     
   }
   

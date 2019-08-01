@@ -1,6 +1,6 @@
 #' Runs all or selected steps in MutSpot analysis.
 #'
-#' @param run.to Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.
+#' @param run.to Numeric vector defining which steps to run, default = 1, 2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7.
 #' @param working.dir Working directory, default = NULL will use current working directory.
 #' @param chromosomes Character vector defining which chromosomes to compute feature matrix on, default = chr1-chrX.
 #' @param snv.mutations SNV mutations MAF file, default = NULL.
@@ -8,11 +8,11 @@
 #' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
 #' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
 #' @param region.of.interest Region of interest bed file, default = NULL.
-#' @param ratio Sampling ratio, default = 1.
 #' @param sample To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.
 #' @param cores Number of cores, default = 1.
 #' @param cutoff.nucleotide Frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1, default = 0.90.
 #' @param cutoff.nucleotide.new Updated frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1.
+#' @param top.nucleotide Number of top nucleotide contexts to select, default = NULL.
 #' @param genomic.features.snv Text file containing URLs of potential continuous and discrete SNV epigenetic features to select from, default = NULL.
 #' @param genomic.features.indel Text file containing URLs of potential continuous and discrete indel epigenetic features to select from, default = NULL.
 #' @param genomic.features Text file containing URLs of potential continuous and discrete SNV and indel epigenetic features to select from, default = NULL.
@@ -24,10 +24,12 @@
 #' @param cutoff.features Frequency cutoff/threshold to determine epigenetic features used in prediction model, ranges from 0.5 to 1, default = 0.75.
 #' @param cutoff.features.new.snv Updated frequency cutoff/threshold to determine SNV epigenetic features used in prediction model, ranges from 0.5 to 1.
 #' @param cutoff.features.new.indel Updated frequency cutoff/threshold to determine indel epigenetic features used in prediction model, ranges from 0.5 to 1.
+#' @param top.features Number of top genomic features to select, default = NULL.
 #' @param fit.sparse To fit model using glmnet or glm, default = FALSE.
 #' @param drop To drop insignificant features from fitted model or not, default = FALSE.
 #' @param min.count.snv Minimum number of mutated samples in each SNV hotspot, default = 2.
 #' @param min.count.indel Minimum number of mutated samples in each indel hotspot, default = 2.
+#' @param hotspot.size Size of each hotspot, default = 21.
 #' @param genome.size Total number of hotspots to run analysis on, default = 2533374732.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
 #' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed
@@ -39,14 +41,13 @@
 #' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
 #' @param merge.hotspots To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.
 #' @param color.muts Color points, default = orange.
-#' @param z.value To use z-value for plot or coefficients, default = FALSE.
 #' @param top.no Number of top hotspots to plot, default = 3.
 #' @param debug To keep intermediate output files or not, default = FALSE.
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
-MutSpot = function(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2, 9.3), working.dir = NULL, chromosomes = c(1:22,"X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732, hotspots = TRUE,
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", z.value = FALSE, top.no = 3, debug = FALSE) {
+MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7), working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, top.nucleotide = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, top.features = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE,
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE) {
   
   # set working directory
   if (is.null(working.dir)) {
@@ -173,12 +174,14 @@ sampled.sites.snv.file = paste(output.dir, "sampled.sites.snv.RDS", sep = "")
 snv.mutations.region.file = paste(output.dir, "SNV_region.MAF", sep = "")
 sampled.sites.indel.file = paste(output.dir, "sampled.sites.indel.RDS", sep = "")
 indel.mutations.region.file = paste(output.dir, "indel_region.MAF", sep = "")
+downsampled.sites.snv.file = paste(output.dir, "downsampled.sites.snv.RDS", sep = "")
+downsampled.sites.indel.file = paste(output.dir, "downsampled.sites.indel.RDS", sep = "")
   
 if (1 %in% run.to) {
     
   print("Sample sites from SNV/indel")
   
-sample_sites = sample.sites(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations, mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, region.of.interest = region.of.interest, ratio = ratio, sample = sample, cores = cores)
+sample_sites = sample.sites(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations, mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, region.of.interest = region.of.interest, sample = sample, cores = cores)
 
 # Save SNV mutations in specified region as MAF file
 if (!is.null(sample_sites[[1]])) {
@@ -209,13 +212,29 @@ if (!is.null(sample_sites[[3]])) {
   
 }
 
-
 # Save indel mutated and non-mutated sites as RDS file
 if (!is.null(sample_sites[[4]])) {
   
   saveRDS(sample_sites[[4]], sampled.sites.indel.file)
   
 }
+
+# Save snv downsampled mutated sites as RDS file
+if (!is.null(sample_sites[[5]])) {
+  
+  saveRDS(sample_sites[[5]], downsampled.sites.snv.file)
+  
+}
+
+# Save indel downsampled mutated sites as RDS file
+if (!is.null(sample_sites[[6]])) {
+  
+  saveRDS(sample_sites[[6]], downsampled.sites.indel.file)
+  
+}
+
+rm(sample_sites)
+gc()
 
 }
 
@@ -292,6 +311,9 @@ if (!is.null(local_mutrate[[2]])) {
   
 }
 
+rm(local_mutrate)
+gc()
+
 }
 
 ## Step 3 ##
@@ -306,34 +328,37 @@ if (3.1 %in% run.to) {
     
 nucleotide_selection = nucleotide.selection(sampled.sites.snv.file = sampled.sites.snv.file, indel.mutations.file = indel.mutations.int, cutoff = cutoff.nucleotide, cores = cores)
 
-# Check for need to change threshold
-print(head(nucleotide_selection[[1]][order(nucleotide_selection[[1]]$f, decreasing=TRUE), ]))
+# # Check for need to change threshold
+# print(head(nucleotide_selection[[1]][order(nucleotide_selection[[1]]$f, decreasing=TRUE), ]))
 
 # Save lasso selection frequency table as RDS file
 if (!is.null(nucleotide_selection[[1]])) {
   
-  saveRDS(nucleotide_selection[[1]], file = nucleotide.stabs.freq.file)
+  saveRDS(nucleotide_selection[1:2], file = nucleotide.stabs.freq.file)
   
 }
 
 # Save selected nucleotide contexts as RDS file
-if (!is.null(nucleotide_selection[[2]]) & length(nucleotide_selection[[2]] != 0)) {
+if (!is.null(nucleotide_selection[[3]]) & length(nucleotide_selection[[3]] != 0)) {
   
-  saveRDS(nucleotide_selection[[2]], file = nucleotide.selected.file)
+  saveRDS(nucleotide_selection[[3]], file = nucleotide.selected.file)
   
 }
 
 # Save filtered indel mutations as MAF file
-if (!is.null(nucleotide_selection[[3]])) {
+if (!is.null(nucleotide_selection[[4]])) {
   
-  if (nrow(nucleotide_selection[[3]]) != 0) {
+  if (nrow(nucleotide_selection[[4]]) != 0) {
   
-  write.table(nucleotide_selection[[3]], file = indels.polyAT.file, quote = FALSE, col.names = FALSE, row.names = FALSE, sep = "\t")
-  indel.mutations = indels.polyAT.file
+  write.table(nucleotide_selection[[4]], file = indels.polyAT.file, quote = FALSE, col.names = FALSE, row.names = FALSE, sep = "\t")
+  # indel.mutations = indels.polyAT.file
   
   }
   
 }
+
+rm(nucleotide_selection)
+gc()
 
 }
 
@@ -344,9 +369,20 @@ if (3.2 %in% run.to) {
   
 if (!is.null(cutoff.nucleotide.new)) {
   
-nucleotide_selection_adjust = nucleotide.selection.adjust(nucleotide.stabs.file = nucleotide.stabs.freq.file, new.cutoff = cutoff.nucleotide.new)
+nucleotide_selection_adjust = nucleotide.selection.adjust(nucleotide.stabs.file = nucleotide.stabs.freq.file, new.cutoff = cutoff.nucleotide.new, top.nucleotide = top.nucleotide)
 
+if (length(nucleotide_selection_adjust) != 0) {
+  
 saveRDS(nucleotide_selection_adjust, file = nucleotide.selected.file)
+  
+} else {
+  
+  file.remove(nucleotide.selected.file)
+  
+}
+
+rm(nucleotide_selection_adjust)
+gc()
 
 }
 
@@ -359,6 +395,7 @@ discrete.features.selected.snv.url.file = paste(output.dir, "discrete_features_s
 features.stabs.indel.file = paste(output.dir, "features_stabs_indel.RDS", sep = "")
 continuous.features.selected.indel.url.file = paste(output.dir, "continuous_features_selected_indel_url.txt", sep = "")
 discrete.features.selected.indel.url.file = paste(output.dir, "discrete_features_selected_indel_url.txt", sep = "")
+features.sds.file = paste(output.dir, "features_sds.RDS", sep = "")
 
 if (4.1 %in% run.to) {
   
@@ -368,134 +405,99 @@ if (4.1 %in% run.to) {
 epigenetic_selection = epigenetic.selection(sampled.sites.snv.file = sampled.sites.snv.file, sampled.sites.indel.file = sampled.sites.indel.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv, genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed, cores = cores, cutoff = cutoff.features, feature.dir = features.dir)
 
 # Check for need to change threshold for SNVs
-if (!is.null(epigenetic_selection[[1]])) {
+# if (!is.null(epigenetic_selection[[1]])) {
   
-print(head(epigenetic_selection[[1]][order(epigenetic_selection[[1]]$f, decreasing = TRUE), ]))
+# print(head(epigenetic_selection[[1]][order(epigenetic_selection[[1]]$f, decreasing = TRUE), ]))
 
-}
+# }
 
 # Save lasso selection frequency table as RDS file 
 if (!is.null(epigenetic_selection[[1]])) {
   
-  saveRDS(epigenetic_selection[[1]], file = features.stabs.snv.file)
+  saveRDS(epigenetic_selection[1:2], file = features.stabs.snv.file)
   
 }
 
 # Save URLs of selected SNV continuous features as text file
-if (!is.null(epigenetic_selection[[2]])) {
+if (!is.null(epigenetic_selection[[3]])) {
   
-  if (nrow(epigenetic_selection[[2]]) != 0) {
+  if (nrow(epigenetic_selection[[3]]) != 0) {
   
-  write.table(epigenetic_selection[[2]], file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(epigenetic_selection[[3]], file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   }
   
 }
 
 # Save URLs of selected SNV discrete features as text file
-if (!is.null(epigenetic_selection[[3]])) {
+if (!is.null(epigenetic_selection[[4]])) {
   
-  if (nrow(epigenetic_selection[[3]]) != 0) {
+  if (nrow(epigenetic_selection[[4]]) != 0) {
   
-  write.table(epigenetic_selection[[3]], file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(epigenetic_selection[[4]], file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   }
 
 }
 
 # Check for need to change threshold for indels
-if (!is.null(epigenetic_selection[[4]])) {
-  
-print(head(epigenetic_selection[[4]][order(epigenetic_selection[[4]]$f, decreasing = TRUE), ]))
-
-}
+# if (!is.null(epigenetic_selection[[5]])) {
+#   
+# print(head(epigenetic_selection[[5]][order(epigenetic_selection[[4]]$f, decreasing = TRUE), ]))
+# 
+# }
 
 # Save lasso selection frequency table as RDS file
-if (!is.null(epigenetic_selection[[4]])) {
+if (!is.null(epigenetic_selection[[5]])) {
   
-  saveRDS(epigenetic_selection[[4]], file = features.stabs.indel.file)
+  saveRDS(epigenetic_selection[5:6], file = features.stabs.indel.file)
   
 }
 
 # Save URLs of selected indel continuous features as text file
-if (!is.null(epigenetic_selection[[5]])) {
+if (!is.null(epigenetic_selection[[7]])) {
   
-  if (nrow(epigenetic_selection[[5]]) != 0) {
+  if (nrow(epigenetic_selection[[7]]) != 0) {
   
-  write.table(epigenetic_selection[[5]], file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(epigenetic_selection[[7]], file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   }
   
 }
 
 # Save URLs of selected indel discrete features as text file
-if (!is.null(epigenetic_selection[[6]])) {
+if (!is.null(epigenetic_selection[[8]])) {
   
-  if (nrow(epigenetic_selection[[6]]) != 0) {
+  if (nrow(epigenetic_selection[[8]]) != 0) {
   
-  write.table(epigenetic_selection[[6]], file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(epigenetic_selection[[8]], file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   }
   
 }
 
-}
+# Save SDs of features as RDS file
+# if (!is.null(epigenetic_selection[[9]] | !is.null(epigenetic_selection[[10]]))) {
+#   
+  saveRDS(epigenetic_selection[9:10], file = features.sds.file)
+  
+# }
 
-## Step 4II ##
-if (4.2 %in% run.to) {
-  
-  print("Reselect epigenetic features for SNV/indel using altered threshold")
-  
-if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
-
-  epigenetic_selection_adjust = epigenetic.selection.adjust(feature.stabs.snv.file = features.stabs.snv.file , feature.stabs.indel.file = features.stabs.indel.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, new.cutoff.snv = cutoff.features.new.snv, new.cutoff.indel = cutoff.features.new.indel)
-  
-  # Save URLs of selected SNV continuous features as text file
-  if (!is.null(epigenetic_selection_adjust[[1]])) {
-    
-    write.table(epigenetic_selection_adjust[[1]], file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-    
-  }
-  
-  # Save URLs of selected SNV discrete features as text file
-  if (!is.null(epigenetic_selection_adjust[[2]])) {
-    
-    write.table(epigenetic_selection_adjust[[2]], file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-    
-  }
-  
-  # Save URLs of selected indel continuous features as text file
-  if (!is.null(epigenetic_selection_adjust[[3]])) {
-    
-    write.table(epigenetic_selection_adjust[[3]], file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-    
-  }
-  
-  # Save URLs of selected indel discrete features as text file
-  if (!is.null(epigenetic_selection_adjust[[4]])) {
-    
-    write.table(epigenetic_selection_adjust[[4]], file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-    
-  }
+  rm(epigenetic_selection)
+  gc()
   
 }
 
-  }
+if (!file.exists(features.stabs.snv.file)) {
   
-## Step 5 ##
-mutCovariate.snv.output.file = paste(output.dir, "mutCovariate-compile-part1.RDS", sep = "")
-mutCovariate.snv.output.p1 = paste(output.dir, "mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.snv.output.p2 = paste(output.dir, "mutCovariate-sparse-p2.RDS", sep = "")
-mutCovariate.indel.output.file = paste(output.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
-mutCovariate.indel.output.p1 = paste(output.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
-mutCovariate.indel.output.p2 = paste(output.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
-
-if (file.exists(indels.polyAT.file)) {
-  
-  indel.mutations.int = indels.polyAT.file
+  features.stabs.snv.file = NULL
   
 }
-
+if (!file.exists(features.stabs.indel.file)) {
+  
+  features.stabs.indel.file = NULL
+  
+}
 if (!file.exists(continuous.features.selected.snv.url.file)) {
   
   continuous.features.selected.snv.url.file = NULL
@@ -515,6 +517,131 @@ if (!file.exists(continuous.features.selected.indel.url.file)) {
 if (!file.exists(discrete.features.selected.indel.url.file)) {
   
   discrete.features.selected.indel.url.file = NULL
+  
+}
+
+## Step 4II ##
+if (4.2 %in% run.to) {
+  
+  print("Reselect epigenetic features for SNV/indel using altered threshold")
+  
+if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
+
+  epigenetic_selection_adjust = epigenetic.selection.adjust(feature.stabs.snv.file = features.stabs.snv.file , feature.stabs.indel.file = features.stabs.indel.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, new.cutoff.snv = cutoff.features.new.snv, new.cutoff.indel = cutoff.features.new.indel, top.features = top.features, features.sds = features.sds.file)
+  
+  # Save URLs of selected SNV continuous features as text file
+  if (!is.null(epigenetic_selection_adjust[[1]])) {
+    
+    if (nrow(epigenetic_selection_adjust[[1]] != 0)) {
+      
+    write.table(epigenetic_selection_adjust[[1]], file = continuous.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+    
+    } else {
+      
+      file.remove(continuous.features.selected.snv.url.file)
+      
+    }
+    
+  }
+  
+  # Save URLs of selected SNV discrete features as text file
+  if (!is.null(epigenetic_selection_adjust[[2]])) {
+    
+    if (nrow(epigenetic_selection_adjust[[2]] != 0)) {
+    
+    write.table(epigenetic_selection_adjust[[2]], file = discrete.features.selected.snv.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+    
+    } else {
+      
+      file.remove(discrete.features.selected.snv.url.file)
+      
+    }
+    
+  }
+  
+  # Save URLs of selected indel continuous features as text file
+  if (!is.null(epigenetic_selection_adjust[[3]])) {
+    
+    if (nrow(epigenetic_selection_adjust[[3]] != 0)) {
+      
+    write.table(epigenetic_selection_adjust[[3]], file = continuous.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+    
+    } else {
+      
+      file.remove(continuous.features.selected.indel.url.file)
+      
+    }
+    
+  }
+  
+  # Save URLs of selected indel discrete features as text file
+  if (!is.null(epigenetic_selection_adjust[[4]])) {
+    
+    if (nrow(epigenetic_selection_adjust[[4]] != 0)) {
+      
+    write.table(epigenetic_selection_adjust[[4]], file = discrete.features.selected.indel.url.file, sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+    
+    } else {
+      
+      file.remove(discrete.features.selected.indel.url.file)
+      
+    }
+    
+  }
+  
+  rm(epigenetic_selection_adjust)
+  gc()
+  
+}
+  }
+  
+## Step 5 ##
+mutCovariate.snv.output.file = paste(output.dir, "mutCovariate-compile-part1.RDS", sep = "")
+mutCovariate.snv.output.p1 = paste(output.dir, "mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.snv.output.p2 = paste(output.dir, "mutCovariate-sparse-p2.RDS", sep = "")
+mutCovariate.indel.output.file = paste(output.dir, "mutCovariate-indel-compile-part1.RDS", sep = "")
+mutCovariate.indel.output.p1 = paste(output.dir, "indel-mutCovariate-sparse-p1.RDS", sep = "")
+mutCovariate.indel.output.p2 = paste(output.dir, "indel-mutCovariate-sparse-p2.RDS", sep = "")
+
+if (file.exists(indels.polyAT.file)) {
+  
+  indel.mutations.int = indels.polyAT.file
+  
+}
+if (!is.null(continuous.features.selected.snv.url.file)) {
+  
+if (!file.exists(continuous.features.selected.snv.url.file)) {
+  
+  continuous.features.selected.snv.url.file = NULL
+  
+}
+  
+}
+if (!is.null(discrete.features.selected.snv.url.file)) {
+  
+if (!file.exists(discrete.features.selected.snv.url.file)) {
+  
+  discrete.features.selected.snv.url.file = NULL
+  
+}
+  
+}
+if (!is.null(continuous.features.selected.indel.url.file)) {
+  
+if (!file.exists(continuous.features.selected.indel.url.file)) {
+  
+  continuous.features.selected.indel.url.file = NULL
+  
+}
+  
+}
+if (!is.null(discrete.features.selected.indel.url.file)) {
+  
+if (!file.exists(discrete.features.selected.indel.url.file)) {
+  
+  discrete.features.selected.indel.url.file = NULL
+  
+}
   
 }
 if (!file.exists(nucleotide.selected.file)) {
@@ -697,28 +824,39 @@ if (5.1 %in% run.to) {
         # Extract all nucleotide contexts' positions in specific chromosome
         for (i in 1:nrow(nucleotide.selected)) {
           
-          print(paste(chr.interest,nucleotide.selected[i, "sequence"], nucleotide.selected[i,"type"],sep=":"))
-          if (nucleotide.selected$type[i] %in% c("oneMer","threeMer","fiveMer")){
+          print(paste(chr.interest, nucleotide.selected[i, "sequence"], nucleotide.selected[i, "type"], sep = ":"))
+          if (nucleotide.selected$type[i] %in% c("oneMer", "threeMer", "fiveMer")) {
+            
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] <- unique(c(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])), BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))))
+            
           } else if (nucleotide.selected$type[i] == "threeRight") {
+            
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
-            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
-            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
-          } else if (nucleotide.selected$type[i]=="threeLeft") {
-            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+1
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 1
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
+            
+          } else if (nucleotide.selected$type[i] == "threeLeft") {
+            
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 1
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
-            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
-          }  else if (nucleotide.selected$type[i] =="fiveRight") {
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
+            
+          }  else if (nucleotide.selected$type[i] == "fiveRight") {
+            
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
-            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
-            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
-          } else if (nucleotide.selected$type[i]=="fiveLeft") {
-            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))+2
+            b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 2
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
+            
+          } else if (nucleotide.selected$type[i] == "fiveLeft") {
+            
+            a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 2
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
-            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]]=unique(c(a,b))
+            precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
+            
           }
           
         }
+        
       } else {
         
         precompute.motif.pos = NULL
@@ -770,6 +908,9 @@ if (5.1 %in% run.to) {
       }
       
       saveRDS(list(mut.freq, genome.freq.aggregated), file = paste(output.dir,"mutCovariate_", chr.interest, ".RDS", sep = ""))
+      
+      rm(list=c("mut.freq","genome.freq.aggregated","precompute.motif.pos"))
+      gc()
       
     }
     
@@ -1031,6 +1172,9 @@ if (5.1 %in% run.to) {
       
       saveRDS(list(mut.freq, indel.freq, genome.freq.aggregated), file = paste(output.dir, "mutCovariate_indel_", chr.interest, ".RDS", sep = ""))
       
+      rm(list=c("mut.freq","indel.freq","genome.freq.aggregated","polyAs","polyTs","polyGs","polyCs"))
+      gc()
+      
     }
     
   }
@@ -1041,7 +1185,7 @@ if (5.2 %in% run.to) {
   
   print("Compile feature matrix for snv for all chromosomes")
   
-  if ((!is.null(continuous.features.selected.snv.url.file) | !is.null(discrete.features.selected.snv.url.file) | !is.null(sample.snv.features)) & !is.null(sampled.sites.snv.file)) {
+  if ((!is.null(continuous.features.selected.snv.url.file) | !is.null(discrete.features.selected.snv.url.file) | !is.null(sample.snv.features) | !is.null(nucleotide.selected.file)) & !is.null(sampled.sites.snv.file)) {
   
 mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, snv.mutations.file = snv.mutations.int, sample.specific.features.url.file = sample.snv.features, region.of.interest = region.of.interest, cores = cores, snv.mutations.file2 = snv.mutations, chrom.dir = output.dir)
 
@@ -1057,6 +1201,9 @@ for (i in delete.files) {
 }
 
 }
+
+rm(mutCovariate_snv_compile)
+gc()
 
   }
   
@@ -1078,6 +1225,9 @@ if (!debug) {
 unlink(mutCovariate.snv.output.file)
 
 }
+
+rm(mutCovariate_snv_sparse)
+gc()
 
   }
   
@@ -1104,8 +1254,11 @@ for (i in delete.files) {
 
 }
 
-}
+rm(mutCovariate_indel_compile)
+gc()
 
+  }
+  
 }
 
 if (5.5 %in% run.to) {
@@ -1125,6 +1278,9 @@ unlink(mutCovariate.indel.output.file)
 
 }
 
+rm(mutCovariate_indel_sparse)
+gc()
+
   }
   
 }
@@ -1140,7 +1296,7 @@ if (6 %in% run.to) {
   ## Step 6a ##
   if (file.exists(mutCovariate.snv.output.p1)) {
     
-  LRmodel = mutLRFit.snv(mutCovariate.table.snv.file = mutCovariate.snv.output.p1, mutCovariate.count.snv.file = mutCovariate.snv.output.p2, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file = sample.snv.features, fit.sparse = fit.sparse, drop = drop)
+  LRmodel = mutLRFit.snv(mutCovariate.table.snv.file = mutCovariate.snv.output.p1, mutCovariate.count.snv.file = mutCovariate.snv.output.p2, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file = sample.snv.features, fit.sparse = fit.sparse, drop = drop, output.dir = output.dir)
 
   if (class(LRmodel)[1] != "list") {
     
@@ -1206,7 +1362,7 @@ save(LRmodel, file = LRmodel.snv.file)
 ## Step 6b ##
   if (file.exists(mutCovariate.indel.output.p1)) {
     
-LRmodel = mutLRFit.indel(mutCovariate.table.indel.file = mutCovariate.indel.output.p1, mutCovariate.count.indel.file = mutCovariate.indel.output.p2, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features, fit.sparse = fit.sparse, drop = drop)
+LRmodel = mutLRFit.indel(mutCovariate.table.indel.file = mutCovariate.indel.output.p1, mutCovariate.count.indel.file = mutCovariate.indel.output.p2, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features, fit.sparse = fit.sparse, drop = drop, output.dir = output.dir)
 
 if (class(LRmodel)[1] != "list") {
   
@@ -1263,6 +1419,9 @@ if (class(LRmodel)[1] != "list") {
 
   }
   
+  rm(LRmodel)
+  gc()
+  
 }
   
 ## Step 7 ##
@@ -1270,6 +1429,8 @@ snv.hotspots = paste(output.dir, "snv_hotspots.tsv", sep = "")
 snv.hotspots.merged = paste(output.dir,"snv_hotspots_merged.tsv",sep="")
 indel.hotspots = paste(output.dir, "indel_hotspots.tsv", sep = "")
 indel.hotspots.merged=paste(output.dir,"indel_hotspots_merged.tsv",sep="")
+ann.snv.hotspots = paste(output.dir, "snv_hotspots_annotated.tsv", sep = "")
+ann.indel.hotspots = paste(output.dir, "indel_hotspots_annotated.tsv", sep = "")
 
 if (7 %in% run.to) {
   
@@ -1279,9 +1440,13 @@ if (7 %in% run.to) {
   if (file.exists(LRmodel.snv.file)) {
     
   results.snv = mutPredict.snv(mask.regions.file = mask.regions.file, nucleotide.selected.file = nucleotide.selected.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, sample.specific.features.url.file = sample.snv.features,
-                         snv.mutations.file = snv.mutations.int, snv.mutations.file2 = snv.mutations, region.of.interest = region.of.interest, cores = cores, snv.model.file = LRmodel.snv.file, min.count = min.count.snv, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots)
+                         snv.mutations.file = snv.mutations.int, snv.mutations.file2 = snv.mutations, region.of.interest = region.of.interest, cores = cores, snv.model.file = LRmodel.snv.file, min.count = min.count.snv, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
+                         fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
+                         promoter.file = promoter.file, 
+                         utr3.file = utr3.file, utr5.file = utr5.file,
+                         other.annotations = other.annotations, debug = debug)
 
-  if(nrow(results.snv[[1]]) != 0) {
+  if(!is.null(results.snv[[1]])) {
     
 write.table(results.snv[[1]], file = snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
 
@@ -1289,7 +1454,13 @@ write.table(results.snv[[1]], file = snv.hotspots, col.names = TRUE, row.names =
   
   if (!is.null(results.snv[[2]])) {
     
-    write.table(results.snv[[2]], file=snv.hotspots.merged, col.names=TRUE,row.names=TRUE,quote=FALSE,sep="\t")
+    write.table(results.snv[[2]], file = snv.hotspots.merged, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
+    
+  }
+  
+  if (!is.null(results.snv[[3]])) {
+    
+    write.table(results.snv[[3]], file = ann.snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
     
   }
   
@@ -1299,9 +1470,13 @@ write.table(results.snv[[1]], file = snv.hotspots, col.names = TRUE, row.names =
   if (file.exists(LRmodel.indel.file)) {
     
 results.indel = mutPredict.indel(mask.regions.file = mask.regions.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features,
-                             indel.mutations.file = indel.mutations.int, indel.mutations.file2 = indel.mutations, indel.model.file = LRmodel.indel.file, region.of.interest = region.of.interest, cores = cores, min.count = min.count.indel, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots)
+                             indel.mutations.file = indel.mutations.int, indel.mutations.file2 = indel.mutations, indel.model.file = LRmodel.indel.file, region.of.interest = region.of.interest, cores = cores, min.count = min.count.indel, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
+                             fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
+                             promoter.file = promoter.file, 
+                             utr3.file = utr3.file, utr5.file = utr5.file,
+                             other.annotations = other.annotations, debug = debug)
 
-if (nrow(results.indel[[1]]) != 0) {
+if (!is.null(results.indel[[1]])) {
   
 write.table(results.indel[[1]], file = indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
   
@@ -1309,152 +1484,19 @@ write.table(results.indel[[1]], file = indel.hotspots, col.names = TRUE, row.nam
 
 if (!is.null(results.indel[[2]])) {
   
-  write.table(results.indel[[2]],file=indel.hotspots.merged,col.names=TRUE,row.names=TRUE,quote=FALSE,sep="\t")
+  write.table(results.indel[[2]], file = indel.hotspots.merged, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
+  
+}
+
+if (!is.null(results.indel[[3]])) {
+  
+  write.table(results.indel[[3]], file = ann.indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
   
 }
 
   }
   
-}
-
-## Step 8 ##
-ann.snv.hotspots = paste(output.dir, "snv_hotspots_annotated.tsv", sep = "")
-ann.indel.hotspots = paste(output.dir, "indel_hotspots_annotated.tsv", sep = "")
-
-if (8 %in% run.to) {
-  
-  print("Annotate hotspots for snv/indel")
-  
-  ## Step 8a ##
-  if (file.exists(snv.hotspots.merged)) {
-    
-    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots.merged, promoter.file = promoter.file, 
-                                      utr3.file = utr3.file, utr5.file = utr5.file,
-                                      other.annotations = other.annotations)
-    
-    write.table(ann.results.snv, file = ann.snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
-    
-  } else if (file.exists(snv.hotspots)) {
-    
-    ann.results.snv = mutAnnotate(hotspots.file = snv.hotspots, promoter.file = promoter.file, 
-                                  utr3.file = utr3.file, utr5.file = utr5.file,
-                                  other.annotations = other.annotations)
-    
-    write.table(ann.results.snv, file = ann.snv.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
-    
-    
-  }
-  
-  ## Step 8b ##
-  if (file.exists(indel.hotspots.merged)) {
-    
-    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots.merged, promoter.file = promoter.file,
-                                         utr3.file = utr3.file, utr5.file = utr5.file,
-                                    other.annotations = other.annotations)
-    
-    write.table(ann.results.indel, file = ann.indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
-    
-  } else if (file.exists(indel.hotspots)) {
-    
-    ann.results.indel = mutAnnotate(hotspots.file = indel.hotspots, promoter.file = promoter.file,
-                                    utr3.file = utr3.file, utr5.file = utr5.file, 
-                                    other.annotations = other.annotations)
-    
-    write.table(ann.results.indel, file = ann.indel.hotspots, col.names = TRUE, row.names = TRUE, quote = FALSE, sep = "\t")
-    
-    
-  }
-  
-}
-
-## Step 9 ##
-if (9.1 %in% run.to) {
-  
-  print("Plot feature importance")
-  
-  ## Step 9a ##
-  if (file.exists(LRmodel.snv.file)) {
-    
-    plot_feature_importance(model = LRmodel.snv.file, mutCovariate.table.file = mutCovariate.snv.output.p1, mutCovariate.count.file = mutCovariate.snv.output.p2, continuous.features.selected.url.file = continuous.features.selected.snv.url.file, z.value = z.value, mutation.type = "SNV", output.dir = output.dir)
-    
-  }
-  
-  ## Step 9b ##
-  if (file.exists(LRmodel.indel.file)) {
-    
-    plot_feature_importance(model = LRmodel.indel.file, mutCovariate.table.file = mutCovariate.indel.output.p1, mutCovariate.count.file = mutCovariate.indel.output.p2, continuous.features.selected.url.file = continuous.features.selected.indel.url.file, z.value = z.value, mutation.type = "indel", output.dir = output.dir)
-    
-  }
-  
-}
-
-manhattan.snv = paste(output.dir, "snv_manhattan.pdf", sep = "")
-manhattan.indel = paste(output.dir, "indel_manhattan.pdf", sep = "")
-
-if (9.2 %in% run.to) {
-  
-  print("Plot manhattan figure for snv/indel")
-  
-  ## Step 9a ##
-  if (file.exists(snv.hotspots.merged)) {
-    
-    pdf(manhattan.snv)
-    plot_manhattan(hotspots.file = snv.hotspots.merged, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
-    dev.off()
-    
-  } else if (file.exists(snv.hotspots)) {
-    
-    pdf(manhattan.snv)
-    plot_manhattan(hotspots.file = snv.hotspots, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
-    dev.off()
-    
-    
-  }
-  
-  ## Step 9b ##
-  if (file.exists(indel.hotspots.merged)) {
-    
-    pdf(manhattan.indel)
-    plot_manhattan(hotspots.file = indel.hotspots.merged, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
-    dev.off()
-    
-  } else if (file.exists(indel.hotspots)) {
-    
-    pdf(manhattan.indel)
-    plot_manhattan(hotspots.file = indel.hotspots, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
-    dev.off()
-    
-    
-  }
-  
-}
-
-if (9.3 %in% run.to) {
-  
-  print("Plot top hotspots for snv/indel")
-  
-  ## Step 9a
-  if (file.exists(snv.hotspots.merged)) {
-    
-    plot_top_hits(hotspots.file = snv.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no, output.dir = output.dir)
-    
-  } else if (file.exists(snv.hotspots)) {
-    
-    plot_top_hits(hotspots.file = snv.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file  = snv.mutations, mutation.type = "SNV", top.no = top.no, output.dir = output.dir)
-    
-    
-  }
-  
-  ## Step 9b
-  if (file.exists(indel.hotspots.merged)) {
-    
-    plot_top_hits(hotspots.file = indel.hotspots.merged, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
-    
-  } else if (file.exists(indel.hotspots)) {
-    
-    plot_top_hits(hotspots.file = indel.hotspots, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
-    
-  }
+  gc()
   
 }
 

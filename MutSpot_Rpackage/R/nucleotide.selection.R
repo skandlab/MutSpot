@@ -138,10 +138,14 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     sel = sel[order(sel$f, decreasing = TRUE), ]
     sel = as.character(sel[which(sel$f >= cutoff), "feature"])
     
+    feat.coef = colMeans(stabs2$coef.1se)
+    feat.coef = data.frame(feature, feat.coef)
+    
   } else {
     
     freq = NULL
     sel = NULL
+    feat.coef = NULL
     
   }
   
@@ -175,15 +179,14 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     if (length(filter) != 0) {
       
     df = maf.mutations[-filter]
+    df = GenomicRanges::as.data.frame(df)
+    df = df[ ,c("seqnames", "start", "end", "ral", "tal", "sid")]
     
     } else {
       
-      df=maf.mutations
+      df = NULL
       
     }
-    
-    df = GenomicRanges::as.data.frame(df)
-    df = df[ ,c("seqnames", "start", "end", "ral", "tal", "sid")]
     
   } else {
     
@@ -191,7 +194,7 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     
   }
   
-  return(list(freq, sel, df))
+  return(list(freq, feat.coef, sel, df))
   
 }
 

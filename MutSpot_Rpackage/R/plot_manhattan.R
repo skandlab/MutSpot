@@ -9,10 +9,11 @@
 
 plot_manhattan = function(hotspots.file, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1") {
   
-  hotspots.plot = read.delim(hotspots.file, stringsAsFactors = FALSE)
+  hotspots.plot = hotspots.file
   hotspots.plot$region = rownames(hotspots.plot)
   
     x = hotspots.plot
+    x$chrom = as.character(x$chrom)
     x$CHR = ifelse(x$chrom == "chrX", "23", substr(x$chrom, 4, nchar(x$chrom)))
     x$CHR = as.numeric(x$CHR)
     x$bp = ceiling((x$start + x$end) / 2)

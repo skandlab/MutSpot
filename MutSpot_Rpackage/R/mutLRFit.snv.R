@@ -8,10 +8,11 @@
 #' @param sample.specific.features.url.file Text file containing sample specific SNV features, default = NULL.
 #' @param fit.sparse To fit model using glmnet or glm, default = FALSE.
 #' @param drop To drop insignificant features from fitted model or not, default = FALSE.
+#' @param output.dir Save plot in given output directory.
 #' @return Fitted SNV prediction model.
 #' @export
 
-mutLRFit.snv = function(mutCovariate.table.snv.file, mutCovariate.count.snv.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, nucleotide.selected.file, sample.specific.features.url.file = NULL, fit.sparse = FALSE, drop = FALSE) {
+mutLRFit.snv = function(mutCovariate.table.snv.file, mutCovariate.count.snv.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, nucleotide.selected.file, sample.specific.features.url.file = NULL, fit.sparse = FALSE, drop = FALSE, output.dir) {
 
 if (!fit.sparse) {
   
@@ -42,7 +43,7 @@ print("Fit model using glm")
     continuous.sample.specific = NULL
     for (j in 1:ncol(sample.specific.urls)) {
       
-      if (class(sample.specific.urls[,j]) != "character"){
+      if (class(sample.specific.urls[ ,j]) != "character") {
         
         continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
         
@@ -66,11 +67,10 @@ print("Fit model using glm")
   print("Fitting model...")
   LRmodel <- stats::glm(cbind(mut.count, nonmut.count) ~ ., family = binomial(logit), data = mutfreq.aggregated, x = F, y = F)
   
-  
   if (drop) {
     
     
-    ignore="sample.count"
+    ignore = "sample.count"
     
   # Remove features that are not significant
   pval = summary(LRmodel)$coef[ ,4]
@@ -153,7 +153,9 @@ print("Fit model using glm")
   }
   
   # Redefine selected features for prediction
-  features = rownames(summary(LRmodel)$coef)[-1]
+  # features = rownames(summary(LRmodel)$coef)[-1]
+  features = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count")]
+  
   # Nucleotide context
   if (!is.null(nucleotide.selected.file)) {
     
@@ -172,7 +174,9 @@ print("Fit model using glm")
   
   } else if (grepl("three", nucleotide.context[k])) {
     
-  nucleotide.context[k] = gsub("three", "threeMer", nucleotide.context[k])}
+  nucleotide.context[k] = gsub("three", "threeMer", nucleotide.context[k])
+  
+  }
     
     if (grepl("five.left", nucleotide.context[k])) {
       
@@ -190,7 +194,7 @@ print("Fit model using glm")
   
   }
   
-  nucleotide.context = paste(nucleotide.context, 1, sep = "")
+  # nucleotide.context = paste(nucleotide.context, 1, sep = "")
   if (sum(nucleotide.context %in% features) != length(nucleotide.context)) {
     
     rem = which(!nucleotide.context %in% features)
@@ -244,18 +248,9 @@ print("Fit model using glm")
   if (!is.null(discrete.features.selected.snv.url.file)) {
     
   discrete.features = read.delim(discrete.features.selected.snv.url.file, stringsAsFactors = FALSE, header = FALSE)
-  rem = NULL
-  for (p in 1:nrow(discrete.features)) {
+  if (sum(discrete.features[ ,1] %in% features) != nrow(discrete.features)) {
     
-    if (sum(grepl(discrete.features[p, 1], features)) == 0) {
-      
-      rem = c(rem, p)
-      
-    }
-    
-  }
-  if (length(rem) > 0) {
-    
+    rem = which(!discrete.features[ ,1] %in% features)
     discrete.features = discrete.features[-rem, ]
     if (nrow(discrete.features) == 0) {
       
@@ -267,7 +262,7 @@ print("Fit model using glm")
     
     discrete.features = "unchanged"
     
-  }
+  } 
   
   } else {
     
@@ -313,11 +308,19 @@ print("Fit model using glm")
     
   }
   
-  return(list(LRmodel, nucleotide.context, continuous.features, discrete.features, sample.specific))
+  # Plot feature importance barplot
+  print("Plot feature importance for SNV")
+  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+  
+  return(list(stripGlmLR(LRmodel), nucleotide.context, continuous.features, discrete.features, sample.specific))
   
   } else {
   
-  return(LRmodel)
+  # Plot feature importance barplot
+    print("Plot feature importance for SNV")
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    
+  return(stripGlmLR(LRmodel))
     
   }
   
@@ -404,10 +407,10 @@ if(!is.null(LRmodel$warning)) {
   
   # Fit model using glm with non-sparse matrix
   LRmodel <- stats::glm(cbind(mut.count, nonmut.count) ~ ., family = binomial(logit), data = mutfreq.aggregated, x = F, y = F)
- 
+  
   if (drop) {
     
-    ignore="sample.count"
+    ignore = "sample.count"
     
     # Remove features that are not significant
     pval = summary(LRmodel)$coef[ ,4]
@@ -430,6 +433,7 @@ if(!is.null(LRmodel$warning)) {
       }
       
     }
+    
     
     }
     
@@ -490,9 +494,11 @@ if(!is.null(LRmodel$warning)) {
       
     }
     
-    # redefine selected features for prediction
-    features = rownames(summary(LRmodel)$coef)[-1]
-    # nucleotide
+    # Redefine selected features for prediction
+    # features = rownames(summary(LRmodel)$coef)[-1]
+    features = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count")]
+    
+    # Nucleotide
     if (!is.null(nucleotide.selected.file)) {
       
       nucleotide.context = readRDS(nucleotide.selected.file)
@@ -530,7 +536,7 @@ if(!is.null(LRmodel$warning)) {
         
       }
       
-      nucleotide.context = paste(nucleotide.context, 1, sep = "")
+      # nucleotide.context = paste(nucleotide.context, 1, sep = "")
       if (sum(nucleotide.context %in% features) != length(nucleotide.context)) {
         
         rem = which(!nucleotide.context %in% features)
@@ -580,22 +586,13 @@ if(!is.null(LRmodel$warning)) {
         
       }
     
-    # discrete features
+    # Discrete features
     if (!is.null(discrete.features.selected.snv.url.file)) {
       
       discrete.features = read.delim(discrete.features.selected.snv.url.file, stringsAsFactors = FALSE, header = FALSE)
-      rem = NULL
-      for (p in 1:nrow(discrete.features)) {
+      if (sum(discrete.features[ ,1] %in% features) != nrow(discrete.features)) {
         
-        if (sum(grepl(discrete.features[p, 1], features)) == 0) {
-          
-          rem = c(rem, p)
-          
-        }
-        
-      }
-      if(length(rem) > 0){
-        
+        rem = which(!discrete.features[ ,1] %in% features)
         discrete.features = discrete.features[-rem, ]
         if (nrow(discrete.features) == 0) {
           
@@ -607,15 +604,15 @@ if(!is.null(LRmodel$warning)) {
         
         discrete.features = "unchanged"
         
-      }
+      } 
       
     } else {
       
       discrete.features = "unchanged"
       
-      }
+    }
     
-    # sample specific features
+    # Sample specific features
     if (!is.null(sample.specific.features.url.file)) {
       sample.specific = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
       rem = NULL
@@ -652,15 +649,27 @@ if(!is.null(LRmodel$warning)) {
         
       }
     
-    return(list(LRmodel, nucleotide.context, continuous.features, discrete.features, sample.specific))
+    # Plot feature importance barplot
+    print("Plot feature importance for SNV")
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    
+    return(list(stripGlmLR(LRmodel), nucleotide.context, continuous.features, discrete.features, sample.specific))
     
   } else {
     
-    return(LRmodel)
+    # Plot feature importance barplot
+    print("Plot feature importance for SNV")
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    
+    return(stripGlmLR(LRmodel))
     
   }
   
 } else {
+  
+  # Plot feature importance barplot
+  print("Plot feature importance for SNV")
+  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
   
   return(LRmodel[[1]])
   

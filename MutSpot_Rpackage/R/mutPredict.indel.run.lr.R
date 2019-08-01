@@ -1,83 +1,59 @@
 #' Run mutation recurrence for indel.
 #' 
-#' @param roi GRanges containing all hotspots.
-#' @param maf.indel GRanges containing indel mutations in region of interest.
-#' @param maf.indel2 GRanges containing all mutations.
-#' @param model.indel Indel model.
-#' @param continuous.features.indel Full scores list of indel continuous features selected for model.
-#' @param discrete.features.indel Full scores list of indel discrete features selected for model.
-#' @param sample.specific.features Sample-specific features.
-#' @param continuous.sample.specific Continuous features in the final model.
-#' @param min.count Minimum number of mutated samples in each hotspot, default = 2.
-#' @param genome.size Total number of hotspots to run analysis on, default = 2533374732.
+#' @param output.dir Save plot in given output directory.
+#' @param merge.hotspots To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.
+#' @param indel.mutations.file Indel mutations found in region of interest MAF file.
+#' @param fdr.cutoff FDR cutoff, default = 0.1.
+#' @param color.line Color given FDR cutoff, default = red.
+#' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
+#' @param color.muts Color points, default = orange.
+#' @param top.no Number of top hotspots to plot, default = 3.
+#' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.
+#' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.
+#' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.
+#' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
+#' @param debug To delete temporary files or not, default = FALSE.
 #' @param cores Number of cores, default = 1.
-#' @param only.samples Restrict analysis to certain samples, default = NULL.
-#' @param debug To print errors, default = FALSE.
 #' @return Dataframe containing predicted hotspots significance.
 #' @export
 
-mutPredict.indel.run.lr <- function(roi, maf.indel, maf.indel2, model.indel, continuous.features.indel, discrete.features.indel, sample.specific.features, continuous.sample.specific, min.count = 2, genome.size = 2533374732, cores = 1, only.samples = NULL, debug = FALSE) {
+mutPredict.indel.run.lr <- function(output.dir, merge.hotspots = TRUE, indel.mutations.file, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", color.muts = "orange", top.no = 3,
+                                    promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"),
+                                    utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), 
+                                    utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), 
+                                    other.annotations = NULL, debug = FALSE, cores = 1) {
   
-  # Check that roi names are unique
-  if (any(duplicated(names(roi)))) {
+  if (!"temp_1.RDS" %in% list.files(output.dir)) {
     
-    print("Error: regions with duplcated names")
-    return()
+    print("No hotspots found")
+    mut.rec.hotspot = mut.rec.hotspot2 = ann.results.indel = NULL
     
-  }
-  
-  # Print number of roi
-  print(paste("Using ", length(roi), " ROIs from input", sep = ""))
-  
-  if (debug) {
+  } else {
     
-    print(roi)
+    mut.regions = readRDS(paste(output.dir, "temp_1.RDS", sep = ""))
+    maf.indel = readRDS(paste(output.dir, "temp_2.RDS", sep = ""))
+    maf.ovl.m = readRDS(paste(output.dir, "temp_3.RDS", sep = ""))
+    continuous.selected.features.indel = readRDS(paste(output.dir, "temp_4.RDS", sep = ""))
+    discrete.selected.features.indel = readRDS(paste(output.dir, "temp_5.RDS", sep = ""))
+    # LRmodel.indel = readRDS(paste(output.dir,"temp_6.RDS",sep=""))
+    load(paste(output.dir, "indel-LRmodel", sep = ""))
+    rois.to.run = readRDS(paste(output.dir,"temp_7.RDS",sep=""))
+    sample.specific.features = readRDS(paste(output.dir,"temp_8.RDS",sep=""))
+    continuous.sample.specific = readRDS(paste(output.dir,"temp_9.RDS",sep=""))
+    genome.size = readRDS(paste(output.dir,"temp_10.RDS",sep=""))
     
-  }
-  
-  # Filter maf if sample list specified
-  if (!is.null(only.samples)) {
+    # Remove temporary files if not debugging
+    if (!debug) {
+      
+      delete.files = Sys.glob(paste(output.dir, "temp_*.RDS", sep = ""))
+      for (i in delete.files) {
+        
+        unlink(i)
+        
+      }
+      
+    }
     
-    print("Filtering MAF based on supplied sample list")
-    maf = maf.indel[which(maf.indel$sid %in% only.samples)]
-    
-  }
-  
-  # Find overlaps between roi and maf to identify mutations in each roi
-  print(">> Intersecting ROIs and MAF ...")
-  maf.ovl <- IRanges::findOverlaps(roi,maf.indel, ignore.strand = TRUE)
-  maf.ovl.m = IRanges::as.matrix(maf.ovl)
-  
-  if (debug) {
-    
-    print(maf.ovl.m)
-    
-  }
-  
-  # Select rois mutated in min.count.sample i.e. look at rois with at least min.count number of samples mutated
-  nsamples = length(unique(maf.indel$sid))
-  # Encode sample names as integers to increase the efficiency of the code
-  roi.count.mutated = tapply(maf.indel$sid[maf.ovl.m[ ,2]], names(roi)[maf.ovl.m[ ,1]], function(s) length(unique(s)))
-  roi.mutated = names(roi.count.mutated)[roi.count.mutated >= min.count]
-  print(paste("Using ", length(roi.mutated), " ROIs mutated in >=", min.count, " samples", sep = ""))
-  
-  # Run analysis on all mutated roi with min.count
-  rois.to.run = roi.mutated
-  
-  if (debug) {
-    
-    print(rois.to.run)
-    
-  }
-  
-  results = c()
-  
-  if (length(rois.to.run) == 0) {
-    
-    return(results)
-    
-  }
-  
   process.single.roi <- function(x) {
     
     # Print progress for every 1% of data
@@ -90,77 +66,71 @@ mutPredict.indel.run.lr <- function(roi, maf.indel, maf.indel2, model.indel, con
     
     # Make sure we are only using first hit
     # Should not have multiple hits in new version, where we checked for duplicated roi names
-    x.idx = which(names(roi) == x)[1]
+    x.idx = which(names(mut.regions) == x)[1]
     
     # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
-    roi.feat.indel = mutPredict.indel.get.features(GenomicRanges::reduce(roi[x.idx]), continuous.features.indel, discrete.features.indel)
+    roi.feat.indel = mutPredict.indel.get.features(GenomicRanges::reduce(mut.regions[x.idx]), continuous.selected.features.indel, discrete.selected.features.indel)
     
     x.len.indel = nrow(roi.feat.indel)
     
     # Vector of patient IDs
-    sid = as.character(unique(maf.indel2$sid))
+    sid = as.character(unique(rownames(sample.specific.features)))
+    nind = length(sid)
     
-    # Compute probability of mutation in region for all samples
-    p.bg = sapply (sid, function(s) {
-      
-      # Encode sid as the mutation count of each individual 
-      sid = rep(s, x.len.indel)
-      
-      df = roi.feat.indel
-      # df = cbind(sid = sid, df)
-      
-      # Assign sample specific feature scores to each site
-      for (i in colnames(sample.specific.features)) {
-        
-        df[ ,i] = sample.specific.features[as.character(s), i]
-        
-      }
-      
-      df = df[ ,c(colnames(sample.specific.features), colnames(df)[!colnames(df) %in% names(sample.specific.features)])]
-      
-      if (sum(!colnames(df) %in% c(continuous.sample.specific, "sample.count")) > 0 ) {
-        
-        for (i in colnames(df)[!colnames(df) %in% c(continuous.sample.specific, "sample.count")]) {
-          
-           df[ ,i] <- as.character(df[ ,i])
-          
-        }
-        
-      }
-      
-      # Compute background mutation rate foreach site in each individual
-      if (!"glmnet" %in% class(model.indel)) {
-        
-        p = stats::predict(object = model.indel, newdata = df, type = "response") 
-        
-      } else {
-        
-        p = stats::predict(object = model.indel, newx = data.matrix(df), type = "response")
-        
-      }
-
-      # Compute background mutation rate of the region in each individual
-      p.roi.indel = 1 - prod(1 - p)
-      
-      return(p.roi.indel)
-      
-      } )
+    roi.feat.indel = roi.feat.indel[rep(1:nrow(roi.feat.indel), nind), ]
+    roi.feat.indel$sid = rep(sid, each = x.len.indel)
+    rm(sid)
     
-    # Compute k, number of samples where x is mutated
-    if (debug) {
+    # Assign sample specific feature scores to each site
+    for (i in colnames(sample.specific.features)) {
       
-      print(x)
-      print(x.idx)
-      print(maf.ovl.m[ ,1] == x.idx)
+      roi.feat.indel[ ,i] = sample.specific.features[as.character(roi.feat.indel$sid), i]
       
     }
-
+    
+    roi.feat.indel = roi.feat.indel[ ,c(colnames(sample.specific.features), colnames(roi.feat.indel)[!colnames(roi.feat.indel) %in% names(sample.specific.features)])]
+    
+    if (sum(!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "sample.count")) > 0 ) {
+      
+      for (i in colnames(roi.feat.indel)[!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "sample.count")]) {
+        
+        roi.feat.indel[ ,i] <- as.character(roi.feat.indel[ ,i])
+        
+      }
+      
+    }
+    
+    # Compute background mutation rate foreach site in each individual
+    if (!"glmnet" %in% class(LRmodel)) {
+      
+      p = stats::predict(object = LRmodel, newdata = roi.feat.indel, type = "response") 
+      
+    } else {
+      
+      p = stats::predict(object = LRmodel, newx = data.matrix(roi.feat.indel), type = "response")
+      
+    }
+    
+    # Compute background mutation rate of the region in each individual
+    p.bg = sapply(seq(1,nrow(roi.feat.indel),nrow(roi.feat.indel)/nind),FUN=function(pp) 1 - prod(1 - p[pp:(pp+(nrow(roi.feat.indel)/nind)-1)]))
+    
     k = length(unique(maf.indel$sid[maf.ovl.m[maf.ovl.m[ ,1] == x.idx, 2]]))
     pval = poibin::ppoibin(length(p.bg) - k, 1 - p.bg, method = 'RF')
-    c(x, pval, x.len.indel, mean(p.bg), k)
+    
+    rm(roi.feat.indel)
+    gc()
+    
+    return(c(x, pval, x.len.indel, mean(p.bg), k))
     
   }
   
+  if (length(rois.to.run) == 0) {
+    
+    print("No hotspots found")
+    mut.rec.hotspot = mut.rec.hotspot2 = ann.results.indel = NULL
+    
+  } else {
+    
   results = parallel::mclapply(rois.to.run, function(xr) { process.single.roi(xr) }, mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
   
   # Error checking and remove entries with error
@@ -181,6 +151,104 @@ mutPredict.indel.run.lr <- function(roi, maf.indel, maf.indel2, model.indel, con
   colnames(results) = c('pval', 'length', 'p.bg', 'k', 'fdr')
   results = results[order(results[ ,'pval']), , drop = FALSE]
   
-  return(results)
+  mut.rec.hotspot = data.frame(chrom = as.character(GenomeInfoDb::seqnames(mut.regions[rownames(results)])), start = GenomicRanges::start(mut.regions[rownames(results)]), end = GenomicRanges::end(mut.regions[rownames(results)]), results)
+
+  # merge overlapping hotspots in mut.rec.hotspot, assign smallest pvalue and recalculate k
+  if (nrow(mut.rec.hotspot) != 0) {
+    
+    if (merge.hotspots) {
+      
+      print("Merge overlapping hotspots in final results...")
+      mut.rec.hotspot2 = mut.rec.hotspot
+      mut.rec.hotspot2$ID = as.character(rownames(mut.rec.hotspot2))
+      mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(chrom, IRanges::IRanges(start, end), pval = pval, length = length, p.bg = p.bg, k = k, fdr = fdr, ID = ID))
+      hotspots = IRanges::reduce(mut.rec.hotspot2)
+      hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+      ovl.mut = IRanges::findOverlaps(maf.indel, hotspots)
+      hotspots2 = hotspots[S4Vectors::subjectHits(ovl.mut)]
+      hotspots2$sample = maf.indel[S4Vectors::queryHits(ovl.mut)]$sid
+      hotspots2 = GenomicRanges::as.data.frame(hotspots2)
+      hotspots2 = aggregate(sample ~ hs, hotspots2, FUN = function(k) length(unique(k)))
+      colnames(hotspots2)[2] = "k"
+      rownames(hotspots2) = hotspots2$hs
+      hotspots$k = 0
+      for (i in 1:length(hotspots)) {
+        # print(i)
+        hotspots$k[i] = hotspots2[which(hotspots2$hs == hotspots$hs[i]), "k"]
+        
+      }
+      
+      ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+      mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+      mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+      mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+      mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+      mut.rec.hotspot2$new.k = hotspots[S4Vectors::subjectHits(ovl)]$k
+      mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+      mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$pval, decreasing = FALSE), ]
+      mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+      mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "pval", "length", "p.bg", "new.k", "fdr", "ID")]
+      mut.rec.hotspot2$length = mut.rec.hotspot2$region.end - mut.rec.hotspot2$region.start + 1
+      colnames(mut.rec.hotspot2) = c(colnames(mut.rec.hotspot), "ID")
+      rownames(mut.rec.hotspot2) = mut.rec.hotspot2$ID
+      mut.rec.hotspot2 = mut.rec.hotspot2[ ,-ncol(mut.rec.hotspot2)]
+      
+    } else {
+      
+      mut.rec.hotspot2 = NULL
+      
+    }
+    
+  } else {
+    
+    mut.rec.hotspot2 = NULL
+    
+  }
+  
+  # Plot hotspots manhattan
+  manhattan.indel = paste(output.dir, "indel_manhattan.pdf", sep = "")
+  
+  if (!is.null(mut.rec.hotspot2)) {
+    
+    print("Plot manhattan figure for indel")
+    pdf(manhattan.indel)
+    plot_manhattan(hotspots.file = mut.rec.hotspot2, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
+    dev.off()
+    
+    print("Plot top hotspots for snv/indel")
+    plot_top_hits(hotspots.file = mut.rec.hotspot2, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations.file, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
+    
+    # Annotate hotspots
+    ann.results.indel = mutAnnotate(hotspots.file = mut.rec.hotspot2, promoter.file = promoter.file,
+                                    utr3.file = utr3.file, utr5.file = utr5.file,
+                                    other.annotations = other.annotations)
+    
+  } else if (nrow(mut.rec.hotspot) != 0) {
+    
+    print("Plot manhattan figure for indel")
+    pdf(manhattan.indel)
+    plot_manhattan(hotspots.file = mut.rec.hotspot, fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots)
+    dev.off()
+    
+    print("Plot top hotspots for indel")
+    plot_top_hits(hotspots.file = mut.rec.hotspot, fdr.cutoff = fdr.cutoff, color.muts = color.muts, mutations.file = indel.mutations.file, mutation.type = "indel", top.no = top.no, output.dir = output.dir)
+    
+    # Annotate hotspots
+    ann.results.indel = mutAnnotate(hotspots.file = mut.rec.hotspot, promoter.file = promoter.file,
+                                    utr3.file = utr3.file, utr5.file = utr5.file,
+                                    other.annotations = other.annotations)
+    
+  } else {
+    
+    ann.results.indel = NULL
+    
+  }
+  
+  }
+  
+  }
+  
+  return(list(mut.rec.hotspot, mut.rec.hotspot2, ann.results.indel))
   
 }
+

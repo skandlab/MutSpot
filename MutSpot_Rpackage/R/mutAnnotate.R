@@ -1,6 +1,6 @@
 #' Hotspots annotation.
 #'
-#' @param hotspots.file Hotspots to be annotated tsv file.
+#' @param hotspots.file Hotspots to be annotated.
 #' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.
 #' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.
 #' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.
@@ -13,7 +13,7 @@ mutAnnotate = function(hotspots.file, promoter.file = system.file("extdata", "En
                        utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), 
                        other.annotations = NULL) {
   
-  hotspots.ann = read.delim(hotspots.file, header = TRUE, stringsAsFactors = FALSE)
+  hotspots.ann = hotspots.file
   hotspots.ann$mut_region = rownames(hotspots.ann)
   
   mut.regions <- with(hotspots.ann, GenomicRanges::GRanges(chrom, IRanges::IRanges(start, end), pval = pval, length = length, p.bg = p.bg, k = k, fdr = fdr))
@@ -114,7 +114,7 @@ mutAnnotate = function(hotspots.file, promoter.file = system.file("extdata", "En
     
     for (i in 1:nrow(other.ann)) {
     
-      print(other.ann[i,1])
+      print(other.ann[i, 1])
       
       roi.other <- bed.to.grangeslist(other.ann[i, 2])
       other.hits = IRanges::findOverlaps(mut.regions, roi.other)

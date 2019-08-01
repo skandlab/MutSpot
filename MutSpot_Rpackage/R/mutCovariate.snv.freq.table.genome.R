@@ -62,6 +62,8 @@ mutCovariate.snv.freq.table.genome = function(continuous.features, discrete.feat
   # Assign nucleotide contexts scores to each site
   if (!is.null(nucleotide.selected)) {
     
+    feat = NULL
+    
     for (j in unique(nucleotide.selected$type)) {
       
       # print(j)
@@ -132,11 +134,12 @@ mutCovariate.snv.freq.table.genome = function(continuous.features, discrete.feat
           rm(df)
           
         }
+        feat = c(feat, paste(j, k, sep = ""))
         
       }
       
     }
-    features = c(features, paste(nucleotide.selected$type, nucleotide.selected$sequence, sep = ""))
+    features = c(features, feat)
     
     }
   

@@ -5,8 +5,8 @@
 #' @param sample.specific.features Sample-specific features.
 #' @param polyAs All polyA positions in whole genome.
 #' @param polyTs All polyT positions in whole genome.
-#' @param polyGs All polyG positions in whole genome.
 #' @param polyCs All polyC positions in whole genome.
+#' @param polyGs All polyG positions in whole genome.
 #' @param sites Mutated sites in a specific chromosome.
 #' @return Covariate matrix for mutated sites.
 #' @export

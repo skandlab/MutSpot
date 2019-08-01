@@ -5,14 +5,16 @@
 #' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
 #' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
 #' @param region.of.interest Region of interest bed file, default = NULL.
-#' @param ratio Sampling ratio, default = 1.
 #' @param sample To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.
 #' @param cores Number of cores, default = 1.
 #' @return A list contatining SNV mutations in region of interest, sampled mutated and non-mutated SNV sites, indel mutations in region of interest and sampled mutated and non-mutated indel sites.
 #' @export
 
-sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = TRUE, cores = 1) {
+sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = TRUE, cores = 1) {
 
+  max.sites = 2000000 * 1.12
+  min.sites = 4000 * 1.12
+  
   # Chr1-ChrX
   chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
   seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
@@ -25,19 +27,12 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
   all.sites = readRDS(all.sites.file)
   all.sites = all.sites[as.character(GenomeInfoDb::seqnames(all.sites)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
   
-  # To sample or not to sample for non-mutated sites, if the specified region is too small, may choose not to sample sites and use all sites in the specified region
-  if (sample) {
-    
-    print("Sampling to be done...")
-  
-  # If snv mutations available, else skip this
   if (!is.null(snv.mutations.file)) {
-    
-    print("Sampling SNV sites...")
     
     # Define SNV mutations
     maf.snv.mutations <- maf.to.granges(snv.mutations.file)
     maf.snv.mutations = maf.snv.mutations[as.character(GenomeInfoDb::seqnames(maf.snv.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
+    maf.snv.mutations2 = maf.snv.mutations
     
     # If specified region, redefine SNV mutations to be in specified region
     if (!is.null(region.of.interest)) {
@@ -57,7 +52,178 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
       filtered.snv.mutations = NULL
       
+    }
+    
+    if (length(maf.snv.mutations) > max.sites / 2) {
+      
+      downsample.snv = TRUE
+      print(paste("Downsample SNV mutations as number of SNV mutations exceeded ", max.sites, sep = ""))
+      
+    } else {
+      
+      downsample.snv = FALSE
+      
+    }
+    
+    if (length(maf.snv.mutations) < min.sites / 2) {
+      
+      ratio.snv = ceiling((min.sites - length(maf.snv.mutations)) / length(maf.snv.mutations))
+      print(paste("Ratio of number of mutated sites to non-mutated sites for SNV is 1:", ratio.snv, sep = ""))
+      
+    } else {
+      
+      ratio.snv = 1
+      
+    }
+    
+  } else {
+    
+    downsample.snv = FALSE
+    
+  }
+  
+  if (!is.null(indel.mutations.file)) {
+    
+    # Define indel mutations
+    maf.indel.mutations <- maf.to.granges(indel.mutations.file)
+    maf.indel.mutations = maf.indel.mutations[as.character(GenomeInfoDb::seqnames(maf.indel.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
+    maf.indel.mutations2 = maf.indel.mutations
+    
+    # If specified region, redefine indel mutations to be in specified region
+    if (!is.null(region.of.interest)) {
+      
+      regions = bed.to.granges(region.of.interest)
+      regions = GenomicRanges::reduce(regions)
+      regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
+      
+      ovl = IRanges::findOverlaps(maf.indel.mutations, regions)
+      maf.indel.mutations = maf.indel.mutations[unique(S4Vectors::queryHits(ovl))]
+      filtered.indel.mutations = maf.indel.mutations
+      filtered.indel.mutations = GenomicRanges::as.data.frame(filtered.indel.mutations)
+      filtered.indel.mutations = filtered.indel.mutations[ ,-c(4,5)]
+      
+    } else {
+      
+      filtered.indel.mutations = NULL
+      
+    }
+    
+    if (length(maf.indel.mutations) > max.sites / 2) {
+      
+      downsample.indel = TRUE
+      print(paste("Downsample indel mutations as number of indel mutations exceeded ", max.sites, sep = ""))
+      
+    } else {
+      
+      downsample.indel = FALSE
+      
+    }
+    
+    if (length(maf.indel.mutations) < min.sites / 2) {
+      
+      ratio.indel = ceiling((min.sites - length(maf.indel.mutations)) / length(maf.indel.mutations))
+      print(paste("Ratio of number of mutated sites to non-mutated sites for indel is 1:", ratio.indel, sep = ""))
+      
+    } else {
+      
+      ratio.indel = 1
+      
+    }
+    
+  } else {
+    
+    downsample.indel = FALSE
+    
+  }
+  
+  # To downsample mutated sites or not, if too many mutations, should consider downsampling before sampling for non-mutated sites
+  if (downsample.snv) {
+    
+    nsites.snv = max.sites / 2
+    
+    t = GenomicRanges::split(maf.snv.mutations, GenomeInfoDb::seqnames(maf.snv.mutations))
+    nsites.snv.chrom = round(unlist(lapply(t, FUN=function(x) sum(as.numeric(GenomicRanges::width(x))))) / sum(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x)))))) * nsites.snv)
+    seed.rand.snv = seq(1:length(t)) * 4 
+    
+    # Downsample sites
+    downsampled.snv.sites = parallel::mclapply(1:length(t), function(i) {
+      
+      pop = IRanges::tile(t[[i]], width = 1)
+      pop = BiocGenerics::unlist(pop)
+      set.seed(seed.rand.snv[i])
+      pos = sample(GenomicRanges::start(pop), nsites.snv.chrom[i])
+      
+      if (length(pos) > 0) {
+        
+        gr = GenomicRanges::GRanges(unique(as.character(GenomeInfoDb::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
+        return(gr)
+        
+      } else {
+        
+        return(NULL)
+        
       }
+      
+    }, mc.cores = cores)
+    
+    downsampled.snv.sites[sapply(downsampled.snv.sites, is.null)] <- NULL
+    downsampled.snv.sites = suppressWarnings(do.call(c, downsampled.snv.sites))
+    maf.snv.mutations = downsampled.snv.sites
+    
+  } else {
+  
+    downsampled.snv.sites = NULL
+
+  }
+  
+  if (downsample.indel) {
+    
+    nsites.indel = max.sites / 2
+    
+    t = GenomicRanges::split(maf.indel.mutations, GenomeInfoDb::seqnames(maf.indel.mutations))
+    nsites.indel.chrom = round(unlist(lapply(t, FUN=function(x) sum(as.numeric(GenomicRanges::width(x))))) / sum(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x)))))) * nsites.snv)
+    seed.rand.indel = seq(1:length(t)) * 4 
+    
+    # Downsample sites
+    downsampled.indel.sites = parallel::mclapply(1:length(t), function(i) {
+      
+      pop = IRanges::tile(t[[i]], width = 1)
+      pop = BiocGenerics::unlist(pop)
+      set.seed(seed.rand.indel[i])
+      pos = sample(GenomicRanges::start(pop), nsites.indel.chrom[i])
+      
+      if (length(pos) > 0) {
+        
+        gr = GenomicRanges::GRanges(unique(as.character(GenomeInfoDb::seqnames(t[[i]]))), IRanges::IRanges(pos, pos))
+        return(gr)
+        
+      } else {
+        
+        return(NULL)
+        
+      }
+      
+    }, mc.cores = cores)
+    
+    downsampled.indel.sites[sapply(downsampled.indel.sites, is.null)] <- NULL
+    downsampled.indel.sites = suppressWarnings(do.call(c, downsampled.indel.sites))
+    maf.indel.mutations = downsampled.indel.sites
+    
+  } else {
+      
+    downsampled.indel.sites = NULL
+    
+    }
+  
+  # To sample or not to sample for non-mutated sites, if the specified region is too small, may choose not to sample sites and use all sites in the specified region
+  if (sample) {
+    
+    print("Sampling to be done...")
+  
+  # If snv mutations available, else skip this
+  if (!is.null(snv.mutations.file)) {
+    
+    print("Sampling SNV sites...")
     
     npatients.snv = length(unique(maf.snv.mutations$sid))
     maf.snv.mutations <- unique(maf.snv.mutations)
@@ -66,13 +232,26 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     maf.snv.mutations = subtract.regions.from.roi(maf.snv.mutations, mask.regions, cores=cores)
     
     # Target number of sites to sample, take into account of larger masked regions, and that mutated sites tend not be in masked regions
-    nsites.snv = length(maf.snv.mutations)*(ratio + ratio * 0.12)
+    nsites.snv = length(maf.snv.mutations)*(ratio.snv + ratio.snv * 0.12)
+    
+    if (nsites.snv < c(10000 * 1.12)) {
+      
+      nsites.snv = 10000 * 1.12
+      
+    }
     
     # If specified region, redefine all sites to be specified region and not whole genome
     if (!is.null(region.of.interest)) {
       
       all.sites.snv = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       
+      if (nsites.snv > sum(as.numeric(GenomicRanges::width(all.sites.snv)))) {
+        
+        print("Error due to insufficient sites to sample from")
+        sampled.snv.sites = NULL
+        
+      } else {
+        
       # Number of sites to sample per chromosome
       t = GenomicRanges::split(all.sites.snv, GenomeInfoDb::seqnames(all.sites.snv))
       nsites.snv.chrom = round(unlist(lapply(t, FUN=function(x) sum(as.numeric(GenomicRanges::width(x))))) / sum(unlist(lapply(t, FUN = function(x) sum(as.numeric(GenomicRanges::width(x)))))) * nsites.snv)
@@ -98,6 +277,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         }
         
       }, mc.cores = cores)
+      
+      }
       
     } else {
       
@@ -139,7 +320,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       all.sites.snv.samples = suppressWarnings(do.call(c, all.sites.snv.samples))
       
     # Mask selected sites that are mutated or in masked region
-    mask.snv.regions = GenomicRanges::reduce(c(maf.snv.mutations, mask.regions))
+      GenomicRanges::mcols(maf.snv.mutations2) = NULL
+    mask.snv.regions = GenomicRanges::reduce(c(maf.snv.mutations2, mask.regions))
     nonmut.snv.sample = subtract.regions.from.roi(all.sites.snv.samples, mask.snv.regions, cores = cores)
     
     if (length(nonmut.snv.sample) != 0) {
@@ -169,29 +351,6 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     
     print("Sampling indel sites...")
     
-    # Define indel mutations
-    maf.indel.mutations <- maf.to.granges(indel.mutations.file)
-    maf.indel.mutations = maf.indel.mutations[as.character(GenomeInfoDb::seqnames(maf.indel.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
-    
-    # If specified region, redefine indel mutations to be in specified region
-    if (!is.null(region.of.interest)) {
-      
-      regions = bed.to.granges(region.of.interest)
-      regions = GenomicRanges::reduce(regions)
-      regions = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
-      
-      ovl = IRanges::findOverlaps(maf.indel.mutations, regions)
-      maf.indel.mutations = maf.indel.mutations[unique(S4Vectors::queryHits(ovl))]
-      filtered.indel.mutations = maf.indel.mutations
-      filtered.indel.mutations = GenomicRanges::as.data.frame(filtered.indel.mutations)
-      filtered.indel.mutations = filtered.indel.mutations[ ,-c(4,5)]
-      
-    } else {
-      
-      filtered.indel.mutations = NULL
-      
-      }
-    
     npatients.indel = length(unique(maf.indel.mutations$sid))
     maf.indel.mutations <- unique(maf.indel.mutations)
     
@@ -199,12 +358,24 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     maf.indel.mutations = subtract.regions.from.roi(maf.indel.mutations, mask.regions, cores = cores)
     
     # Target number of sites to sample, take into account of larger masked regions, and that mutated sites tend not be in masked regions
-    nsites.indel = length(maf.indel.mutations) * (ratio + ratio * 0.12)
+    nsites.indel = length(maf.indel.mutations) * (ratio.indel + ratio.indel * 0.12)
+    if (nsites.indel < c(10000 * 1.12)) {
+      
+      nsites.indel = 10000 * 1.12
+      
+    }
     
     # If specified region, redefine all sites to be specified region and not whole genome
     if (!is.null(region.of.interest)) {
       
       all.sites.indel = regions[as.character(GenomeInfoDb::seqnames(regions)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
+      
+      if (nsites.indel > sum(as.numeric(GenomicRanges::width(all.sites.indel)))) {
+        
+        print("Error due to insufficient sites to sample from")
+        sampled.indel.sites = NULL
+        
+      } else {
       
       # Number of sites to sample per chromosome
       t = GenomicRanges::split(all.sites.indel, GenomeInfoDb::seqnames(all.sites.indel))
@@ -230,6 +401,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         }
         
       }, mc.cores = cores)
+      
+      }
       
     } else {
       
@@ -270,7 +443,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       all.sites.indel.samples = suppressWarnings(do.call(c, all.sites.indel.samples))
       
     # Mask selected sites that are mutated or in nonmapple regions
-    mask.indel.regions = GenomicRanges::reduce(c(maf.indel.mutations, mask.regions))
+      GenomicRanges::mcols(maf.indel.mutations2) = NULL
+    mask.indel.regions = GenomicRanges::reduce(c(maf.indel.mutations2, mask.regions))
     nonmut.indel.sample = subtract.regions.from.roi(all.sites.indel.samples, mask.indel.regions, cores = cores)
     if (length(nonmut.indel.sample) != 0) {
       
@@ -296,7 +470,7 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
     
   }
   
-  return(list(filtered.snv.mutations, sampled.snv.sites, filtered.indel.mutations, sampled.indel.sites))
+  return(list(filtered.snv.mutations, sampled.snv.sites, filtered.indel.mutations, sampled.indel.sites, downsampled.snv.sites, downsampled.indel.sites))
     
   } else {
     
@@ -307,28 +481,6 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
       print("Preparing SNV sites...")
       
-      # Define SNV mutations
-      maf.snv.mutations <- maf.to.granges(snv.mutations.file)
-      
-      # If specified region, redefine SNV mutations to be in specified region
-      if (!is.null(region.of.interest)) {
-        
-        regions = bed.to.granges(region.of.interest)
-        regions = GenomicRanges::reduce(regions)
-        
-        ovl = IRanges::findOverlaps(maf.snv.mutations, regions)
-        maf.snv.mutations = maf.snv.mutations[unique(S4Vectors::queryHits(ovl))]
-        filtered.snv.mutations = maf.snv.mutations
-        filtered.snv.mutations = GenomicRanges::as.data.frame(filtered.snv.mutations)
-        filtered.snv.mutations = filtered.snv.mutations[ ,-c(4,5)]
-        
-      } else {
-        
-        filtered.snv.mutations = NULL
-        
-      }
-
-      maf.snv.mutations = maf.snv.mutations[as.character(GenomeInfoDb::seqnames(maf.snv.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       npatients.snv = length(unique(maf.snv.mutations$sid))
       maf.snv.mutations <- unique(maf.snv.mutations)
 
@@ -351,7 +503,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       all.sites.snv = BiocGenerics::unlist(all.sites.snv)
 
       # Mask selected sites that are mutated or in masked region
-      mask.snv.regions = GenomicRanges::reduce(c(maf.snv.mutations, mask.regions))
+      GenomicRanges::mcols(maf.snv.mutations2) = NULL
+      mask.snv.regions = GenomicRanges::reduce(c(maf.snv.mutations2, mask.regions))
       nonmut.snv.sample = subtract.regions.from.roi(all.sites.snv, mask.snv.regions, cores = cores)
       
       if (length(nonmut.snv.sample) != 0) {
@@ -379,28 +532,6 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
       print("Preparing indel sites...")
       
-      # Define indel mutations
-      maf.indel.mutations <- maf.to.granges(indel.mutations.file)
-      
-      # If specified region, redefine indel mutations to be in specified region
-      if (!is.null(region.of.interest)) {
-        
-        regions = bed.to.granges(region.of.interest)
-        regions = GenomicRanges::reduce(regions)
-        
-        ovl = IRanges::findOverlaps(maf.indel.mutations, regions)
-        maf.indel.mutations = maf.indel.mutations[unique(S4Vectors::queryHits(ovl))]
-        filtered.indel.mutations = maf.indel.mutations
-        filtered.indel.mutations = GenomicRanges::as.data.frame(filtered.indel.mutations)
-        filtered.indel.mutations = filtered.indel.mutations[ ,-c(4,5)]
-        
-      } else {
-        
-        filtered.indel.mutations = NULL
-        
-      }
-      
-      maf.indel.mutations = maf.indel.mutations[as.character(GenomeInfoDb::seqnames(maf.indel.mutations)) %in% as.character(GenomeInfoDb::seqnames(seqi))]
       npatients.indel = length(unique(maf.indel.mutations$sid))
       maf.indel.mutations <- unique(maf.indel.mutations)
       
@@ -424,7 +555,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
         
         
       # Mask selected sites that are mutated or in masked region
-      mask.indel.regions = GenomicRanges::reduce(c(maf.indel.mutations, mask.regions))
+      GenomicRanges::mcols(maf.indel.mutations2) = NULL
+      mask.indel.regions = GenomicRanges::reduce(c(maf.indel.mutations2, mask.regions))
       nonmut.indel.sample = subtract.regions.from.roi(all.sites.indel, mask.indel.regions, cores = cores)
       
       if (length(nonmut.indel.sample) != 0) {
@@ -449,7 +581,8 @@ sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.f
       
     }
     
-    return(list(filtered.snv.mutations, sampled.snv.sites, filtered.indel.mutations, sampled.indel.sites))
+    return(list(filtered.snv.mutations, sampled.snv.sites, filtered.indel.mutations, sampled.indel.sites, downsampled.snv.sites, downsampled.indel.sites))
     
-    }
+  }
+  
 }

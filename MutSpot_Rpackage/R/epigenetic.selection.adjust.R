@@ -8,16 +8,55 @@
 #' @param discrete.features.selected.indel.url.file Text file containing URLs of selected discrete indel epigenetic features.
 #' @param new.cutoff.snv Updated frequency cutoff/threshold to determine SNV epigenetic features used in prediction model, ranges from 0.5 to 1.
 #' @param new.cutoff.indel Updated frequency cutoff/threshold to determine indel epigenetic features used in prediction model, ranges from 0.5 to 1.
+#' @param top.features Number of top genomic features to select, default = NULL.
+#' @param features.sds RDS list containing standard deviations of each feature.
 #' @return Updated set of SNV/indel continuous and discrete features that passed the new threshold.
 #' @export
 
-epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.indel.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel) {
+epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.indel.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel, top.features = NULL, features.sds) {
   
   # If SNV mutations available, else skip this
   if (!is.null(feature.stabs.snv.file) & !is.null(new.cutoff.snv)) {
     
-    stabs = readRDS(feature.stabs.snv.file)
-    sel = as.character(stabs[which(stabs$f >= new.cutoff.snv), "feature"])
+    stabs = readRDS(feature.stabs.snv.file)[[1]]
+    if (!is.null(top.features)) {
+      
+      if (sum(stabs$f >= new.cutoff.snv) > top.features) {
+      
+    # stabs.select = stabs[which(stabs$f >= new.cutoff.snv), ]
+    stabs.select = stabs
+    stabs.select$feature = as.character(stabs.select$feature)
+    rownames(stabs.select) = NULL
+    
+    stabs.coef = readRDS(feature.stabs.snv.file)[[2]]
+    stabs.coef$feature = as.character(stabs.coef$feature)
+    rownames(stabs.coef) = NULL
+    stabs.select = merge(stabs.select, stabs.coef, by = "feature")
+    
+    stabs.sds = readRDS(features.sds)[[1]]
+    stabs.sds = as.data.frame(stabs.sds)
+    stabs.sds$feature = as.character(rownames(stabs.sds))
+    rownames(stabs.sds) = NULL
+    stabs.select = merge(stabs.select, stabs.sds, by = "feature")
+    
+    stabs.select$feat.coef2 = stabs.select$feat.coef * stabs.select$stabs.sds
+    stabs.select$feat.coef2 = abs(stabs.select$feat.coef2)
+    stabs.select = stabs.select[order(stabs.select$f, stabs.select$feat.coef2, decreasing = TRUE), ]
+    stabs.select = stabs.select[1:top.features, ]
+    
+    sel = as.character(stabs.select$feature)
+    
+      } else {
+        
+        sel = as.character(stabs[which(stabs$f >= new.cutoff.snv), "feature"])
+        
+      }
+      
+    } else {
+      
+      sel = as.character(stabs[which(stabs$f >= new.cutoff.snv), "feature"])
+        
+    }
     
     # If continuous SNV features selected before, else return NULL
     if (!is.null(continuous.features.selected.snv.url.file)) {
@@ -53,8 +92,44 @@ epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.ind
   # If indel mutations available, else skip this
   if (!is.null(feature.stabs.indel.file) & !is.null(new.cutoff.indel)) {
     
-    stabs = readRDS(feature.stabs.indel.file)
-    sel = as.character(stabs[which(stabs$f >= new.cutoff.indel), "feature"])
+    stabs = readRDS(feature.stabs.indel.file)[[1]]
+    if (!is.null(top.features)) {
+      
+      if (sum(stabs$f >= new.cutoff.indel) > top.features) {
+        
+        stabs.select = stabs[which(stabs$f >= new.cutoff.indel), ]
+        stabs.select$feature = as.character(stabs.select$feature)
+        rownames(stabs.select) = NULL
+        
+        stabs.coef = readRDS(feature.stabs.indel.file)[[2]]
+        stabs.coef$feature = as.character(stabs.coef$feature)
+        rownames(stabs.coef) = NULL
+        stabs.select = merge(stabs.select, stabs.coef, by = "feature")
+        
+        stabs.sds = readRDS(features.sds)[[2]]
+        stabs.sds = as.data.frame(stabs.sds)
+        stabs.sds$feature = as.character(rownames(stabs.sds))
+        rownames(stabs.sds) = NULL
+        stabs.select = merge(stabs.select, stabs.sds, by = "feature")
+        
+        stabs.select$feat.coef2 = stabs.select$feat.coef * stabs.select$stabs.sds
+        stabs.select$feat.coef2 = abs(stabs.select$feat.coef2)
+        stabs.select = stabs.select[order(stabs.select$f, stabs.select$feat.coef2, decreasing = TRUE), ]
+        stabs.select = stabs.select[1:top.features, ]
+        
+        sel = as.character(stabs.select$feature)
+        
+      } else {
+        
+        sel = as.character(stabs[which(stabs$f >= new.cutoff.indel), "feature"])
+        
+      }
+      
+    } else {
+      
+      sel = as.character(stabs[which(stabs$f >= new.cutoff.indel), "feature"])
+      
+    }
     
     # If continuous indel features selected before, else return NULL
     if (!is.null(continuous.features.selected.indel.url.file)) {

@@ -7,10 +7,11 @@
 #' @param sample.specific.features.url.file Text file containing sample specific indel features, default = NULL.
 #' @param fit.sparse To fit model using glmnet or glm, default = FALSE.
 #' @param drop To drop insignificant features from fitted model or not, default = FALSE.
+#' @param output.dir Save plot in given output directory.
 #' @return Fitted indel prediction model.
 #' @export
 
-mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.indel.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, sample.specific.features.url.file = NULL, fit.sparse = FALSE, drop = FALSE) {
+mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.indel.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, sample.specific.features.url.file = NULL, fit.sparse = FALSE, drop = FALSE, output.dir) {
   
   if (!fit.sparse) {
     
@@ -41,7 +42,7 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
       continuous.sample.specific = NULL
       for (j in 1:ncol(sample.specific.urls)) {
   
-        if (class(sample.specific.urls[,j]) != "character"){
+        if (class(sample.specific.urls[ ,j]) != "character"){
           
           continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
           
@@ -149,14 +150,15 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
         
       }
       
-      # redefine selected features for prediction
-      features = rownames(summary(LRmodel)$coef)[-1]
+      # Redefine selected features for prediction
+      # features = rownames(summary(LRmodel)$coef)[-1]
+      features = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count")]
       
-      # continuous features
+      # Continuous features
       if (!is.null(continuous.features.selected.indel.url.file)) {
         
         continuous.features = read.delim(continuous.features.selected.indel.url.file, stringsAsFactors = FALSE, header = FALSE)
-        if (sum(continuous.features[,1] %in% features) != nrow(continuous.features)) {
+        if (sum(continuous.features[ ,1] %in% features) != nrow(continuous.features)) {
           
           rem = which(!continuous.features[ ,1] %in% features)
           continuous.features = continuous.features[-rem, ]
@@ -178,22 +180,13 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
           
         }
       
-      # discrete features
+      # Discrete features
       if (!is.null(discrete.features.selected.indel.url.file)) {
         
         discrete.features = read.delim(discrete.features.selected.indel.url.file, stringsAsFactors = FALSE, header = FALSE)
-        rem = NULL
-        for (p in 1:nrow(discrete.features)) {
+        if (sum(discrete.features[ ,1] %in% features) != nrow(discrete.features)) {
           
-          if (sum(grepl(discrete.features[p, 1], features)) == 0) {
-            
-            rem = c(rem, p)
-            
-          }
-          
-        }
-        if(length(rem) > 0) {
-          
+          rem = which(!discrete.features[ ,1] %in% features)
           discrete.features = discrete.features[-rem, ]
           if (nrow(discrete.features) == 0) {
             
@@ -205,15 +198,15 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
           
           discrete.features = "unchanged"
           
-        }
+        } 
         
       } else {
         
         discrete.features = "unchanged"
         
-        }
+      }
       
-      # sample specific features
+      # Sample specific features
       if (!is.null(sample.specific.features.url.file)) {
         
         sample.specific = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
@@ -251,11 +244,19 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
           
         }
       
-      return(list(LRmodel, continuous.features, discrete.features, sample.specific))
+      # Plot feature importance barplot
+      print("Plot feature importance")
+      plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir)
+      
+      return(list(stripGlmLR(LRmodel), continuous.features, discrete.features, sample.specific))
       
     } else {
       
-      return(LRmodel)
+      # Plot feature importance barplot
+      print("Plot feature importance")
+      plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir)
+      
+      return(stripGlmLR(LRmodel))
     }
     
   } else {
@@ -427,10 +428,11 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
         
       }
       
-      # redefine selected features for prediction
-      features = rownames(summary(LRmodel)$coef)[-1]
+      # Redefine selected features for prediction
+      # features = rownames(summary(LRmodel)$coef)[-1]
+      features = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count")]
       
-      # continuous features
+      # Continuous features
       if (!is.null(continuous.features.selected.indel.url.file)) {
         
         continuous.features = read.delim(continuous.features.selected.indel.url.file, stringsAsFactors = FALSE, header = FALSE)
@@ -456,22 +458,13 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
           
         }
       
-      # discrete features
+      # Discrete features
       if (!is.null(discrete.features.selected.indel.url.file)) {
         
         discrete.features = read.delim(discrete.features.selected.indel.url.file, stringsAsFactors = FALSE, header = FALSE)
-        rem = NULL
-        for (p in 1:nrow(discrete.features)) {
+        if (sum(discrete.features[ ,1] %in% features) != nrow(discrete.features)) {
           
-          if (sum(grepl(discrete.features[p, 1], features)) == 0) {
-            
-            rem = c(rem, p)
-            
-          }
-          
-        }
-        if(length(rem) > 0) {
-          
+          rem = which(!discrete.features[ ,1] %in% features)
           discrete.features = discrete.features[-rem, ]
           if (nrow(discrete.features) == 0) {
             
@@ -489,9 +482,9 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
         
         discrete.features = "unchanged"
         
-        }
+      }
       
-      # sample specific features
+      # Sample specific features
       if (!is.null(sample.specific.features.url.file)) {
         
         sample.specific = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
@@ -529,15 +522,27 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
           
         }
       
-      return(list(LRmodel, continuous.features, discrete.features, sample.specific))
+      # Plot feature importance barplot
+      print("Plot feature importance")
+      plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir)
+      
+      return(list(stripGlmLR(LRmodel), continuous.features, discrete.features, sample.specific))
       
     } else {
       
-      return(LRmodel)
+      # Plot feature importance barplot
+      print("Plot feature importance")
+      plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir)
+      
+      return(stripGlmLR(LRmodel))
       
     }
     
   } else {
+    
+    # Plot feature importance barplot
+    print("Plot feature importance")
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir)
     
     return(LRmodel[[1]])
     

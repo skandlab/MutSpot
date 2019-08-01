@@ -12,10 +12,9 @@
 
 plot_top_hits = function(hotspots.file, fdr.cutoff = 0.1, color.muts ="orange", mutations.file, mutation.type, top.no = 3, output.dir) {
   
-  hotspots.plot = read.delim(hotspots.file, stringsAsFactors = FALSE)
+  hotspots.plot = hotspots.file
   hotspots.plot$region = rownames(hotspots.plot)
   
-
     x = hotspots.plot
     top.hits = x[which(x$fdr <= fdr.cutoff), ]
     

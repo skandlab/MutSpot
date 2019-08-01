@@ -42,6 +42,8 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file) {
     maf.ovl.m = IRanges::as.matrix(maf.ovl)
     genome.bins.mutcount = tapply(maf.ovl.m[ ,2], names(genome.bins.grl.masked)[maf.ovl.m[ ,1]], function(s) length(s))
     genome.bins.mutcount = data.frame(name = names(genome.bins.mutcount), mutcount = genome.bins.mutcount)
+    genome.bins.mutcount$name = as.character(genome.bins.mutcount$name)
+    genome.bins.length$name = as.character(genome.bins.length$name)
     genome.bins.mutrate = merge(genome.bins.length, genome.bins.mutcount, all = T)
     
     genome.bins.mutrate[is.na(genome.bins.mutrate)] = 0
@@ -105,6 +107,8 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file) {
     maf.ovl.m = IRanges::as.matrix(maf.ovl)
     genome.bins.mutcount = tapply(maf.ovl.m[ ,2], names(genome.bins.grl.masked)[maf.ovl.m[ ,1]], function(s) length(s))
     genome.bins.mutcount = data.frame(name = names(genome.bins.mutcount), mutcount = genome.bins.mutcount)
+    genome.bins.mutcount$name = as.character(genome.bins.mutcount$name)
+    genome.bins.length$name = as.character(genome.bins.length$name)
     genome.bins.mutrate = merge(genome.bins.length, genome.bins.mutcount, all=T)
     genome.bins.mutrate[is.na(genome.bins.mutrate)] = 0
     genome.bins.mutrate$mut.rate = genome.bins.mutrate$mutcount / genome.bins.mutrate$length / nind.indel

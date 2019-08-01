@@ -37,7 +37,7 @@ stability.sel.epigenetic <- function(x_data, y_data, threshold = 0.75, cores = 1
     set.seed(s1)
     sel1 <- sample(mut, sel.n1, replace = FALSE) 
     set.seed(s2)
-    sel2 <- sample(nonmut, sel.n2, replace=FALSE)
+    sel2 <- sample(nonmut, sel.n2, replace = FALSE)
     x.sel <- x_data[c(sel1, sel2), ] 
     y.sel <- y_data[c(sel1, sel2)] 
     
