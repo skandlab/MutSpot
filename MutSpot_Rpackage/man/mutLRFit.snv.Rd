@@ -8,7 +8,7 @@ mutLRFit.snv(mutCovariate.table.snv.file, mutCovariate.count.snv.file,
   continuous.features.selected.snv.url.file,
   discrete.features.selected.snv.url.file, nucleotide.selected.file,
   sample.specific.features.url.file = NULL, fit.sparse = FALSE,
-  drop = FALSE)
+  drop = FALSE, output.dir)
 }
 \arguments{
 \item{mutCovariate.table.snv.file}{RDS file, SNV covariates sparse matrix.}
@@ -26,6 +26,8 @@ mutLRFit.snv(mutCovariate.table.snv.file, mutCovariate.count.snv.file,
 \item{fit.sparse}{To fit model using glmnet or glm, default = FALSE.}
 
 \item{drop}{To drop insignificant features from fitted model or not, default = FALSE.}
+
+\item{output.dir}{Save plot in given output directory.}
 }
 \value{
 Fitted SNV prediction model.

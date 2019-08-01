@@ -7,8 +7,7 @@
 sample.sites(snv.mutations.file, indel.mutations.file,
   mask.regions.file = system.file("extdata", "mask_regions.RDS", package =
   "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package
-  = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = TRUE,
-  cores = 1)
+  = "MutSpot"), region.of.interest = NULL, sample = TRUE, cores = 1)
 }
 \arguments{
 \item{snv.mutations.file}{SNV mutations MAF file.}
@@ -20,8 +19,6 @@ sample.sites(snv.mutations.file, indel.mutations.file,
 \item{all.sites.file}{All sites in whole genome RDS file, default file = all_sites.RDS.}
 
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
-
-\item{ratio}{Sampling ratio, default = 1.}
 
 \item{sample}{To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.}
 

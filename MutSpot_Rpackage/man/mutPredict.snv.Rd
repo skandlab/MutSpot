@@ -10,8 +10,14 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
   discrete.features.selected.snv.url.file,
   sample.specific.features.url.file = NULL, snv.mutations.file,
   snv.mutations.file2, region.of.interest, cores = 1, snv.model.file,
-  min.count = 2, genome.size = 2533374732, hotspots = TRUE,
-  merge.hotspots = TRUE)
+  min.count = 2, hotspot.size = 21, genome.size = 2533374732,
+  hotspots = TRUE, merge.hotspots = TRUE, output.dir, fdr.cutoff = 0.1,
+  color.line = "red", color.dots = "maroon1", color.muts = "orange",
+  top.no = 3, promoter.file = system.file("extdata",
+  "Ensembl75.promoters.coding.bed", package = "MutSpot"),
+  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package =
+  "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
+  package = "MutSpot"), other.annotations = NULL, debug = FALSE)
 }
 \arguments{
 \item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
@@ -36,14 +42,38 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
 
 \item{min.count}{Minimum number of mutated samples in each hotspot, default = 2.}
 
+\item{hotspot.size}{Size of each hotspot, default = 21.}
+
 \item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
 \item{merge.hotspots}{To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.}
+
+\item{output.dir}{Save plot in given output directory.}
+
+\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
+
+\item{color.line}{Color given FDR cutoff, default = red.}
+
+\item{color.dots}{Color hotspots that passed given FDR cutoff, default = maroon1.}
+
+\item{color.muts}{Color points, default = orange.}
+
+\item{top.no}{Number of top hotspots to plot, default = 3.}
+
+\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
+
+\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.}
+
+\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.}
+
+\item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
+
+\item{debug}{To delete temporary files or not, default = FALSE.}
 }
 \value{
-Dataframe containing predicted hotspots significance with hotspots information for SNV.
+Dataframe containing predicted hotspots significance with hotspots information for SNV/merged/annotated and hotspots manhattan and top hits figures.
 }
 \description{
 Mutation hotspot recurrence prediction for SNV.

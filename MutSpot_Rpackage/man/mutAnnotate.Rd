@@ -11,7 +11,7 @@ mutAnnotate(hotspots.file, promoter.file = system.file("extdata",
   package = "MutSpot"), other.annotations = NULL)
 }
 \arguments{
-\item{hotspots.file}{Hotspots to be annotated tsv file.}
+\item{hotspots.file}{Hotspots to be annotated.}
 
 \item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
 

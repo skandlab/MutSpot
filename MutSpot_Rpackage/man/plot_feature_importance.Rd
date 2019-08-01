@@ -4,20 +4,13 @@
 \alias{plot_feature_importance}
 \title{Plot feature importance.}
 \usage{
-plot_feature_importance(model, mutCovariate.table.file, mutCovariate.count.file,
-  continuous.features.selected.url.file, z.value = FALSE, mutation.type,
+plot_feature_importance(LRmodel, mutCovariate.table.file, mutation.type,
   output.dir)
 }
 \arguments{
-\item{model}{Prediction model.}
+\item{LRmodel}{Prediction model.}
 
 \item{mutCovariate.table.file}{RDS file, SNV covariates sparse matrix.}
-
-\item{mutCovariate.count.file}{RDS file, SNV response matrix.}
-
-\item{continuous.features.selected.url.file}{Text file containing URLs of SNV continuous features selected for model.}
-
-\item{z.value}{To use z-value for plot or coefficients, default = FALSE.}
 
 \item{mutation.type}{SNV or indel mutation.}
 

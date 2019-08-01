@@ -8,7 +8,7 @@ mutLRFit.indel(mutCovariate.table.indel.file, mutCovariate.count.indel.file,
   continuous.features.selected.indel.url.file,
   discrete.features.selected.indel.url.file,
   sample.specific.features.url.file = NULL, fit.sparse = FALSE,
-  drop = FALSE)
+  drop = FALSE, output.dir)
 }
 \arguments{
 \item{mutCovariate.table.indel.file}{RDS file, indel covariates sparse matrix.}
@@ -24,6 +24,8 @@ mutLRFit.indel(mutCovariate.table.indel.file, mutCovariate.count.indel.file,
 \item{fit.sparse}{To fit model using glmnet or glm, default = FALSE.}
 
 \item{drop}{To drop insignificant features from fitted model or not, default = FALSE.}
+
+\item{output.dir}{Save plot in given output directory.}
 }
 \value{
 Fitted indel prediction model.

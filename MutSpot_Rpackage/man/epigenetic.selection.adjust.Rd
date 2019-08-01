@@ -8,7 +8,8 @@ epigenetic.selection.adjust(feature.stabs.snv.file, feature.stabs.indel.file,
   continuous.features.selected.snv.url.file,
   discrete.features.selected.snv.url.file,
   continuous.features.selected.indel.url.file,
-  discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel)
+  discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel,
+  top.features = NULL, features.sds)
 }
 \arguments{
 \item{feature.stabs.snv.file}{RDS file containing frequency of SNV epigenetic features selected through lasso.}
@@ -26,6 +27,10 @@ epigenetic.selection.adjust(feature.stabs.snv.file, feature.stabs.indel.file,
 \item{new.cutoff.snv}{Updated frequency cutoff/threshold to determine SNV epigenetic features used in prediction model, ranges from 0.5 to 1.}
 
 \item{new.cutoff.indel}{Updated frequency cutoff/threshold to determine indel epigenetic features used in prediction model, ranges from 0.5 to 1.}
+
+\item{top.features}{Number of top genomic features to select, default = NULL.}
+
+\item{features.sds}{RDS list containing standard deviations of each feature.}
 }
 \value{
 Updated set of SNV/indel continuous and discrete features that passed the new threshold.

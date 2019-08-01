@@ -4,37 +4,43 @@
 \alias{mutPredict.indel.run.lr}
 \title{Run mutation recurrence for indel.}
 \usage{
-mutPredict.indel.run.lr(roi, maf.indel, maf.indel2, model.indel,
-  continuous.features.indel, discrete.features.indel, sample.specific.features,
-  continuous.sample.specific, min.count = 2, genome.size = 2533374732,
-  cores = 1, only.samples = NULL, debug = FALSE)
+mutPredict.indel.run.lr(output.dir, merge.hotspots = TRUE,
+  indel.mutations.file, fdr.cutoff = 0.1, color.line = "red",
+  color.dots = "maroon1", color.muts = "orange", top.no = 3,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
+  package = "MutSpot"), utr3.file = system.file("extdata",
+  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
+  "MutSpot"), other.annotations = NULL, debug = FALSE, cores = 1)
 }
 \arguments{
-\item{roi}{GRanges containing all hotspots.}
+\item{output.dir}{Save plot in given output directory.}
 
-\item{maf.indel}{GRanges containing indel mutations in region of interest.}
+\item{merge.hotspots}{To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.}
 
-\item{maf.indel2}{GRanges containing all mutations.}
+\item{indel.mutations.file}{Indel mutations found in region of interest MAF file.}
 
-\item{model.indel}{Indel model.}
+\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
 
-\item{continuous.features.indel}{Full scores list of indel continuous features selected for model.}
+\item{color.line}{Color given FDR cutoff, default = red.}
 
-\item{discrete.features.indel}{Full scores list of indel discrete features selected for model.}
+\item{color.dots}{Color hotspots that passed given FDR cutoff, default = maroon1.}
 
-\item{sample.specific.features}{Sample-specific features.}
+\item{color.muts}{Color points, default = orange.}
 
-\item{continuous.sample.specific}{Continuous features in the final model.}
+\item{top.no}{Number of top hotspots to plot, default = 3.}
 
-\item{min.count}{Minimum number of mutated samples in each hotspot, default = 2.}
+\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
 
-\item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
+\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.}
+
+\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.}
+
+\item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
+
+\item{debug}{To delete temporary files or not, default = FALSE.}
 
 \item{cores}{Number of cores, default = 1.}
-
-\item{only.samples}{Restrict analysis to certain samples, default = NULL.}
-
-\item{debug}{To print errors, default = FALSE.}
 }
 \value{
 Dataframe containing predicted hotspots significance.

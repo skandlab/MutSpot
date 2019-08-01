@@ -4,30 +4,32 @@
 \alias{MutSpot}
 \title{Runs all or selected steps in MutSpot analysis.}
 \usage{
-MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
-  9.3), working.dir = NULL, chromosomes = c(1:22, "X"),
-  snv.mutations = NULL, indel.mutations = NULL,
-  mask.regions.file = system.file("extdata", "mask_regions.RDS", package =
-  "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package
-  = "MutSpot"), region.of.interest = NULL, ratio = 1, sample = T,
-  cores = 1, cutoff.nucleotide = 0.9, cutoff.nucleotide.new = NULL,
-  genomic.features.snv = NULL, genomic.features.indel = NULL,
-  genomic.features = NULL, genomic.features.fixed.snv = NULL,
-  genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL,
-  sample.snv.features = NULL, sample.indel.features = NULL,
-  cutoff.features = 0.75, cutoff.features.new.snv = NULL,
-  cutoff.features.new.indel = NULL, fit.sparse = FALSE, drop = FALSE,
-  min.count.snv = 2, min.count.indel = 2, genome.size = 2533374732,
-  hotspots = TRUE, promoter.file = system.file("extdata",
-  "Ensembl75.promoters.coding.bed", package = "MutSpot"),
-  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package =
-  "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
-  package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1,
+MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
+  working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL,
+  indel.mutations = NULL, mask.regions.file = system.file("extdata",
+  "mask_regions.RDS", package = "MutSpot"),
+  all.sites.file = system.file("extdata", "all_sites.RDS", package =
+  "MutSpot"), region.of.interest = NULL, sample = T, cores = 1,
+  cutoff.nucleotide = 0.9, cutoff.nucleotide.new = NULL,
+  top.nucleotide = NULL, genomic.features.snv = NULL,
+  genomic.features.indel = NULL, genomic.features = NULL,
+  genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL,
+  genomic.features.fixed = NULL, sample.snv.features = NULL,
+  sample.indel.features = NULL, cutoff.features = 0.75,
+  cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL,
+  top.features = NULL, fit.sparse = FALSE, drop = FALSE,
+  min.count.snv = 2, min.count.indel = 2, hotspot.size = 21,
+  genome.size = 2533374732, hotspots = TRUE,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
+  package = "MutSpot"), utr3.file = system.file("extdata",
+  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
+  "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1,
   color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE,
-  color.muts = "orange", z.value = FALSE, top.no = 3, debug = FALSE)
+  color.muts = "orange", top.no = 3, debug = FALSE)
 }
 \arguments{
-\item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7, 8, 9.1, 9.2, 9.3.}
+\item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7.}
 
 \item{working.dir}{Working directory, default = NULL will use current working directory.}
 
@@ -43,8 +45,6 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
 
-\item{ratio}{Sampling ratio, default = 1.}
-
 \item{sample}{To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.}
 
 \item{cores}{Number of cores, default = 1.}
@@ -52,6 +52,8 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 \item{cutoff.nucleotide}{Frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1, default = 0.90.}
 
 \item{cutoff.nucleotide.new}{Updated frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1.}
+
+\item{top.nucleotide}{Number of top nucleotide contexts to select, default = NULL.}
 
 \item{genomic.features.snv}{Text file containing URLs of potential continuous and discrete SNV epigenetic features to select from, default = NULL.}
 
@@ -75,6 +77,8 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 
 \item{cutoff.features.new.indel}{Updated frequency cutoff/threshold to determine indel epigenetic features used in prediction model, ranges from 0.5 to 1.}
 
+\item{top.features}{Number of top genomic features to select, default = NULL.}
+
 \item{fit.sparse}{To fit model using glmnet or glm, default = FALSE.}
 
 \item{drop}{To drop insignificant features from fitted model or not, default = FALSE.}
@@ -82,6 +86,8 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 \item{min.count.snv}{Minimum number of mutated samples in each SNV hotspot, default = 2.}
 
 \item{min.count.indel}{Minimum number of mutated samples in each indel hotspot, default = 2.}
+
+\item{hotspot.size}{Size of each hotspot, default = 21.}
 
 \item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
 
@@ -104,8 +110,6 @@ MutSpot(run.to = c(1:2, 3.1, 4.1, 5.1, 5.2, 5.3, 5.4, 5.5, 6:8, 9.1, 9.2,
 \item{merge.hotspots}{To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.}
 
 \item{color.muts}{Color points, default = orange.}
-
-\item{z.value}{To use z-value for plot or coefficients, default = FALSE.}
 
 \item{top.no}{Number of top hotspots to plot, default = 3.}
 
