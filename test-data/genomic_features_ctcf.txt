@@ -11,7 +11,5 @@ POL2B	./features/POL2B_ovl.bed	0	NA
 POL2	./features/POL2_ovl.bed	0	NA
 SMC3	./features/SMC3_ovl.bed	0	NA
 RAD21	./features/RAD21_ovl.bed	0	NA
-ZNF143	./features/ZNF143_ovl.bed	0	NA
-HDAC2	./fetures/HDAC2_ovl.bed	0	NA
-POL24H8	./features/POL24H8_ovl.bed	0	NA
 CTCF_boundary	./features/ctcf_boundary_flank.bed	0	NA
+APOBEC3A	./features/APOBEC3A.bed	0	NA
