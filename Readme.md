@@ -153,9 +153,11 @@ A binary feature BED file should include the following columns:
 
 *For binary features, genomic regions that are found in the feature BED file are assigned value of 1, else value of 0*
 
+A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the features folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the function, else he/she may create a similar text file containing desired/other features.
+
 
 #### 3. Sample specific features (optional)
-The user can choose to include sample specific features in the background mutation model, such as the clinical subtype of the tumor. Note that sample specific features will not undergo LASSO feature selection and will be automatically included in the final model. Sample specific features are to be supplied as a tab delimited file where each row corresponds to a sample and each column corresponds to a feature.
+The user may choose to include sample specific features in the background mutation model, such as the clinical subtype of the tumor. Note that sample specific features will not undergo LASSO feature selection and will be automatically included in the final model. Sample specific features are to be supplied as a tab delimited file where each row corresponds to a sample and each column corresponds to a feature.
 
 Example format:
 
@@ -168,7 +170,7 @@ Example format:
 
 
 #### 4. Region of interest (optional)
-Instead of finding mutation hotspots genome-wide, the user can restrict the hotspot analysis to certain regions of interest, such as promoters, enhancers, or UTRs, by supplying a BED file with the following columns:
+Instead of finding mutation hotspots genome-wide, the user may restrict the hotspot analysis to certain regions of interest, such as promoters, enhancers, or UTRs, by supplying a BED file with the following columns:
 
   1. Chromosome
   2. Start position (0-based)
