@@ -153,7 +153,7 @@ A binary feature BED file should include the following columns:
 
 *For binary features, genomic regions that are found in the feature BED file are assigned value of 1, else value of 0*
 
-A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the features folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the function, else he/she may create a similar text file containing desired/other features.
+A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the *features* folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the *MutSpot()* function, else he/she may create a similar text file containing desired/other features.
 
 
 #### 3. Sample specific features (optional)
@@ -193,14 +193,14 @@ Instead of finding mutation hotspots genome-wide, the user may restrict the hots
 
 ## Adjusting threshold of LASSO feature selection
 
-For a more/less stringent nucleotide selection, users may choose to re-define frequency threshold by re-running step 3.2. This can be done by specifying *3.2* as the *run.to* parameter and the new selection threshold as the *cutoff.nucleotide.new* parameter. Users may also choose to select the top *n* features based on the mean coefficients by specifying the number of contexts to select as the *top.nucleotide* parameter.
+For a more/less stringent nucleotide selection, users may choose to re-define frequency threshold by re-running step 3.2. This can be done by specifying *run.to = 3.2* and the new selection threshold as the *cutoff.nucleotide.new* parameter. Users may also choose to select the top *n* features based on the mean coefficients by specifying the number of contexts to select as the *top.nucleotide* parameter.
 
 ```{r}
 MutSpot(run.to = 3.2, snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "gastric_ctcf_motif.bed", cutoff.nucleotide.new = 0.98, top.nucleotide = 3, cores = 2, genomic.features = "genomic_features_ctcf.txt", sample.snv.features = "sample_features_table_snv.txt")
 ```
 
 
-Similarly, for a more/less stringent epigenetic features selection, users may choose to re-define frequency threshold by running step 4.2. This can be done by specifying *4.2* as the *run.to* parameter and the new selection thresholds for SNVs and indels as the *cutoff.nucleotide.new.snv* and *cutoff.features.new.indel* parameters respectively. Users may also choose to select the top *n* features based on the mean coefficients by specifying the number of features to select as the *top.features* parameter.
+Similarly, for a more/less stringent epigenetic features selection, users may choose to re-define frequency threshold by running step 4.2. This can be done by specifying *run.to = 4.2* and the new selection thresholds for SNVs and indels as the *cutoff.nucleotide.new.snv* and *cutoff.features.new.indel* parameters respectively. Users may also choose to select the top *n* features based on the mean coefficients by specifying the number of features to select as the *top.features* parameter.
 
 ```{r}
 MutSpot(run.to = 4.2, snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "gastric_ctcf_motif.bed", cores = 2, genomic.features = "genomic_features_ctcf.txt",
