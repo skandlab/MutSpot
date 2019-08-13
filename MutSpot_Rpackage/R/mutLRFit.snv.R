@@ -40,12 +40,16 @@ print("Fit model using glm")
   if (!is.null(sample.specific.features.url.file)) {
     
     sample.specific.urls <- read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
-    continuous.sample.specific = NULL
+    continuous.sample.specific = discrete.sample.specific = NULL
     for (j in 1:ncol(sample.specific.urls)) {
       
       if (class(sample.specific.urls[ ,j]) != "character") {
         
         continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
+        
+      } else {
+        
+        discrete.sample.specific = c(discrete.sample.specific, colnames(sample.specific.urls)[j])
         
       }
       
@@ -57,7 +61,7 @@ print("Fit model using glm")
     
   }
   
-  for(i in colnames(mutfreq.aggregated)[which(!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count", "sample.count", selected.continuous.urls, continuous.sample.specific))]) {
+  for(i in colnames(mutfreq.aggregated)[which(!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count", "ind.mut.count", selected.continuous.urls, continuous.sample.specific))]) {
     
     mutfreq.aggregated[ ,i] = as.character(mutfreq.aggregated[ ,i])
     
@@ -70,7 +74,7 @@ print("Fit model using glm")
   if (drop) {
     
     
-    ignore = "sample.count"
+    ignore = "ind.mut.count"
     
   # Remove features that are not significant
   pval = summary(LRmodel)$coef[ ,4]
@@ -310,7 +314,7 @@ print("Fit model using glm")
   
   # Plot feature importance barplot
   print("Plot feature importance for SNV")
-  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
   
   return(list(stripGlmLR(LRmodel), nucleotide.context, continuous.features, discrete.features, sample.specific))
   
@@ -318,7 +322,7 @@ print("Fit model using glm")
   
   # Plot feature importance barplot
     print("Plot feature importance for SNV")
-    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
     
   return(stripGlmLR(LRmodel))
     
@@ -379,12 +383,16 @@ if(!is.null(LRmodel$warning)) {
   if (!is.null(sample.specific.features.url.file)) {
     
     sample.specific.urls <- read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
-    continuous.sample.specific = NULL
+    continuous.sample.specific = discrete.sample.specific = NULL
     for (j in 1:ncol(sample.specific.urls)) {
       
       if (class(sample.specific.urls[ ,j]) != "character") {
         
         continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
+        
+      } else {
+        
+        discrete.sample.specific = c(discrete.sample.specific, colnames(sample.specific.urls)[j])
         
       }
       
@@ -396,7 +404,7 @@ if(!is.null(LRmodel$warning)) {
     
   }
   
-  for(i in colnames(mutfreq.aggregated)[which(!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count", "sample.count", selected.continuous.urls, continuous.sample.specific))]) {
+  for(i in colnames(mutfreq.aggregated)[which(!colnames(mutfreq.aggregated) %in% c("mut.count", "nonmut.count", "ind.mut.count", selected.continuous.urls, continuous.sample.specific))]) {
     
     mutfreq.aggregated[ ,i] = as.character(mutfreq.aggregated[ ,i])
     
@@ -410,7 +418,7 @@ if(!is.null(LRmodel$warning)) {
   
   if (drop) {
     
-    ignore = "sample.count"
+    ignore = "ind.mut.count"
     
     # Remove features that are not significant
     pval = summary(LRmodel)$coef[ ,4]
@@ -651,7 +659,7 @@ if(!is.null(LRmodel$warning)) {
     
     # Plot feature importance barplot
     print("Plot feature importance for SNV")
-    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
     
     return(list(stripGlmLR(LRmodel), nucleotide.context, continuous.features, discrete.features, sample.specific))
     
@@ -659,7 +667,7 @@ if(!is.null(LRmodel$warning)) {
     
     # Plot feature importance barplot
     print("Plot feature importance for SNV")
-    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
     
     return(stripGlmLR(LRmodel))
     
@@ -669,7 +677,7 @@ if(!is.null(LRmodel$warning)) {
   
   # Plot feature importance barplot
   print("Plot feature importance for SNV")
-  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir)
+  plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.snv.file, mutation.type = "SNV", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
   
   return(LRmodel[[1]])
   

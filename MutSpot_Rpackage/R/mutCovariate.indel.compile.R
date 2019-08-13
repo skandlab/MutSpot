@@ -57,7 +57,7 @@ if (!is.null(sample.specific.features.url.file)) {
   sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
   rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
   sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
-  sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+  sample.specific.features$ind.mut.count = ind.mut.count[rownames(sample.specific.features)]
   sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
   
   sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
@@ -96,7 +96,7 @@ if (!is.null(sample.specific.features.url.file)) {
 } else {
   
   sample.specific.features=as.data.frame(ind.mut.count)
-  colnames(sample.specific.features)="sample.count"
+  colnames(sample.specific.features)="ind.mut.count"
   
 }
 
@@ -163,7 +163,7 @@ if (!is.null(sample.specific.features.url.file)) {
   nind = nrow(sample.specific.features)
   sample.specific.features = sample.specific.features[rep(1:nrow(sample.specific.features), each = nrow(genome.freq.aggregated)),]
   sample.specific.features = as.data.frame(sample.specific.features)
-  colnames(sample.specific.features) = "sample.count"
+  colnames(sample.specific.features) = "ind.mut.count"
   
 }
 
@@ -171,7 +171,7 @@ genome.freq.aggregated = genome.freq.aggregated[rep(1:nrow(genome.freq.aggregate
 genome.freq.aggregated = data.frame(genome.freq.aggregated[ ,1:(ncol(genome.freq.aggregated) - 1)], sample.specific.features, tot.count = genome.freq.aggregated[ ,ncol(genome.freq.aggregated):ncol(genome.freq.aggregated)], check.names = FALSE)
 if (ncol(genome.freq.aggregated) <= 3) {
   
-  colnames(genome.freq.aggregated)[1] = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("sample.count", "x")]
+  colnames(genome.freq.aggregated)[1] = colnames(mutfreq.aggregated)[!colnames(mutfreq.aggregated) %in% c("ind.mut.count", "x")]
   
 }
 colnames(genome.freq.aggregated)[ncol(genome.freq.aggregated)] = "x.tot"

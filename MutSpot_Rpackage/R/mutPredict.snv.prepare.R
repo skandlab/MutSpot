@@ -49,7 +49,7 @@ mutPredict.snv.prepare = function(mask.regions.file = system.file("extdata", "ma
       
       rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
       sample.specific.features=sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count.snv)), ]
-      sample.specific.features$sample.count = ind.mut.count.snv[rownames(sample.specific.features)]
+      sample.specific.features$ind.mut.count = ind.mut.count.snv[rownames(sample.specific.features)]
       sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
       
       sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
@@ -101,15 +101,15 @@ mutPredict.snv.prepare = function(mask.regions.file = system.file("extdata", "ma
     } else {
       
       sample.specific.features = as.data.frame(ind.mut.count.snv)
-      colnames(sample.specific.features) = "sample.count"
-      continuous.sample.specific = "sample.count"
+      colnames(sample.specific.features) = "ind.mut.count"
+      continuous.sample.specific = "ind.mut.count"
     }
     
   } else {
     
     sample.specific.features = as.data.frame(ind.mut.count.snv)
-    colnames(sample.specific.features) = "sample.count"
-    continuous.sample.specific = "sample.count"
+    colnames(sample.specific.features) = "ind.mut.count"
+    continuous.sample.specific = "ind.mut.count"
     
   }
   

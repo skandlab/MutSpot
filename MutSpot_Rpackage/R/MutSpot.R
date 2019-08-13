@@ -742,7 +742,7 @@ if (5.1 %in% run.to) {
       sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
       rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
       sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
-      sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features$ind.mut.count = ind.mut.count[rownames(sample.specific.features)]
       sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
       
       sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
@@ -782,7 +782,7 @@ if (5.1 %in% run.to) {
     } else {
       
       sample.specific.features = as.data.frame(ind.mut.count)
-      colnames(sample.specific.features) = "sample.count"
+      colnames(sample.specific.features) = "ind.mut.count"
       
     }
     
@@ -1007,7 +1007,7 @@ if (5.1 %in% run.to) {
       sample.specific.features = read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
       rownames(sample.specific.features) = as.character(sample.specific.features$SampleID)
       sample.specific.features = sample.specific.features[which(sample.specific.features$SampleID %in% names(ind.mut.count)), ]
-      sample.specific.features$sample.count = ind.mut.count[rownames(sample.specific.features)]
+      sample.specific.features$ind.mut.count = ind.mut.count[rownames(sample.specific.features)]
       sample.specific.features = sample.specific.features[ ,-which(colnames(sample.specific.features) == "SampleID")]
       
       sample.specific.features2 = parallel::mclapply(1:ncol(sample.specific.features), FUN = function(x) {
@@ -1047,7 +1047,7 @@ if (5.1 %in% run.to) {
     } else {
       
       sample.specific.features = as.data.frame(ind.mut.count)
-      colnames(sample.specific.features) = "sample.count"
+      colnames(sample.specific.features) = "ind.mut.count"
       
     }
     
@@ -1117,9 +1117,12 @@ if (5.1 %in% run.to) {
       }, mc.cores = cores)
       polyTs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyTs))
       
+      polyAT = c(polyAs, polyTs)
+      polyCG = c(polyCs, polyGs)
+      
       if (chr.interest %in% names(mut.chr)) {
         
-        mut.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.chr[[chr.interest]])
+        mut.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAT = polyAT, polyCG = polyCG, sites = mut.chr[[chr.interest]])
         
       } else {
         
@@ -1129,7 +1132,7 @@ if (5.1 %in% run.to) {
       
       if (chr.interest %in% names(mut.indel.chr)) {
         
-        indel.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = mut.indel.chr[[chr.interest]])
+        indel.freq <- mutCovariate.indel.freq.table.muts(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, sample.specific.features = sample.specific.features, polyAT = polyAT, polyCG = polyCG, sites = mut.indel.chr[[chr.interest]])
 
       } else {
         
@@ -1148,7 +1151,7 @@ if (5.1 %in% run.to) {
         chunks <- lapply(1:length(len), function(j) { lapply(1:ceiling(len[j] / chunk.size), function(i) ((len2[j] + (i-1) * chunk.size + 1):(len2[j] + min((i) * chunk.size, len[j])))) })
         chunks = do.call(c, chunks)
         
-        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.indel.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, polyAs = polyAs, polyTs = polyTs, polyCs = polyCs, polyGs = polyGs, sites = all.sites.masked2[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
+        genome.freq <- parallel::mclapply(chunks, function(x) mutCovariate.indel.freq.table.genome(continuous.features = continuous.selected.features, discrete.features = discrete.selected.features, polyAT = polyAT, polyCG = polyCG, sites = all.sites.masked2[x]), mc.cores = cores, mc.preschedule = FALSE, mc.silent = FALSE)
         genome.freq = data.table::rbindlist(genome.freq)
         genome.freq = data.frame(genome.freq, check.names = F)
         # Sum up number of sites with same covariates combination
@@ -1172,7 +1175,7 @@ if (5.1 %in% run.to) {
       
       saveRDS(list(mut.freq, indel.freq, genome.freq.aggregated), file = paste(output.dir, "mutCovariate_indel_", chr.interest, ".RDS", sep = ""))
       
-      rm(list=c("mut.freq","indel.freq","genome.freq.aggregated","polyAs","polyTs","polyGs","polyCs"))
+      rm(list = c("mut.freq", "indel.freq", "genome.freq.aggregated", "polyAs", "polyTs", "polyGs", "polyCs", "polyAT", "polyCG"))
       gc()
       
     }

@@ -4,10 +4,11 @@
 #' @param mutCovariate.table.file RDS file, SNV covariates sparse matrix.
 #' @param mutation.type SNV or indel mutation.
 #' @param output.dir Save plot in given output directory.
+#' @param feature.names Feature names.
 #' @return Variable importance plot.
 #' @export
 
-plot_feature_importance = function(LRmodel, mutCovariate.table.file, mutation.type, output.dir) {
+plot_feature_importance = function(LRmodel, mutCovariate.table.file, mutation.type, output.dir, feature.names) {
 
   if (!"glmnet" %in% class(LRmodel)) {
     
@@ -18,6 +19,9 @@ plot_feature_importance = function(LRmodel, mutCovariate.table.file, mutation.ty
   df = df[-1, ]
   colnames(df) = c("estimate", "std.error", "z.value", "p.value", "feat")
 
+  # Clean up variable name
+  df$feat = gsub("`", "", gsub("`1", "", df$feat))
+  df$feat = ifelse(!df$feat %in% feature.names, substr(df$feat, 1, nchar(df$feat) - 1), df$feat)
   
   df = df[order(df$z.value, decreasing = TRUE), ]
   df$feat = factor(df$feat, levels = df$feat)
@@ -37,6 +41,11 @@ plot_feature_importance = function(LRmodel, mutCovariate.table.file, mutation.ty
     df = data.frame(df)
     df$feat = rownames(df)
     colnames(df)[1] = "imp"
+    
+    # Clean up variable name
+    df$feat = gsub("`", "", gsub("`1", "", df$feat))
+    df$feat = ifelse(!df$feat %in% feature.names, substr(df$feat, 1, nchar(df$feat) - 1), df$feat)
+    
     df = df[order(df$imp, decreasing = TRUE), ]
     df$feat = factor(df$feat, levels = df$feat)
 

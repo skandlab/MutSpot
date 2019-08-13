@@ -11,17 +11,37 @@ mutPredict.indel.find.polymer <- function(seq) {
   polymers = c("TTTTT", "AAAAA", "GGGGG", "CCCCC")
   
   # Search for polyT/A/G/C in the DNA sequences
-  motifs <- sapply(polymers, function(p) {
+  motifsA = sapply(dna, function(x) {
     
-    sapply(dna, function(x) {
+    if (sum(stringr::str_detect(x, polymers[1])) >= 1 | sum(stringr::str_detect(x, polymers[2])) >= 1) {
       
-      if (sum(stringr::str_detect(x, p)) >= 1)
-      { 1 } else { 0 }
+      1
       
-    } )
+    } else {
+      
+      0
+      
+    }
     
-    } )
-  colnames(motifs) = c("polyT", "polyA", "polyG", "polyC")
+  } )
+  
+  motifsG = sapply(dna, function(x) {
+    
+    if (sum(stringr::str_detect(x, polymers[3])) >= 1 | sum(stringr::str_detect(x, polymers[4])) >= 1) {
+      
+      1
+      
+    } else {
+      
+      0
+      
+    }
+    
+  } )
+  
+  motifs = cbind(motifsA, motifsG)
+  motifs = as.data.frame(motifs)
+  colnames(motifs) = c("polyA", "polyG")
   
   return(motifs)
   

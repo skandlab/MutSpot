@@ -5,7 +5,7 @@
 \title{Plot feature importance.}
 \usage{
 plot_feature_importance(LRmodel, mutCovariate.table.file, mutation.type,
-  output.dir)
+  output.dir, feature.names)
 }
 \arguments{
 \item{LRmodel}{Prediction model.}
@@ -15,6 +15,8 @@ plot_feature_importance(LRmodel, mutCovariate.table.file, mutation.type,
 \item{mutation.type}{SNV or indel mutation.}
 
 \item{output.dir}{Save plot in given output directory.}
+
+\item{feature.names}{Feature names.}
 }
 \value{
 Variable importance plot.

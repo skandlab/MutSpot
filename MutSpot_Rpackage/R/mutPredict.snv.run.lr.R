@@ -103,9 +103,9 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
       
       roi.feat.snv = roi.feat.snv[ ,c(colnames(sample.specific.features), colnames(roi.feat.snv)[!colnames(roi.feat.snv) %in% names(sample.specific.features)])]
       
-      if (sum(!colnames(roi.feat.snv) %in% c(continuous.sample.specific,"sample.count")) > 0 ) {
+      if (sum(!colnames(roi.feat.snv) %in% c(continuous.sample.specific,"ind.mut.count")) > 0 ) {
         
-        for (i in colnames(roi.feat.snv)[!colnames(roi.feat.snv) %in% c(continuous.sample.specific, "sample.count")]) {
+        for (i in colnames(roi.feat.snv)[!colnames(roi.feat.snv) %in% c(continuous.sample.specific, "ind.mut.count")]) {
           
           roi.feat.snv[ ,i] <- as.character(roi.feat.snv[ ,i])
           

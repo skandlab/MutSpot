@@ -71,6 +71,35 @@ mutPredict.indel.run.lr <- function(output.dir, merge.hotspots = TRUE, indel.mut
     # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
     roi.feat.indel = mutPredict.indel.get.features(GenomicRanges::reduce(mut.regions[x.idx]), continuous.selected.features.indel, discrete.selected.features.indel)
     
+    # If poly A or poly G are no longer in model
+    if (!"glmnet" %in% class(LRmodel)) {
+      
+    if (!"polyA1" %in% names(LRmodel$coefficients)) {
+      
+      roi.feat.indel = roi.feat.indel[ ,-which(colnames(roi.feat.indel) == "polyA")]
+      
+    }
+    if (!"polyG1" %in% names(LRmodel$coefficients)) {
+      
+      roi.feat.indel = roi.feat.indel[ ,-which(colnames(roi.feat.indel) == "polyG")]
+      
+    }
+      
+    } else {
+      
+      if (!"polyA1" %in% rownames(LRmodel$beta)) {
+        
+        roi.feat.indel = roi.feat.indel[ ,-which(colnames(roi.feat.indel) == "polyA")]
+        
+      }
+      if (!"polyG1" %in% rownames(LRmodel$beta)) {
+        
+        roi.feat.indel = roi.feat.indel[ ,-which(colnames(roi.feat.indel) == "polyG")]
+        
+      }
+      
+    }
+      
     x.len.indel = nrow(roi.feat.indel)
     
     # Vector of patient IDs
@@ -90,9 +119,9 @@ mutPredict.indel.run.lr <- function(output.dir, merge.hotspots = TRUE, indel.mut
     
     roi.feat.indel = roi.feat.indel[ ,c(colnames(sample.specific.features), colnames(roi.feat.indel)[!colnames(roi.feat.indel) %in% names(sample.specific.features)])]
     
-    if (sum(!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "sample.count")) > 0 ) {
+    if (sum(!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "ind.mut.count")) > 0 ) {
       
-      for (i in colnames(roi.feat.indel)[!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "sample.count")]) {
+      for (i in colnames(roi.feat.indel)[!colnames(roi.feat.indel) %in% c(continuous.sample.specific, "ind.mut.count")]) {
         
         roi.feat.indel[ ,i] <- as.character(roi.feat.indel[ ,i])
         

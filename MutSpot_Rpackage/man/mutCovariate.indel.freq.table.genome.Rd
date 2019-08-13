@@ -5,20 +5,16 @@
 \title{Prepare covariates matrix for all sites in whole genome/specified region.}
 \usage{
 mutCovariate.indel.freq.table.genome(continuous.features, discrete.features,
-  polyAs, polyTs, polyCs, polyGs, sites)
+  polyAT, polyCG, sites)
 }
 \arguments{
 \item{continuous.features}{Continuous epigenetic features selected for model fitting.}
 
 \item{discrete.features}{Discrete epigenetic features selected for model fitting.}
 
-\item{polyAs}{All polyA positions in whole genome.}
+\item{polyAT}{All polyA or polyT positions in whole genome.}
 
-\item{polyTs}{All polyT positions in whole genome.}
-
-\item{polyCs}{All polyC positions in whole genome.}
-
-\item{polyGs}{All polyG positions in whole genome.}
+\item{polyCG}{All polyC or polyG positions in whole genome.}
 
 \item{sites}{All sites in whole genome/specified region.}
 }

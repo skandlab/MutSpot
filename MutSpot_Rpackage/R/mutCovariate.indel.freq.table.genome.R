@@ -2,15 +2,13 @@
 #'
 #' @param continuous.features Continuous epigenetic features selected for model fitting.
 #' @param discrete.features Discrete epigenetic features selected for model fitting.
-#' @param polyAs All polyA positions in whole genome.
-#' @param polyTs All polyT positions in whole genome.
-#' @param polyCs All polyC positions in whole genome.
-#' @param polyGs All polyG positions in whole genome.
+#' @param polyAT All polyA or polyT positions in whole genome.
+#' @param polyCG All polyC or polyG positions in whole genome.
 #' @param sites All sites in whole genome/specified region.
 #' @return Covariates matrix for all sites in whole genome/specified region.
 #' @export
 
-mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.features, polyAs, polyTs, polyCs, polyGs, sites) {
+mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.features, polyAT, polyCG, sites) {
   
   print (as.character(GenomeInfoDb::seqnames(sites[1])))
   
@@ -67,20 +65,10 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
   # Assign polyATCG scores to each site
   sites = sites + 5
   
-  sites$polyT = 0
   sites$polyA = 0
   sites$polyG = 0
-  sites$polyC = 0
   
-  ovl = IRanges::findOverlaps(polyTs, sites, type = "within")
-  if (length(ovl) != 0) {
-    
-    sites[S4Vectors::subjectHits(ovl)]$polyT = 1
-    
-    }
-  rm(ovl)
-  
-  ovl = IRanges::findOverlaps(polyAs, sites, type = "within")
+  ovl = IRanges::findOverlaps(polyAT, sites, type = "within")
   if (length(ovl) != 0) {
     
     sites[S4Vectors::subjectHits(ovl)]$polyA = 1
@@ -88,7 +76,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
     }
   rm(ovl)
   
-  ovl = IRanges::findOverlaps(polyGs, sites, type = "within")
+  ovl = IRanges::findOverlaps(polyCG, sites, type = "within")
   if (length(ovl) != 0) {
     
     sites[S4Vectors::subjectHits(ovl)]$polyG = 1
@@ -96,15 +84,7 @@ mutCovariate.indel.freq.table.genome = function(continuous.features, discrete.fe
     }
   rm(ovl)
   
-  ovl = IRanges::findOverlaps(polyCs, sites, type = "within")
-  if (length(ovl) != 0) {
-    
-    sites[S4Vectors::subjectHits(ovl)]$polyC = 1
-    
-    }
-  rm(ovl)
-  
-  features = c(features, "polyT", "polyA", "polyG", "polyC")
+  features = c(features, "polyA", "polyG")
   names(GenomicRanges::mcols(sites)) = features
   
   sites = data.frame(GenomicRanges::mcols(sites), check.names = FALSE)
