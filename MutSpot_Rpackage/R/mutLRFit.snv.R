@@ -58,6 +58,7 @@ print("Fit model using glm")
   } else {
     
     continuous.sample.specific = NULL
+    discrete.sample.specific = NULL
     
   }
   
@@ -401,6 +402,7 @@ if(!is.null(LRmodel$warning)) {
   } else {
     
     continuous.sample.specific = NULL
+    discrete.sample.specific = NULL
     
   }
   

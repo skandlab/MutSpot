@@ -56,6 +56,7 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
     } else {
       
       continuous.sample.specific = NULL
+      discrete.sample.specific = NULL
       
     }
     
@@ -335,6 +336,7 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
     } else {
       
       continuous.sample.specific = NULL
+      discrete.sample.specific = NULL
       
     }
     
