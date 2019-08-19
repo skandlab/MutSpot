@@ -97,6 +97,7 @@ sample.snv.features = "sample_features_table_snv.txt")
  sample.snv.features/sample.indel.features    | Tab delimited file of sample specific features. E.g. clinical subtype
  min.count                                    | Minimum number of mutated samples in each hotspot (default = 2)
  region.of.interest                           | Restrict hotspot analysis to regions in the given BED file
+ cores                                        | Number of cores (default = 1) [The maximum number of cores for Windows users is 1.]
 
 ----------------------------------------------------------------------------------
 
