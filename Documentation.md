@@ -57,7 +57,6 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 | min.count.snv | Minimum number of mutated samples in each SNV hotspot | 2 |
 | min.count.indel | Minimum number of mutated samples in each indel hotspot | 2 |
 | hotspot.size | Size of each hotspot | 21 |
-| genome.size | Genome size | 2533374732 |
 | hotspots | To run hotspot analysis or region-based analysis | TRUE |
 | promoter.file | Promoter regions | Ensembl75.promoters.coding.bed |
 | utr3.file | 3'UTR regions | Ensembl75.3UTR.coding.bed |
@@ -583,8 +582,7 @@ Input for *mutPredict.indel*:
 | cores | integer | Number of cores to run | e.g. *1* |
 | min.count | integer | Identifies hotspots with the given minimum number of mutated samples or more | e.g. *2* |
 | hotspot.size | integer | Size of each hotspot | e.g. *21* |
-| genome.size | integer | Genome size after removing masked regions | e.g. *2533374732* |
-| hotspots | logical | If TRUE, then run hotspot analysis, else run region-based analysis | e.g. *TRUE* |
+| hotspots | logical | If TRUE, calcuate mutation recurrence for hotspots, else calculate mutation recurrence of regions specified by region.of.interest | e.g. *TRUE* |
 | merge.hotspots | logical | If TRUE, then merge overlapping hotspots | e.g. *TRUE* |
 | output.dir | character | Directory to output figure | e.g. *./results* |
 | fdr.cutoff | real number between 0 and 1 | FDR cutoff for hotspot significance | e.g. *0.1* |
