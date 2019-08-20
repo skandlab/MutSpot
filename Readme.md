@@ -34,7 +34,7 @@ install_github("skandlab/MutSpot", subdir="MutSpot_Rpackage")
 
 Alternatively, the package may downloaded from Github and installed in R:
 ```{r}
-# Clone/download MutSpot into the current working dirctory with the following command: *git clone https://github.com/skandlab/MutSpot.git* 
+# Clone/download MutSpot into the current working dirctory with the following command: git clone https://github.com/skandlab/MutSpot.git 
 library(devtools)
 install("my/current/directory/MutSpot/MutSpot_Rpackage")
 ```
