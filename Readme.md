@@ -48,7 +48,7 @@ install("my/current/directory/MutSpot/MutSpot_Rpackage")
 ## MutSpot analysis workflow
 The full MutSpot workflow includes the following 7 steps:
 
-1. Sample non-mutated sites as negative examples for logistic regression.
+1. Sample mutated and non-mutated sites for LASSO feature selection.
 
 2. Calculate local mutation rates in 100kb bins across the whole genome.
 
@@ -56,9 +56,9 @@ The full MutSpot workflow includes the following 7 steps:
 
 4. Select epigenetic features using LASSO logistic regression.
 
-5. Compute feature matrix for model fitting based on selected features for all sites in whole genome.
+5. Compute feature matrix based on selected features for background mutation model fitting.
 
-6. Fit logistic regression model of background mutation probabilities.
+6. Fit the background mutation model using logistic regression.
 
 7. Predict mutation hotspots.
 
