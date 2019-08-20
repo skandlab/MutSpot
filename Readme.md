@@ -31,6 +31,17 @@ install.packages("devtools")
 library(devtools)
 install_github("skandlab/MutSpot", subdir="MutSpot_Rpackage")
 ```
+
+If the above method fails, the package may be installed via this alternative method:
+1. Clone/download package using *git clone https://github.com/skandlab/MutSpot.git* into the current directory
+2. Install MutSpot using R
+```{r}
+library(devtools)
+install("my/current/directory/MutSpot/MutSpot_Rpackage")
+```
+
+*The alternative method takes a longer time as it downloads all test data sets at the same time*
+
 ----------------------------------------------------------------------------------
 
 <a name="workflow"></a>
