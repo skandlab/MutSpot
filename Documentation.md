@@ -26,7 +26,7 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 ## Arguments
 
 | Parameter | Type | Description | Default |
-|-----------|---------|-------------|
+|-----------|------|---------|-------------|
 | run.to | Numeric | Steps to run | 1,2,3.1,3.2,4.1,4.2,5.1,5.2,5.3,5.4,5.5,6,7 |
 | working.dir | String | Working directory | current working directory |
 | chromosomes | String | Chromosomes to run |  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X |
