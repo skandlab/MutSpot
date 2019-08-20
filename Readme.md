@@ -2,7 +2,7 @@ MutSpot
 ====================================
 
 ## Non-coding MUTation hotSPOT dectection in cancer genomes
-The MutSpot R package systematically and unbiasedly scans cancer whole genomes to detect mutation hotspots. MutSpot first builds a background mutation model that corrects for known covariates of mutation probability, such as local nucleotide context, replication timing and epigenomic features. Then MutSpot evaluates the mutation recurrence of focal DNA regions using a Poisson binomial model to account for varying mutation rates across different tumors. Mutation hotspots identified have significantly higher mutation recurrence compared to the background genomic mutation rate, suggesting positive selection in cancer and involvement in tumorigenesis.
+The MutSpot R package systematically and unbiasedly scans cancer whole genomes to detect mutation hotspots. MutSpot first builds a background mutation model that corrects for covariates of mutation probability, such as local nucleotide context, replication timing and epigenomic features. Then MutSpot evaluates the mutation recurrence of focal DNA regions using a Poisson binomial model to account for varying mutation rates across different tumors. Mutation hotspots identified have significantly higher mutation recurrence compared to the background genomic mutation rate, suggesting positive selection in cancer and involvement in tumorigenesis.
 
 Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/articles/s41467-018-03828-2)
 
@@ -32,7 +32,7 @@ library(devtools)
 install_github("skandlab/MutSpot", subdir="MutSpot_Rpackage")
 ```
 
-If the above method fails, the package may be installed via this alternative method:
+Alternatively, the package may be installed by:
 1. Clone/download package using *git clone https://github.com/skandlab/MutSpot.git* into the current directory
 2. Install MutSpot using R
 ```{r}
