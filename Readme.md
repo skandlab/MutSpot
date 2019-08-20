@@ -69,8 +69,7 @@ By default, the *MutSpot()* function runs the entire workflow. However, it is po
 <a name="usage"></a>
 
 ## Usage example
-By default, MutSpot runs in the current working directory unless specified by the user. All intermediate and output files will be saved in the *results* folder created by MutSpot in the working directory. MutSpot runs genome-wide. However, if the user provides a BED file containing the coordinates of a specific region under the *region.of.interest* parameter, MutSpot runs on the user-specified region (e.g. CTCF binding sites) to find only the hotspots in the given region.
-
+By default, MutSpot runs in the current working directory unless specified by the user. All intermediate and output files will be saved in the *results* folder created by MutSpot in the working directory. By default, MutSpot performs hotspot discovry genome-wide. However, the user can constrain hotspot discovery to certain regions of the genome by providing a BED file with the genomic coordinates of specific regions of interest under the *region.of.interest* parameter (e.g. CTCF binding sites or promoters).
 ```r
 library("MutSpot")
 ```
@@ -164,7 +163,7 @@ A binary feature BED file should include the following columns:
 
 *For binary features, genomic regions that are found in the feature BED file are assigned value of 1, else value of 0*
 
-A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the *features* folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the *MutSpot()* function, else he/she may create a similar text file containing desired/other features.
+A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the *features* folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the *MutSpot()* function, else he/she may create a similar text file containing the desired features.
 
 
 #### 3. Sample specific features (optional)
