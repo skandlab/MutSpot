@@ -288,7 +288,7 @@ if (length(maf.uniq.indel) != 0) {
       maf.ovl.m <- IRanges::findOverlaps(mut.regions, maf.indel, ignore.strand = TRUE)
       maf.ovl.m = IRanges::as.matrix(maf.ovl.m)
       
-      genome.size = sum(GenomicRanges::width(maf.masked.regions))
+      genome.size = sum(GenomicRanges::width(GenomicRanges::reduce(maf.masked.regions)))
       
       saveRDS(mut.regions, file = paste(output.dir, "temp_1.RDS", sep = ""))
       saveRDS(maf.indel, file = paste(output.dir, "temp_2.RDS", sep = ""))

@@ -99,7 +99,7 @@ mutPredict.indel.run.lr <- function(output.dir, merge.hotspots = TRUE, indel.mut
       }
       
     }
-      
+    z=colnames(roi.feat.indel)[1]
     x.len.indel = nrow(roi.feat.indel)
     
     # Vector of patient IDs
@@ -107,6 +107,13 @@ mutPredict.indel.run.lr <- function(output.dir, merge.hotspots = TRUE, indel.mut
     nind = length(sid)
     
     roi.feat.indel = roi.feat.indel[rep(1:nrow(roi.feat.indel), nind), ]
+    if (class(roi.feat.indel)=="numeric") {
+      
+      roi.feat.indel=as.data.frame(roi.feat.indel)
+      colnames(roi.feat.indel)[1]=z
+      
+    }
+    
     roi.feat.indel$sid = rep(sid, each = x.len.indel)
     rm(sid)
     

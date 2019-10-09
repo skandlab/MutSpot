@@ -327,7 +327,7 @@ mutPredict.snv.prepare = function(mask.regions.file = system.file("extdata", "ma
         maf.ovl.m <- IRanges::findOverlaps(mut.regions, maf.snv, ignore.strand = TRUE)
         maf.ovl.m = IRanges::as.matrix(maf.ovl.m)
         
-        genome.size = sum(GenomicRanges::width(maf.masked.regions))
+        genome.size = sum(GenomicRanges::width(GenomicRanges::reduce(maf.masked.regions)))
         
         saveRDS(mut.regions, file = paste(output.dir, "temp-1.RDS", sep = ""))
         saveRDS(maf.snv, file = paste(output.dir, "temp-2.RDS", sep = ""))

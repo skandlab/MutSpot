@@ -72,6 +72,7 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
       
       # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
       roi.feat.snv = mutPredict.snv.get.features(GenomicRanges::reduce(mut.regions[x.idx]), continuous.selected.features.snv, discrete.selected.features.snv, sel.motif)
+      z=colnames(roi.feat.snv)[1]
       
       x.len.snv = nrow(roi.feat.snv)
       
@@ -91,6 +92,13 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
       }
       
       roi.feat.snv = roi.feat.snv[rep(1:nrow(roi.feat.snv), nind), ]
+      if (class(roi.feat.snv)=="numeric") {
+        
+        roi.feat.snv=as.data.frame(roi.feat.snv)
+        colnames(roi.feat.snv)[1]=z
+        
+      }
+      
       roi.feat.snv$sid = rep(sid, each = x.len.snv)
       rm(sid)
       
