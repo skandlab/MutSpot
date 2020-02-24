@@ -57,12 +57,14 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 | min.count.snv | Numeric | Minimum number of mutated samples in each SNV hotspot | 2 |
 | min.count.indel | Numeric | Minimum number of mutated samples in each indel hotspot | 2 |
 | hotspot.size | Numeric | Size of each hotspot | 21 |
+| genome.size | Numeric | Genome size | 2533374732 |
 | hotspots | Logical | To run hotspot analysis or region-based analysis | TRUE |
+| collapse.regions | Logical | To collapse region of interest or not | FALSE |
 | promoter.file | String | URL of BED file containing promoter regions | Ensembl75.promoters.coding.bed |
 | utr3.file | String | URL of BED file containing 3'UTR regions | Ensembl75.3UTR.coding.bed |
 | utr5.file | String | URL of BED file containing 5'UTR regions | Ensembl75.5UTR.coding.bed |
 | other.annotations | String | URL of text file containing list of additional regions to be annotated | NULL |
-| fdr.cutoff | Numeric | FDR cutoff | 0.1 |
+| fdr.cutoff | Numeric | FDR cutoff | 0.05 |
 | color.line | String | Cutoff line color in manhattan plot | red |
 | color.dots | String | Color significant points in manhattan plot | maroon |
 | merge.hotspots | Logical | To merge overlapping hotspots in figures or not | TRUE |
