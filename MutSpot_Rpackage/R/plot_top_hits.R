@@ -1,7 +1,7 @@
 #' Plot top hotspots.
 #'
 #' @param hotspots.file Hotspots generated.
-#' @param fdr.cutoff FDR cutoff, default = 0.1.
+#' @param fdr.cutoff FDR cutoff, default = 0.05.
 #' @param color.muts Color points, default = orange.
 #' @param mutations.file Mutations found in region of interest MAF file.
 #' @param mutation.type SNV or indel mutations.
@@ -10,7 +10,7 @@
 #' @return Top hotspots figures.
 #' @export
 
-plot_top_hits = function(hotspots.file, fdr.cutoff = 0.1, color.muts ="orange", mutations.file, mutation.type, top.no = 3, output.dir) {
+plot_top_hits = function(hotspots.file, fdr.cutoff = 0.05, color.muts ="orange", mutations.file, mutation.type, top.no = 3, output.dir) {
   
   hotspots.plot = hotspots.file
   hotspots.plot$region = rownames(hotspots.plot)

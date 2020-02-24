@@ -9,9 +9,9 @@ mutPredict.indel.prepare(mask.regions.file = system.file("extdata",
   continuous.features.selected.indel.url.file,
   discrete.features.selected.indel.url.file,
   sample.specific.features.url.file = NULL, indel.mutations.file,
-  indel.mutations.file2, indel.model.file, region.of.interest, cores = 1,
-  min.count = 2, hotspot.size = 21, genome.size = 2533374732,
-  hotspots = TRUE, output.dir)
+  indel.mutations.file2, indel.model.file, collapse.regions = FALSE,
+  region.of.interest, cores = 1, min.count = 2, hotspot.size = 21,
+  genome.size = 2533374732, hotspots = TRUE, output.dir)
 }
 \arguments{
 \item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
@@ -28,6 +28,8 @@ mutPredict.indel.prepare(mask.regions.file = system.file("extdata",
 
 \item{indel.model.file}{Indel model.}
 
+\item{collapse.regions}{To collapse region of interest or not, default = FALSE.}
+
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
 
 \item{cores}{Number of cores, default = 1.}
@@ -36,7 +38,7 @@ mutPredict.indel.prepare(mask.regions.file = system.file("extdata",
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
+\item{genome.size}{Genome size, default = 2533374732.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 

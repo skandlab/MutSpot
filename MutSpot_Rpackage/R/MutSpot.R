@@ -30,13 +30,14 @@
 #' @param min.count.snv Minimum number of mutated samples in each SNV hotspot, default = 2.
 #' @param min.count.indel Minimum number of mutated samples in each indel hotspot, default = 2.
 #' @param hotspot.size Size of each hotspot, default = 21.
-#' @param genome.size Total number of hotspots to run analysis on, default = 2533374732.
+#' @param genome.size Genome size, default = 2533374732.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
+#' @param collapse.regions To collapse region of interest or not, default = FALSE.
 #' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed
 #' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed
 #' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed
 #' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
-#' @param fdr.cutoff FDR cutoff, default = 0.1.
+#' @param fdr.cutoff FDR cutoff, default = 0.05.
 #' @param color.line Color given FDR cutoff, default = red.
 #' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
 #' @param merge.hotspots To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.
@@ -46,8 +47,8 @@
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
-MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7), working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, top.nucleotide = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, top.features = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE,
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE) {
+MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7), working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, top.nucleotide = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, top.features = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, collapse.regions = FALSE,
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE) {
   
   # set working directory
   if (is.null(working.dir)) {
@@ -85,6 +86,59 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
     install.packages("data.table")
     
   }
+  if (grepl("R version 3.6", R.Version()$version.string)) {
+    
+    if("BiocManager" %in% rownames(installed.packages()) == FALSE) {
+      
+      print("install [BiocManager]")
+      install.packages("BiocManager")
+      
+    }
+    if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+      
+      print("install [BSgenome.Hsapiens.UCSC.hg19]")
+      BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+
+    }
+    if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
+      
+      print("install [Biostrings]")
+      BiocManager::install("Biostrings")
+
+    }
+    if("GenomicRanges" %in% rownames(installed.packages()) == FALSE) {
+      
+      print("install [GenomicRanges]")
+      BiocManager::install("GenomicRanges")
+
+    }
+    
+      } else if(grepl("R version 3.2", R.Version()$version.string)) {
+        
+        if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+          
+          print("install [BSgenome.Hsapiens.UCSC.hg19]")
+          source("http://bioconductor.org/biocLite.R")
+          biocLite("BSgenome.Hsapiens.UCSC.hg19")
+          
+        }
+        if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
+          
+          print("install [Biostrings]")
+          source("http://bioconductor.org/biocLite.R")
+          biocLite("Biostrings")
+          
+        }
+        if("GenomicRanges" %in% rownames(installed.packages()) == FALSE) {
+          
+          print("install [GenomicRanges]")
+          source("http://bioconductor.org/biocLite.R")
+          biocLite("GenomicRanges")
+          
+        }
+        
+      } else {
+    
   if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
     
     print("install [BSgenome.Hsapiens.UCSC.hg19]")
@@ -106,6 +160,9 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
     biocLite("GenomicRanges")
     
   }
+        
+  }
+  
   if("ggplot2" %in% rownames(installed.packages()) == FALSE) {
     
     print("install [ggplot2]")
@@ -525,9 +582,14 @@ if (4.2 %in% run.to) {
   
   print("Reselect epigenetic features for SNV/indel using altered threshold")
   
+  continuous.features.selected.snv.url.file = paste(output.dir, "continuous_features_selected_snv_url.txt", sep = "")
+  discrete.features.selected.snv.url.file = paste(output.dir, "discrete_features_selected_snv_url.txt", sep = "")
+  continuous.features.selected.indel.url.file = paste(output.dir, "continuous_features_selected_indel_url.txt", sep = "")
+  discrete.features.selected.indel.url.file = paste(output.dir, "discrete_features_selected_indel_url.txt", sep = "")
+
 if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
 
-  epigenetic_selection_adjust = epigenetic.selection.adjust(feature.stabs.snv.file = features.stabs.snv.file , feature.stabs.indel.file = features.stabs.indel.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, new.cutoff.snv = cutoff.features.new.snv, new.cutoff.indel = cutoff.features.new.indel, top.features = top.features, features.sds = features.sds.file)
+  epigenetic_selection_adjust = epigenetic.selection.adjust(feature.stabs.snv.file = features.stabs.snv.file , feature.stabs.indel.file = features.stabs.indel.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, new.cutoff.snv = cutoff.features.new.snv, new.cutoff.indel = cutoff.features.new.indel, top.features = top.features, features.sds = features.sds.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, feature.dir = features.dir)
   
   # Save URLs of selected SNV continuous features as text file
   if (!is.null(epigenetic_selection_adjust[[1]])) {
@@ -586,6 +648,28 @@ if (!is.null(cutoff.features.new.snv) | !is.null(cutoff.features.new.indel)) {
       file.remove(discrete.features.selected.indel.url.file)
       
     }
+    
+  }
+  
+  if (!file.exists(continuous.features.selected.snv.url.file)) {
+    
+    continuous.features.selected.snv.url.file = NULL
+    
+  }
+  if (!file.exists(discrete.features.selected.snv.url.file)) {
+    
+    discrete.features.selected.snv.url.file = NULL
+    
+  }
+  
+  if (!file.exists(continuous.features.selected.indel.url.file)) {
+    
+    continuous.features.selected.indel.url.file = NULL
+    
+  }
+  if (!file.exists(discrete.features.selected.indel.url.file)) {
+    
+    discrete.features.selected.indel.url.file = NULL
     
   }
   
@@ -1443,7 +1527,7 @@ if (7 %in% run.to) {
   if (file.exists(LRmodel.snv.file)) {
     
   results.snv = mutPredict.snv(mask.regions.file = mask.regions.file, nucleotide.selected.file = nucleotide.selected.file, continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, sample.specific.features.url.file = sample.snv.features,
-                         snv.mutations.file = snv.mutations.int, snv.mutations.file2 = snv.mutations, region.of.interest = region.of.interest, cores = cores, snv.model.file = LRmodel.snv.file, min.count = min.count.snv, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
+                         snv.mutations.file = snv.mutations.int, snv.mutations.file2 = snv.mutations, collapse.regions = collapse.regions, region.of.interest = region.of.interest, cores = cores, snv.model.file = LRmodel.snv.file, min.count = min.count.snv, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
                          fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
                          promoter.file = promoter.file, 
                          utr3.file = utr3.file, utr5.file = utr5.file,
@@ -1473,7 +1557,7 @@ write.table(results.snv[[1]], file = snv.hotspots, col.names = TRUE, row.names =
   if (file.exists(LRmodel.indel.file)) {
     
 results.indel = mutPredict.indel(mask.regions.file = mask.regions.file, continuous.features.selected.indel.url.file = continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file = discrete.features.selected.indel.url.file, sample.specific.features.url.file = sample.indel.features,
-                             indel.mutations.file = indel.mutations.int, indel.mutations.file2 = indel.mutations, indel.model.file = LRmodel.indel.file, region.of.interest = region.of.interest, cores = cores, min.count = min.count.indel, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
+                             indel.mutations.file = indel.mutations.int, indel.mutations.file2 = indel.mutations, indel.model.file = LRmodel.indel.file, collapse.regions = collapse.regions, region.of.interest = region.of.interest, cores = cores, min.count = min.count.indel, hotspot.size = hotspot.size, genome.size = genome.size, hotspots = hotspots, merge.hotspots = merge.hotspots, output.dir = output.dir,
                              fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
                              promoter.file = promoter.file, 
                              utr3.file = utr3.file, utr5.file = utr5.file,

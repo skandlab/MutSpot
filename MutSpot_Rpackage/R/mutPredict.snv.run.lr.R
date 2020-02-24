@@ -3,7 +3,7 @@
 #' @param output.dir Results directory.
 #' @param merge.hotspots To plot overlapping hotspots as 1 hotspot or individual hotspots, default = TRUE.
 #' @param snv.mutations.file SNV mutations found in region of interest MAF file.
-#' @param fdr.cutoff FDR cutoff, default = 0.1.
+#' @param fdr.cutoff FDR cutoff, default = 0.05.
 #' @param color.line Color given FDR cutoff, default = red.
 #' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
 #' @param color.muts Color points, default = orange.
@@ -17,7 +17,7 @@
 #' @return Dataframe containing predicted hotspots significance.
 #' @export
 
-mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutations.file, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1", color.muts = "orange", top.no = 3,
+mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutations.file, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", color.muts = "orange", top.no = 3,
                                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"),
                                  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), 
                                  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), 
@@ -119,6 +119,8 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
           
         }
       }
+      
+      roi.feat.snv = roi.feat.snv[,-which(colnames(roi.feat.snv) == "sid")]
       
       # Compute background mutation rate foreach site in each individual
       if (!"glmnet" %in% class(LRmodel)) {

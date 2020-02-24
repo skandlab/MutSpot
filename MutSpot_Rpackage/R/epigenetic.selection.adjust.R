@@ -10,10 +10,14 @@
 #' @param new.cutoff.indel Updated frequency cutoff/threshold to determine indel epigenetic features used in prediction model, ranges from 0.5 to 1.
 #' @param top.features Number of top genomic features to select, default = NULL.
 #' @param features.sds RDS list containing standard deviations of each feature.
+#' @param genomic.features.snv Text file containing URLs of potential continuous and discrete SNV epigenetic features to select from, default = NULL.
+#' @param genomic.features.indel Text file containing URLs of potential continuous and discrete indel epigenetic features to select from, default = NULL.
+#' @param genomic.features Text file containing URLs of potential continuous and discrete SNV and indel epigenetic features to select from, default = NULL.
+#' @param feature.dir Directory containing binned feature bed files.
 #' @return Updated set of SNV/indel continuous and discrete features that passed the new threshold.
 #' @export
 
-epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.indel.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel, top.features = NULL, features.sds) {
+epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.indel.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel, top.features = NULL, features.sds, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features,feature.dir=feature.dir) {
   
   # If SNV mutations available, else skip this
   if (!is.null(feature.stabs.snv.file) & !is.null(new.cutoff.snv)) {
@@ -58,12 +62,40 @@ epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.ind
         
     }
     
+    if (!is.null(genomic.features)) {
+      
+      genomic.features.snv = genomic.features
+      
+    }
+    
+    features = read.delim(genomic.features.snv, stringsAsFactors = FALSE)
+    if (sum(features$feature_type == 1) != 0) {
+      
+    full.continuous.snv = features[which(features$feature_type == 1), ]
+    full.continuous.snv$file_path = paste(feature.dir, full.continuous.snv$feature_name, ".bed", sep="")
+    full.continuous.snv = rbind(full.continuous.snv, c("local_mutrate", paste(feature.dir, "localmutrate_snv.bed", sep = ""), 1, 10))
+    
+    } else {
+      
+      full.continuous.snv = NULL
+      
+    }
+    
+    if (sum(features$feature_type != 1) != 0) {
+      
+    full.discrete.snv = features[which(features$feature_type != 1), ]
+    
+    } else {
+      
+      full.discrete.snv = NULL
+      
+    }
+    
     # If continuous SNV features selected before, else return NULL
-    if (!is.null(continuous.features.selected.snv.url.file)) {
+    if (sum(sel %in% full.continuous.snv$feature_name) > 0) {
       
-      continuous.snv.features = read.delim(continuous.features.selected.snv.url.file, header = FALSE, stringsAsFactors = FALSE)
-      continuous.snv.features = continuous.snv.features[which(continuous.snv.features[ ,1] %in% sel), ] 
-      
+      continuous.snv.features = full.continuous.snv[which(full.continuous.snv$feature_name %in% sel), 1:2]
+
     } else {
         
       continuous.snv.features = NULL
@@ -71,11 +103,10 @@ epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.ind
     }
     
     # If discrete SNV features selected before, else return NULL
-    if (!is.null(discrete.features.selected.snv.url.file)) {
+    if (sum(sel %in% full.discrete.snv$feature_name) > 0) {
       
-      discrete.snv.features = read.delim(discrete.features.selected.snv.url.file, header = FALSE, stringsAsFactors = FALSE)
-      discrete.snv.features = discrete.snv.features[which(discrete.snv.features[ ,1] %in% sel), ]
-      
+      discrete.snv.features = full.discrete.snv[which(full.discrete.snv$feature_name %in% sel), 1:2]
+
     } else {
         
       discrete.snv.features = NULL
@@ -131,12 +162,40 @@ epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.ind
       
     }
     
+    if (!is.null(genomic.features)) {
+      
+      genomic.features.indel = genomic.features
+      
+    }
+    
+    features = read.delim(genomic.features.indel, stringsAsFactors = FALSE)
+    if (sum(features$feature_type == 1) != 0) {
+      
+      full.continuous.indel = features[which(features$feature_type == 1), ]
+      full.continuous.indel$file_path = paste(feature.dir, full.continuous.indel$feature_name, ".bed", sep="")
+      full.continuous.indel = rbind(full.continuous.indel, c("local_mutrate", paste(feature.dir, "localmutrate_indel.bed", sep = ""), 1, 10))
+      
+    } else {
+      
+      full.continuous.indel = NULL
+      
+    }
+    
+    if (sum(features$feature_type != 1) != 0) {
+      
+    full.discrete.indel = features[which(features$feature_type != 1), ]
+    
+    } else {
+      
+      full.discrete.indel = NULL
+      
+    }
+    
     # If continuous indel features selected before, else return NULL
-    if (!is.null(continuous.features.selected.indel.url.file)) {
+    if (sum(sel %in% full.continuous.indel$feature_name) > 0) {
       
-      continuous.indel.features = read.delim(continuous.features.selected.indel.url.file, header = FALSE, stringsAsFactors = FALSE)
-      continuous.indel.features = continuous.indel.features[which(continuous.indel.features[ ,1] %in% sel), ]
-      
+      continuous.indel.features = full.continuous.indel[which(full.continuous.indel$feature_name %in% sel), 1:2]
+
     } else {
         
       continuous.indel.features = NULL
@@ -144,11 +203,10 @@ epigenetic.selection.adjust = function(feature.stabs.snv.file, feature.stabs.ind
     }
     
     # If discrete features selected before, else return NULL
-    if (!is.null(discrete.features.selected.indel.url.file)) {
+    if (sum(sel %in% full.discrete.indel$feature_name) > 0) {
       
-      discrete.indel.features = read.delim(discrete.features.selected.indel.url.file, header = FALSE, stringsAsFactors = FALSE)
-      discrete.indel.features = discrete.indel.features[which(discrete.indel.features[ ,1] %in% sel), ]
-      
+      discrete.indel.features = full.discrete.indel[which(full.discrete.indel$feature_name %in% sel), 1:2]
+
     } else {
         
       discrete.indel.features = NULL

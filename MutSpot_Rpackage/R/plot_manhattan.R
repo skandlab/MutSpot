@@ -1,13 +1,13 @@
 #' Plot manhattan.
 #'
 #' @param hotspots.file Hotspots generated.
-#' @param fdr.cutoff FDR cutoff, default = 0.1.
+#' @param fdr.cutoff FDR cutoff, default = 0.05.
 #' @param color.line Color given FDR cutoff, default = red.
 #' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
 #' @return Manhattan figure.
 #' @export
 
-plot_manhattan = function(hotspots.file, fdr.cutoff = 0.1, color.line = "red", color.dots = "maroon1") {
+plot_manhattan = function(hotspots.file, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1") {
   
   hotspots.plot = hotspots.file
   hotspots.plot$region = rownames(hotspots.plot)
@@ -148,7 +148,7 @@ plot_manhattan = function(hotspots.file, fdr.cutoff = 0.1, color.line = "red", c
   
   if (nchr == 1) {
     
-    axis(1, ...)
+    axis(1, at=ticks, labels = labs, las = 2, cex.axis = 0.7)
     
   } else {
     
@@ -160,7 +160,7 @@ plot_manhattan = function(hotspots.file, fdr.cutoff = 0.1, color.line = "red", c
   
   if (nchr == 1) {
     
-    with(d, points(pos, logp, pch = 20, col = col[1], ...))
+    with(d, points(pos, logp, pch = 16, col = col[1]))
     
   } else {
     

@@ -549,9 +549,33 @@ mutLRFit.indel = function(mutCovariate.table.indel.file, mutCovariate.count.inde
     
   } else {
     
+    if (!is.null(sample.specific.features.url.file)) {
+      
+      sample.specific.urls <- read.delim(sample.specific.features.url.file, stringsAsFactors = FALSE)
+      continuous.sample.specific = discrete.sample.specific = NULL
+      for (j in 1:ncol(sample.specific.urls)) {
+        
+        if (class(sample.specific.urls[ ,j]) != "character"){
+          
+          continuous.sample.specific = c(continuous.sample.specific, colnames(sample.specific.urls)[j])
+          
+        } else {
+          
+          discrete.sample.specific = c(discrete.sample.specific, colnames(sample.specific.urls)[j])
+        }
+        
+      }
+      
+    } else {
+      
+      continuous.sample.specific = NULL
+      discrete.sample.specific = NULL
+      
+    }
+    
     # Plot feature importance barplot
     print("Plot feature importance")
-    plot_feature_importance(LRmodel = LRmodel, mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
+    plot_feature_importance(LRmodel = LRmodel[[1]], mutCovariate.table.file = mutCovariate.table.indel.file, mutation.type = "indel", output.dir = output.dir, feature.names = c(discrete.sample.specific, colnames(mutfreq.aggregated)))
     
     return(LRmodel[[1]])
     

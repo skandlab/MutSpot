@@ -9,15 +9,16 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
   continuous.features.selected.snv.url.file,
   discrete.features.selected.snv.url.file,
   sample.specific.features.url.file = NULL, snv.mutations.file,
-  snv.mutations.file2, region.of.interest, cores = 1, snv.model.file,
-  min.count = 2, hotspot.size = 21, genome.size = 2533374732,
-  hotspots = TRUE, merge.hotspots = TRUE, output.dir, fdr.cutoff = 0.1,
-  color.line = "red", color.dots = "maroon1", color.muts = "orange",
-  top.no = 3, promoter.file = system.file("extdata",
-  "Ensembl75.promoters.coding.bed", package = "MutSpot"),
-  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package =
-  "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
-  package = "MutSpot"), other.annotations = NULL, debug = FALSE)
+  snv.mutations.file2, collapse.regions = FALSE, region.of.interest,
+  cores = 1, snv.model.file, min.count = 2, hotspot.size = 21,
+  genome.size = 2533374732, hotspots = TRUE, merge.hotspots = TRUE,
+  output.dir, fdr.cutoff = 0.05, color.line = "red",
+  color.dots = "maroon1", color.muts = "orange", top.no = 3,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
+  package = "MutSpot"), utr3.file = system.file("extdata",
+  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
+  "MutSpot"), other.annotations = NULL, debug = FALSE)
 }
 \arguments{
 \item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
@@ -34,6 +35,8 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
 
 \item{snv.mutations.file2}{SNV mutations MAF file.}
 
+\item{collapse.regions}{To collapse region of interest or not, default = FALSE.}
+
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
 
 \item{cores}{Number of cores, default = 1.}
@@ -44,7 +47,7 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
+\item{genome.size}{Genome size, default = 2533374732.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
@@ -52,7 +55,7 @@ mutPredict.snv(mask.regions.file = system.file("extdata", "mask_regions.RDS",
 
 \item{output.dir}{Save plot in given output directory.}
 
-\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
+\item{fdr.cutoff}{FDR cutoff, default = 0.05.}
 
 \item{color.line}{Color given FDR cutoff, default = red.}
 

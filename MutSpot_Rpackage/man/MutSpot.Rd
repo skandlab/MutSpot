@@ -19,12 +19,12 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
   cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL,
   top.features = NULL, fit.sparse = FALSE, drop = FALSE,
   min.count.snv = 2, min.count.indel = 2, hotspot.size = 21,
-  genome.size = 2533374732, hotspots = TRUE,
+  genome.size = 2533374732, hotspots = TRUE, collapse.regions = FALSE,
   promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
   package = "MutSpot"), utr3.file = system.file("extdata",
   "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
   utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
-  "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.1,
+  "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05,
   color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE,
   color.muts = "orange", top.no = 3, debug = FALSE)
 }
@@ -89,9 +89,11 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Total number of hotspots to run analysis on, default = 2533374732.}
+\item{genome.size}{Genome size, default = 2533374732.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
+
+\item{collapse.regions}{To collapse region of interest or not, default = FALSE.}
 
 \item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed}
 
@@ -101,7 +103,7 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 
-\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
+\item{fdr.cutoff}{FDR cutoff, default = 0.05.}
 
 \item{color.line}{Color given FDR cutoff, default = red.}
 

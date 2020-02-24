@@ -7,17 +7,18 @@
 #' @param indel.mutations.file Indel mutations found in region of interest MAF file.
 #' @param indel.mutations.file2 Indel mutations MAF file.
 #' @param indel.model.file Indel model.
+#' @param collapse.regions To collapse region of interest or not, default = FALSE.
 #' @param region.of.interest Region of interest bed file, default = NULL.
 #' @param cores Number of cores, default = 1.
 #' @param min.count Minimum number of mutated samples in each hotspot, default = 2.
 #' @param hotspot.size Size of each hotspot, default = 21.
-#' @param genome.size Total number of hotspots to run analysis on, default = 2533374732.
+#' @param genome.size Genome size, default = 2533374732.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
 #' @param output.dir Save plot in given output directory.
 #' @return Prepare intermediate files for hotspot prediction.
 #' @export
 
-mutPredict.indel.prepare = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, sample.specific.features.url.file = NULL, indel.mutations.file, indel.mutations.file2, indel.model.file, region.of.interest, cores = 1, min.count = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, output.dir) {
+mutPredict.indel.prepare = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), continuous.features.selected.indel.url.file, discrete.features.selected.indel.url.file, sample.specific.features.url.file = NULL, indel.mutations.file, indel.mutations.file2, indel.model.file, collapse.regions = FALSE, region.of.interest, cores = 1, min.count = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, output.dir) {
 
 # Chr1-X
 chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
@@ -254,7 +255,15 @@ if (length(maf.uniq.indel) != 0) {
     mask.regions = readRDS(mask.regions.file)
     
     # Remove masked regions from region of interest
+    if (!collapse.regions) {
+      
     maf.masked.regions <- regions[-S4Vectors::subjectHits(IRanges::findOverlaps(mask.regions, regions))]
+    
+    } else {
+      
+      maf.masked.regions <- subtract.regions.from.roi(regions, mask.regions, cores = cores)
+      
+    }
     
     if (hotspots) {
       

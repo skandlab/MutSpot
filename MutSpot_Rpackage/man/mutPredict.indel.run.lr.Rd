@@ -5,7 +5,7 @@
 \title{Run mutation recurrence for indel.}
 \usage{
 mutPredict.indel.run.lr(output.dir, merge.hotspots = TRUE,
-  indel.mutations.file, fdr.cutoff = 0.1, color.line = "red",
+  indel.mutations.file, fdr.cutoff = 0.05, color.line = "red",
   color.dots = "maroon1", color.muts = "orange", top.no = 3,
   promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
   package = "MutSpot"), utr3.file = system.file("extdata",
@@ -20,7 +20,7 @@ mutPredict.indel.run.lr(output.dir, merge.hotspots = TRUE,
 
 \item{indel.mutations.file}{Indel mutations found in region of interest MAF file.}
 
-\item{fdr.cutoff}{FDR cutoff, default = 0.1.}
+\item{fdr.cutoff}{FDR cutoff, default = 0.05.}
 
 \item{color.line}{Color given FDR cutoff, default = red.}
 
