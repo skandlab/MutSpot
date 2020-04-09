@@ -44,11 +44,12 @@
 #' @param color.muts Color points, default = orange.
 #' @param top.no Number of top hotspots to plot, default = 3.
 #' @param debug To keep intermediate output files or not, default = FALSE.
+#' @param dilution.analysis To run dilution test or not, default = FALSE.
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
 MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7), working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, top.nucleotide = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, top.features = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, collapse.regions = FALSE,
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE) {
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE,dilution.analysis = FALSE) {
   
   # set working directory
   if (is.null(working.dir)) {
@@ -84,6 +85,12 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
     
     print("install [data.table]")
     install.packages("data.table")
+    
+  }
+  if("pscl" %in% rownames(installed.packages()) == FALSE) {
+    
+    print("install [pscl]")
+    install.packages("pscl")
     
   }
   if (grepl("R version 3.6", R.Version()$version.string)) {
@@ -1585,6 +1592,23 @@ if (!is.null(results.indel[[3]])) {
   
   gc()
   
+}
+
+
+## Optional: dilution analysis
+if (dilution.analysis) {
+dilution.test(snv.mutations.file=snv.mutations,mask.regions.file = mask.regions.file,all.sites.file = all.sites.file,
+              cores=cores,cutoff.nucleotide=cutoff.nucleotide,cutoff.nucleotide.new=cutoff.nucleotide.new,cutoff.features = cutoff.features,
+              cutoff.features.new.snv=cutoff.features.new.snv,genomic.features.snv=genomic.features.snv,genomic.features.indel=genomic.features.indel,
+              genomic.features=genomic.features,genomic.features.fixed.snv=genomic.features.fixed.snv,
+              genomic.features.fixed.indel=genomic.features.fixed.indel,genomic.features.fixed=genomic.features.fixed,
+              feature.dir=features.dir,mutCovariate.table.snv.file = mutCovariate.snv.output.p1,
+              mutCovariate.count.snv.file = mutCovariate.snv.output.p2, 
+              continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, 
+              discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, 
+              nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file=sample.snv.features,
+              output.dir = output.dir)
+
 }
 
 }
