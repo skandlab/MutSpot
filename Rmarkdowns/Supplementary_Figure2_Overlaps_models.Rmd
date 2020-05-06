@@ -1,0 +1,89 @@
+---
+title: "Supplementary Figure 2 - Overlaps among different models"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 2, which consists of 2 parts.
+
+```{r, echo = FALSE}
+suppressWarnings(suppressMessages(library(MutSpot)))
+suppressWarnings(suppressMessages(library(GenomicRanges)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(RColorBrewer)))
+suppressWarnings(suppressMessages(library(VennDiagram)))
+```
+
+## Figure A
+Overlaps among hotspots detected by genome-wide models defined in Figure 1D
+```{r, eval = FALSE}
+a1 = read.delim("wgs_hotspots_null1_merged.tsv", stringsAsFactors = FALSE)
+a2 = read.delim("wgs_hotspots_null2_merged.tsv", stringsAsFactors = FALSE)
+a3 = read.delim("wgs_hotspots_null3_merged.tsv", stringsAsFactors = FALSE)
+a4 = read.delim("wgs_hotspots_null4_merged.tsv", stringsAsFactors = FALSE)
+a5 = read.delim("snv_wgs_hotspots_merged.tsv", stringsAsFactors = FALSE)
+
+b1 = with(a1[which(a1$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b2 = with(a2[which(a2$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b3 = with(a3[which(a3$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b4 = with(a4[which(a4$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b5 = with(a5[which(a5$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+
+b1 = as.data.frame(b1)
+b2 = as.data.frame(b2)
+b3 = as.data.frame(b3)
+b4 = as.data.frame(b4)
+b5 = as.data.frame(b5)
+
+set1 <- paste(b1$seqnames, b1$start, b1$end, sep = "-")
+set2 <- paste(b2$seqnames, b2$start, b2$end, sep = "-")
+set3 <- paste(b3$seqnames, b3$start, b3$end, sep = "-")
+set4 <- paste(b4$seqnames, b4$start, b4$end, sep = "-")
+set5 <- paste(b5$seqnames, b5$start, b5$end, sep = "-")
+
+myCol <- brewer.pal(5, "Pastel2")
+
+venn.diagram(
+  x = list(set1, set2, set3,set4,set5),
+  category.names = c("a" , "b" , "c", "d","e"),
+  filename = 'suppl_fig2_a.png',
+  output = TRUE,
+  fill = myCol
+)
+```
+
+## Figure B
+Overlaps among hotspots detected by ctcf-specific models defined in Figure 1E
+```{r, eval = FALSE}
+a1 = read.delim("ctcf_hotspots_null1_merged.tsv", stringsAsFactors = FALSE)
+a2 = read.delim("ctcf_hotspots_null2_merged.tsv", stringsAsFactors = FALSE)
+a3 = read.delim("ctcf_hotspots_null3_merged.tsv", stringsAsFactors = FALSE)
+a4 = read.delim("ctcf_hotspots_null4_merged.tsv", stringsAsFactors = FALSE)
+a5 = read.delim("snv_ctcf_hotspots_merged.tsv", stringsAsFactors = FALSE)
+
+b1 = with(a1[which(a1$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b2 = with(a2[which(a2$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b3 = with(a3[which(a3$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b4 = with(a4[which(a4$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+b5 = with(a5[which(a5$fdr <= 0.05), ], GRanges(chrom, IRanges(start, end), fdr = fdr))
+
+b1 = as.data.frame(b1)
+b2 = as.data.frame(b2)
+b3 = as.data.frame(b3)
+b4 = as.data.frame(b4)
+b5 = as.data.frame(b5)
+
+set1 <- paste(b1$seqnames, b1$start, b1$end, sep = "-")
+set2 <- paste(b2$seqnames, b2$start, b2$end, sep = "-")
+set3 <- paste(b3$seqnames, b3$start, b3$end, sep = "-")
+set4 <- paste(b4$seqnames, b4$start, b4$end, sep = "-")
+set5 <- paste(b5$seqnames, b5$start, b5$end, sep = "-")
+
+venn.diagram(
+  x = list(set1, set2, set3,set4,set5),
+  category.names = c("a" , "b" , "c", "d","e"),
+  filename = 'suppl_fig2_b.png',
+  output = TRUE,
+  fill = myCol
+)
+```
+

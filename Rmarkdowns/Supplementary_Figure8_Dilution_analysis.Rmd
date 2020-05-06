@@ -1,0 +1,239 @@
+---
+title: "Supplementary Figure 8 - Dilution tests"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 8, which consists of 9 parts.
+
+## Figure A-C
+```{r}
+library(ggplot2)
+
+size=c(100,200,500,1000,1500,2000,3000,4000)
+
+## gastric R2
+rsq=c(0.6305958,0.6345970,0.6352464,0.6352464,0.6359136,0.6361379,0.6364580,0.6364580)
+
+# Plot runtime axis
+plot(size, rsq, pch = 16, axes = FALSE, ylim = c(0.630, 0.637), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, at=c(0.630,0.631,0.632,0.633,0.634,0.635,0.636,0.637), col = "black", col.axis = "black",cex.axis=0.8,las=0)
+mtext("McFadden's R2", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(100,200,500,1000,1500,2000,3000,4000), col = "black", col.axis = "black",cex.axis=0.6,las=2)
+
+## melanoma R2
+rsq=c(0.717666,0.773097,0.7733143,0.7735101,0.7735101,0.7735685,0.7739708,0.7739708)
+
+# Plot runtime axis
+plot(size, rsq, pch = 16, axes = FALSE, ylim = c(0.71,0.78), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, at=c(0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78), col = "black", col.axis = "black",cex.axis=0.8,las=0)
+mtext("McFadden's R2", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(100,200,500,1000,1500,2000,3000,4000), col = "black", col.axis = "black",cex.axis=0.6,las=2)
+
+## lymphoma R2
+size=c(12,24,36,48,60)
+rsq=c(0.7282698,0.7292639,0.7292639,0.7322276,0.7344410)
+
+# Plot runtime axis
+plot(size, rsq, pch = 16, axes = FALSE, ylim = c(0.728, 0.735), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, at=c(0.728,0.729,0.730,0.731,0.732,0.733,0.734,0.735), col = "black", col.axis = "black",cex.axis=0.8,las=0)
+mtext("McFadden's R2", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(12,24,36,48,60), col = "black", col.axis = "black",cex.axis=0.6,las=2)
+```
+
+
+## Figure D-F
+```{r}
+## gastric line plot
+size=c(100,200,500,1000,1500,2000,3000,4000)
+nucleo=c(5,rep(6,7))
+epig=c(1,1,3,3,6,7,8,8)
+
+par(mar = c(5, 5, 2, 5))
+
+# Plot runtime axis
+plot(size, nucleo, pch = 16, axes = FALSE, ylim = c(0, 8), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, pretty(range(seq(0:8)), 8), col = "black", las = 1)
+mtext("No. of features selected", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot memory usage axis
+plot(size, epig, pch = 15, xlab = "", ylab = "", ylim = c(0, 8), axes = FALSE, type = "b", col = "red", lty = 2)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(100,200,500,1000,1500,2000,3000,4000), col = "black", col.axis = "black",cex.axis=0.9,las=2)
+
+# Add Legend
+legend("bottomright", legend = c("Nucleotide context", "Epigenomic feature"), text.col = c("black", "red"), lty = c(1, 2), pch = c(16, 15), col = c("black", "red"), cex = 0.8)
+
+## melanoma line plot
+nucleo=c(rep(7,8))
+epig=c(5,7,9,11,11,14,17,17)
+
+par(mar = c(5, 5, 2, 5))
+
+# Plot runtime axis
+plot(size, nucleo, pch = 16, axes = FALSE, ylim = c(0, 17), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, pretty(range(seq(0:17)), 17), col = "black", las = 1)
+mtext("No. of features selected", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot memory usage axis
+plot(size, epig, pch = 15, xlab = "", ylab = "", ylim = c(0, 17), axes = FALSE, type = "b", col = "red", lty = 2)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(100,200,500,1000,1500,2000,3000,4000), col = "black", col.axis = "black",cex.axis=0.9,las=2)
+
+# Add Legend
+legend("bottomright", legend = c("Nucleotide context", "Epigenomic feature"), text.col = c("black", "red"), lty = c(1, 2), pch = c(16, 15), col = c("black", "red"), cex = 0.8)
+
+## lymphoma line plot
+size=c(12,24,36,48,60)
+nucleo=c(3,4,4,6,8)
+epig=c(1,1,1,2,2)
+
+par(mar = c(5, 5, 2, 5))
+
+# Plot runtime axis
+plot(size, nucleo, pch = 16, axes = FALSE, ylim = c(0, 8), xlab = "", ylab = "", type = "b", col = "black")
+axis(2, pretty(range(seq(0:8)), 8), col = "black", las = 1)
+mtext("No. of features selected", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot memory usage axis
+plot(size, epig, pch = 15, xlab = "", ylab = "", ylim = c(0, 8), axes = FALSE, type = "b", col = "red", lty = 2)
+
+# Plot sample size axis
+mtext("No. of sampled sites (x1000)", side = 1, col = "black", line = 2.5)  
+# axis(1, pretty(range(size), 5),at=c(100,200,500,1000,1500,2000), col = "black", col.axis = "black")
+axis(1, at=c(12,24,36,48,60), col = "black", col.axis = "black",cex.axis=0.9,las=2)
+
+# Add Legend
+legend("bottomright", legend = c("Nucleotide context", "Epigenomic feature"), text.col = c("black", "red"), lty = c(1, 2), pch = c(16, 15), col = c("black", "red"), cex = 0.8)
+```
+
+
+## Figure G-I
+```{r}
+## gastric heatmap
+df=data.frame(feature=rep(c("oneMerA","threeMerAAG","threeLeftAA","threeLeftCA","threeLeftCG","threeRightGA"),8),
+              size=rep(c("4000","3000","2000","1500","1000","500","200","100"),each=6),
+              freq=c(rep(1,6),rep(1,6),rep(1,6),rep(1,6),
+                     rep(1,6),rep(1,6),rep(1,6),rep(1,5),0.99))
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+df2=df
+
+df=data.frame(feature=rep(c("Local mutation rate","H3K27me3","H3K9me3","APOBEC3A","ZNF143","H3K4me1","H3K36me3","DNase"),8),
+              size=rep(c("4000","3000","2000","1500","1000","500","200","100"),each=8),
+              freq=c(1,1,1,1,1,1,0.97,0.9,
+                     1,1,1,1,1,1,0.95,0.83,
+                     1,1,1,0.98,0.94,0.94,0.83,0.48,
+                     1,1,1,0.96,0.96,0.76,0.28,0.26,
+                     1,1,1,0.72,0.65,0.4,0.23,0.15,
+                     1,1,1,0.13,0.08,0.02,0.02,0.02,
+                     1,0.62,0.6,0.01,0,0,0,0,
+                     1,0.1,0.08,0,0,0,0,0))
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+
+df=rbind(df2,df)
+df$feature=factor(df$feature,levels = rev(unique(df$feature)))
+df$size=factor(df$size,levels=rev(unique(df$size)))
+
+ggplot(df,aes(x=size,y=feature))+geom_tile(aes(fill=freq),colour="grey")+xlab("No. of sampled sites (x1000)")+
+  ylab(NULL)+
+  geom_text(aes(label = freq)) +
+  scale_fill_gradient(low = "white",high = "steelblue",limits=c(0,1))+theme_minimal() +theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),axis.line=element_line())
+
+## melanoma heatmap
+df=data.frame(feature=rep(c("oneMerA","threeRightGA","threeRightGG","threeLeftAA","threeLeftGG","fiveRightGAA","fiveRightGGA"),8),
+              size=rep(c("4000","3000","2000","1500","1000","500","200","100"),each=7),
+              freq=1)
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+df2=df
+
+df=data.frame(feature=rep(c("Local mutation rate","H3K27me3","H3K4me1","H3K9me3","H3K36me1","DNase","H3K27ac","IRF1","APOBEC3A","CTTCCG(1)","SIX5","CTTCCG(2)","ELK4","Proximal","IRF3","RepliSeq","ZNF143"),8),
+              size=rep(c("4000","3000","2000","1500","1000","500","200","100"),each=17),
+              freq=c(rep(1,12),0.99,rep(1,4),
+                     rep(1,16),0.99,
+                     rep(1,13),0.98,0.93,0.97,0.88,
+                     rep(1,11),0.96,0.97,0.94,0.84,0.81,0.77,
+                     rep(1,10),0.99,0.77,0.92,0.74,0.68,0.49,0.6,
+                     rep(1,8),0.99,0.77,0.82,0.4,0.07,0.46,0.03,0.09,0.31,
+                     rep(1,6),0.99,0.24,0.24,0.05,0.42,0.08,0,0.38,rep(0,3),
+                     rep(1,5),0.94,0.75,0.01,0,0,0.11,0.03,0,0.04,rep(0,3)))
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+
+df=rbind(df2,df)
+df$feature=factor(df$feature,levels = rev(unique(df$feature)))
+df$size=factor(df$size,levels=rev(unique(df$size)))
+
+ggplot(df,aes(x=size,y=feature))+geom_tile(aes(fill=freq),colour="grey")+xlab("No. of sampled sites (x1000)")+
+  ylab(NULL)+
+  geom_text(aes(label = freq)) +
+  scale_fill_gradient(low = "white",high = "steelblue",limits=c(0,1))+theme_minimal() +theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),axis.line=element_line())
+
+## lymphoma heatmap
+df=data.frame(feature=rep(c("oneMerA","threeLeftCG","threeRightAA","fiveLeftTTG","threeLeftCA","fiveLeftAAG","threeRightAG","fiveRightGAG"),5),
+              size=rep(c("60","48","36","24","12"),each=8),
+              freq=c(1,1,0.98,0.91,1,0.93,0.91,0.9,
+                     1,1,0.95,0.9,0.99,0.9,0.68,0.88,
+                     1,1,0.93,0.91,0.88,0.77,0.64,0.86,
+                     1,1,0.97,0.9,0.71,0.69,0.36,0.76,
+                     1,1,0.92,0.75,0.73,0.58,0.48,0.59))
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+df2=df
+
+df=data.frame(feature=rep(c("Local mutation rate","H3K27me3"),5),
+              size=rep(c("60","48","36","24","12"),each=2),
+              freq=c(1,0.67,
+                     1,0.67,
+                     1,0.24,
+                     1,0.16,
+                     1,0.13))
+df$feature=as.character(df$feature)
+df$size=as.character(df$size)
+
+df=rbind(df2,df)
+df$feature=factor(df$feature,levels = rev(unique(df$feature)))
+df$size=factor(df$size,levels=rev(unique(df$size)))
+
+ggplot(df,aes(x=size,y=feature))+geom_tile(aes(fill=freq),colour="grey")+xlab("No. of sampled sites (x1000)")+
+  ylab(NULL)+
+  geom_text(aes(label = freq)) +
+  scale_fill_gradient(low = "white",high = "steelblue",limits=c(0,1))+theme_minimal() +theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),axis.line=element_line())
+```

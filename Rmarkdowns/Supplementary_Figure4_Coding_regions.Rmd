@@ -1,0 +1,29 @@
+---
+title: "Supplementary Figure 4 - Performance of MutSpot on coding regions"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 4, which consists of 1 part.
+
+```{r, echo = FALSE}
+suppressWarnings(suppressMessages(library(MutSpot)))
+```
+
+## Figure A
+Hotspots detected by MutSpot on gastric samples in coding regions only
+```{r, eval = FALSE}
+MutSpot(snv.mutations = "gastric_snv_mutations_sid.MAF",
+        mask.regions.file = "mask.coding.regions.RDS",
+        region.of.interest = "coding_regions.bed",
+        cores = 2,
+        cutoff.features.new.snv = 0.7,
+        drop = TRUE,
+        genomic.features = "genomic_features_coding.txt")
+```
+
+```{r}
+hotspots = read.delim("snv_hotspots_merged_coding.tsv", stringsAsFactors = FALSE)
+
+# Adjust manhattan plot cutoff from fdr 0.1 to fdr 0.05 and save as SVG with height = 5 and width = 8
+plot_manhattan(hotspots.file = hotspots, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1")
+```

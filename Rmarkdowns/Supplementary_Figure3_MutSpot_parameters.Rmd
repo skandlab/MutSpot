@@ -1,0 +1,333 @@
+---
+title: "Supplementary Figure 3 - Varying MutSpot parameters"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 3, which consists of 4 parts.
+
+```{r, echo = FALSE}
+suppressWarnings(suppressMessages(library(MutSpot)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(parallel)))
+```
+
+```{r, eval = FALSE}
+# min.count = 2 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        cores = 6,
+        min.count.snv = 2,
+        hotspot.size = 21,
+        genomic.features = "genomic_features_genome_APO.txt")
+
+# min.count = 3 and hotspot.size = 11
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 11,
+        genomic.features = "genomic_features_genome_APO.txt")
+
+# min.count = 3 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 21,
+        genomic.features = "genomic_features_genome_APO.txt")
+
+# min.count = 3 and hotspot.size = 41
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 41,
+        genomic.features = "genomic_features_genome_APO.txt")
+
+# min.count = 4 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        cores = 6,
+        min.count.snv = 4,
+        hotspot.size = 21,
+        genomic.features = "genomic_features_genome_APO.txt")
+```
+
+## Figure A
+Varying *min.count* at *hotspot.size* = 21 for genome-wide gastric analysis
+```{r}
+files = Sys.glob("./wgs/info*.txt")
+time = mclapply(files, FUN = function(x) {
+  
+  info = read.delim(x, header = FALSE, stringsAsFactors = FALSE)
+  info = gsub("Elapsed [(]wall clock[)] time [(]h:mm:ss or m:ss[)]: ", "", info[5, 2])
+  return(info)
+  
+})
+names(time) = gsub(".*./", "", files)
+names(time) = gsub("info_", "", gsub(".txt", "", names(time)))
+time = as.data.frame(unlist(time))
+colnames(time) = "t1"
+time$t1 = as.character(time$t1)
+time$t1 = substr(time$t1, 1, nchar(time$t1) - 3)
+# wn4l21 is in minutes
+time$t2 = time$t1
+time$t2[-5] = as.numeric(gsub(":.*.", "", time$t1[-5])) + as.numeric(gsub(".*.:", "", time$t1[-5])) / 60
+time$t2[5] = (as.numeric(gsub(":.*.", "", time$t1[5])) + as.numeric(gsub(".*.:", "", time$t1[5])) / 60) / 60
+time$n = substr(rownames(time), 3, 3)
+time$length = substr(rownames(time), 5, 6)
+time$t2 = as.numeric(time$t2)
+range(time$t2) #0.7230556 32.43333
+
+n2l21 = read.delim("./wgs/snv_hotspots_merged_wn2l21.tsv", stringsAsFactors = FALSE)
+sum(n2l21$fdr <= 0.01) #90
+n3l11 = read.delim("./wgs/snv_hotspots_merged_wn3l11.tsv", stringsAsFactors = FALSE)
+sum(n3l11$fdr <= 0.01) #146
+n3l21 = read.delim("./wgs/snv_hotspots_merged_wn3l21.tsv", stringsAsFactors = FALSE)
+sum(n3l21$fdr <= 0.01) #90
+n3l41 = read.delim("./wgs/snv_hotspots_merged_wn3l41.tsv", stringsAsFactors = FALSE)
+sum(n3l41$fdr <= 0.01) #55
+n4l21 = read.delim("./wgs/snv_hotspots_merged_wn4l21.tsv", stringsAsFactors = FALSE)
+sum(n4l21$fdr <= 0.01) #90
+
+par(mar = rep(4, 4))
+barData <- c(90, 90, 90)
+y <- lineData <- c(time[which(time$length == 21), ]$t2)
+x <- barplot(barData, 
+             axes = FALSE,
+             col = "blue", 
+             xlab = "",
+             ylab = "",
+ylim = c(0, 150) )[, 1]
+axis(1, at = x, labels = c("2", "3", "4"))
+ats <- c(seq(0, 150, 30)); axis(4, at = ats, labels = ats, las = 2, col = "blue", col.axis = "blue")
+axis(3, at = x, labels = NA) 
+par(new = TRUE)
+plot(x = x, y = y, type = "b", col = "red", axes = FALSE, xlab = "", ylab = "", ylim = c(0, 50))
+axis(2, at = c(seq(0, 50, 10)), las = 2, col = "red", col.axis = "red") 
+mtext(text = "hotspot.size = 21", side = 3, line = 1)
+mtext("min.count", cex = 0.9, side = 1, line = 2)
+mtext("Number of hotspots", cex = 0.9, side = 4, line = 4, col = "blue")
+mtext("Runtime (hours)", side = 2, line = 2, col = "red", cex = 0.9)
+box()
+```
+
+## Figure B
+Varying *hotspot.size* at *min.count* = 3 for genome-wide gastric analysis
+```{r}
+files = Sys.glob("./wgs/info*.txt")
+time = mclapply(files, FUN = function(x) {
+  
+  info = read.delim(x, header = FALSE, stringsAsFactors = FALSE)
+  info = gsub("Elapsed [(]wall clock[)] time [(]h:mm:ss or m:ss[)]: ", "", info[5, 2])
+  return(info)
+  
+})
+names(time) = gsub(".*./", "", files)
+names(time) = gsub("info_", "", gsub(".txt", "", names(time)))
+time = as.data.frame(unlist(time))
+colnames(time) = "t1"
+time$t1 = as.character(time$t1)
+time$t1 = substr(time$t1, 1, nchar(time$t1) - 3)
+# wn4l21 is in minutes
+time$t2 = time$t1
+time$t2[-5] = as.numeric(gsub(":.*.", "", time$t1[-5])) + as.numeric(gsub(".*.:", "", time$t1[-5])) / 60
+time$t2[5] = (as.numeric(gsub(":.*.", "", time$t1[5])) + as.numeric(gsub(".*.:", "", time$t1[5])) / 60) / 60
+time$n = substr(rownames(time), 3, 3)
+time$length = substr(rownames(time), 5, 6)
+time$t2 = as.numeric(time$t2)
+range(time$t2) #0.7230556 32.43333
+
+n2l21 = read.delim("./wgs/snv_hotspots_merged_wn2l21.tsv", stringsAsFactors = FALSE)
+sum(n2l21$fdr <= 0.01) #90
+n3l11 = read.delim("./wgs/snv_hotspots_merged_wn3l11.tsv", stringsAsFactors = FALSE)
+sum(n3l11$fdr <= 0.01) #146
+n3l21 = read.delim("./wgs/snv_hotspots_merged_wn3l21.tsv", stringsAsFactors = FALSE)
+sum(n3l21$fdr <= 0.01) #90
+n3l41 = read.delim("./wgs/snv_hotspots_merged_wn3l41.tsv", stringsAsFactors = FALSE)
+sum(n3l41$fdr <= 0.01) #55
+n4l21 = read.delim("./wgs/snv_hotspots_merged_wn4l21.tsv", stringsAsFactors = FALSE)
+sum(n4l21$fdr <= 0.01) #90
+
+par(mar = rep(4, 4))
+barData<-c(146, 90, 55)
+y <- lineData <- c(time[which(time$n == 3), ]$t2)
+x <- barplot(barData, 
+             axes = FALSE,
+             col = "blue", 
+             xlab = "",
+             ylab = "",
+ylim = c(0, 150) )[, 1]
+axis(1, at = x, labels = c("11", "21", "41"))
+ats <- c(seq(0, 150, 30)); axis(4, at = ats, labels = ats, las = 2, col = "blue", col.axis = "blue")
+axis(3, at = x, labels = NA) 
+par(new = TRUE)
+plot(x = x, y = y, type = "b", col = "red", axes = FALSE, xlab = "", ylab = "", ylim = c(0, 50))
+axis(2, at = c(seq(0, 50, 10)), las = 2, col = "red", col.axis = "red") 
+mtext(text = "min.count = 3", side = 3, line = 1)
+mtext("hotspot.size", cex = 0.9, side = 1, line = 2)
+mtext("Number of hotspots", cex = 0.9, side = 4, line = 4, col = "blue")
+mtext("Runtime (hours)", side = 2, line = 2, col = "red", cex = 0.9)
+box()
+```
+
+```{r,eval = FALSE}
+# min.count = 2 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        region.of.interest = "gastric_ctcf_motif.bed",
+        cores = 6,
+        min.count.snv = 2,
+        hotspot.size = 21,
+        sample.snv.features = "sample_features_table_snv.txt",
+        genomic.features = "genomic_features_ctcf_APO.txt")
+
+
+# min.count = 3 and hotspot.size = 11
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        region.of.interest = "gastric_ctcf_motif.bed",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 11,
+        sample.snv.features = "sample_features_table_snv.txt",
+        genomic.features = "genomic_features_ctcf_APO.txt")
+
+# min.count = 3 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        region.of.interest = "gastric_ctcf_motif.bed",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 21,
+        sample.snv.features = "sample_features_table_snv.txt",
+        genomic.features = "genomic_features_ctcf_APO.txt")
+
+# min.count = 3 and hotspot.size = 41
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        region.of.interest = "gastric_ctcf_motif.bed",
+        cores = 6,
+        min.count.snv = 3,
+        hotspot.size = 41,
+        sample.snv.features = "sample_features_table_snv.txt",
+        genomic.features = "genomic_features_ctcf_APO.txt")
+
+# min.count = 4 and hotspot.size = 21
+MutSpot(run.to = 7,
+        snv.mutations = "gastric_snv_mutations_sid.MAF",
+        region.of.interest = "gastric_ctcf_motif.bed",
+        cores = 6,
+        min.count.snv = 4,
+        hotspot.size = 21,
+        sample.snv.features = "sample_features_table_snv.txt",
+        genomic.features = "genomic_features_ctcf_APO.txt")
+```
+
+## Figure C
+Varying *min.count* at *hotspot.size*=21 for CBS gastric analysis
+```{r}
+files = Sys.glob("./ctcf/info*.txt")
+time = mclapply(files, FUN = function(x) {
+  
+  info = read.delim(x, header = FALSE, stringsAsFactors = FALSE)
+  info = gsub("Elapsed [(]wall clock[)] time [(]h:mm:ss or m:ss[)]: ", "", info[5, 2])
+  return(info)
+  
+})
+names(time) = gsub(".*./", "", files)
+names(time) = gsub("info_", "", gsub(".txt", "", names(time)))
+time = as.data.frame(unlist(time))
+colnames(time) = "t1"
+time$t1 = as.character(time$t1)
+time$t2 = as.numeric(gsub(":.*.", "", time$t1)) + as.numeric(gsub(".*.:", "", gsub("[.].*.", "", time$t1))) / 60
+time$n = substr(rownames(time), 3, 3)
+time$length = substr(rownames(time), 5, 6)
+range(time$t2)
+
+n2l21 = read.delim("./ctcf/snv_hotspots_merged_cn2l21.tsv", stringsAsFactors = FALSE)
+sum(n2l21$fdr <= 0.01)
+n3l11 = read.delim("./ctcf/snv_hotspots_merged_cn3l11.tsv", stringsAsFactors = FALSE)
+sum(n3l11$fdr <= 0.01)
+n3l21 = read.delim("./ctcf/snv_hotspots_merged_cn3l21.tsv", stringsAsFactors = FALSE)
+sum(n3l21$fdr <= 0.01)
+n3l41 = read.delim("./ctcf/snv_hotspots_merged_cn3l41.tsv", stringsAsFactors = FALSE)
+sum(n3l41$fdr <= 0.01)
+n4l21 = read.delim("./ctcf/snv_hotspots_merged_cn4l21.tsv", stringsAsFactors = FALSE)
+sum(n4l21$fdr <= 0.01)
+
+par(mar = rep(4, 4))
+barData <- c(8, 8, 8)
+y <- lineData <- c(time[which(time$length == 21), ]$t2)
+x <- barplot(barData, 
+             axes = FALSE,
+             col = "blue", 
+             xlab = "",
+             ylab = "",
+ylim = c(0, 10) )[, 1]
+axis(1, at = x, labels = c("2", "3", "4"))
+ats <- c(seq(0, 10, 2)); axis(4, at = ats, labels = ats, las = 2, col = "blue", col.axis = "blue")
+axis(3, at = x, labels = NA) 
+par(new = TRUE)
+plot(x = x, y = y, type = "b", col = "red", axes = FALSE, xlab = "", ylab = "", ylim = c(0, 12))
+axis(2, at = c(seq(0, 12, 2)), las = 2, col = "red", col.axis = "red") 
+mtext(text = "hotspot.size = 21", side = 3, line = 1)
+mtext("min.count", cex = 0.9, side = 1, line = 2)
+mtext("Number of hotspots", cex = 0.9, side = 4, line = 2.5, col = "blue")
+mtext("Runtime (minutes)", side = 2, line = 2, col = "red", cex = 0.9)
+box()
+```
+
+## Figure B
+Varying *hotspot.size* at *min.count*=3 for CBS gastric analysis
+```{r}
+files = Sys.glob("./ctcf/info*.txt")
+time = mclapply(files,FUN=function(x) {
+  
+  info = read.delim(x, header = FALSE, stringsAsFactors = FALSE)
+  info = gsub("Elapsed [(]wall clock[)] time [(]h:mm:ss or m:ss[)]: ", "", info[5, 2])
+  return(info)
+  
+})
+names(time) = gsub(".*./", "", files)
+names(time) = gsub("info_", "", gsub(".txt", "", names(time)))
+time = as.data.frame(unlist(time))
+colnames(time) = "t1"
+time$t1 = as.character(time$t1)
+time$t2 = as.numeric(gsub(":.*.", "", time$t1)) + as.numeric(gsub(".*.:", "", gsub("[.].*.", "", time$t1))) / 60
+time$n = substr(rownames(time), 3, 3)
+time$length = substr(rownames(time), 5, 6)
+range(time$t2)
+
+n2l21 = read.delim("./ctcf/snv_hotspots_merged_cn2l21.tsv", stringsAsFactors = FALSE)
+sum(n2l21$fdr <= 0.01)
+n3l11 = read.delim("./ctcf/snv_hotspots_merged_cn3l11.tsv", stringsAsFactors = FALSE)
+sum(n3l11$fdr <= 0.01)
+n3l21 = read.delim("./ctcf/snv_hotspots_merged_cn3l21.tsv", stringsAsFactors = FALSE)
+sum(n3l21$fdr <= 0.01)
+n3l41 = read.delim("./ctcf/snv_hotspots_merged_cn3l41.tsv", stringsAsFactors = FALSE)
+sum(n3l41$fdr <= 0.01)
+n4l21 = read.delim("./ctcf/snv_hotspots_merged_cn4l21.tsv", stringsAsFactors = FALSE)
+sum(n4l21$fdr <= 0.01)
+
+par(mar = rep(4, 4))
+barData <- c(9, 8, 6)
+y <- lineData <- c(time[which(time$n == 3), ]$t2)
+x <- barplot(barData, 
+             axes = FALSE,
+             col = "blue", 
+             xlab = "",
+             ylab = "",
+ylim = c(0, 10) )[, 1]
+axis(1, at = x, labels = c("11", "21", "41"))
+ats <- c(seq(0, 10,2)); axis(4, at = ats, labels = ats, las = 2, col = "blue", col.axis = "blue")
+axis(3, at = x, labels = NA) 
+par(new = TRUE)
+plot(x = x, y = y, type = "b", col = "red", axes = FALSE, xlab = "", ylab = "", ylim = c(0, 12))
+axis(2, at = c(seq(0,12,2)), las = 2, col = "red", col.axis = "red") 
+mtext(text = "min.count = 3", side = 3, line = 1)
+mtext("hotspot.size", cex = 0.9, side = 1, line = 2)
+mtext("Number of hotspots",cex = 0.9, side = 4, line = 2.5, col = "blue")
+mtext("Runtime (minutes)", side = 2, line = 2, col = "red", cex = 0.9)
+box()
+```

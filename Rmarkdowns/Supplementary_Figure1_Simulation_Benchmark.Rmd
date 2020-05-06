@@ -1,0 +1,70 @@
+---
+title: "Supplementary Figure 1 - Simulation Benchmark"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 1, which consists of 2 parts.
+
+## Figure A
+Run MutSpot using 4 cores
+```{r}
+# Runtime obtained from info_full_200_4cores.txt, info_full_500_4cores.txt and info_full_1000_4cores.txt.
+# Memory usage obtained from out_200_4cores.log, out_500_4cores.log and out_1000_4cores.log.
+time = c(2.8, 3.75, 6.983)
+mem = c(40.203, 43.169, 49.726)
+step = c(200, 500, 1000)
+
+par(mar = c(5, 5, 2, 5))
+
+# Plot runtime axis
+plot(step, time, pch = 16, axes = FALSE, ylim = c(0, 15), xlab = "", ylab = "", type = "b", col = "black", main = "cores = 4")
+axis(2, pretty(range(seq(0:15)), 3), col = "black", las = 1)
+mtext("Time taken (hours)", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot memory usage axis
+plot(step, mem, pch = 15, xlab = "", ylab = "", ylim = c(0, 70), axes = FALSE, type = "b", col = "red", lty = 2)
+mtext("Memory usage (Gb)", side = 4, col = "red", line = 4) 
+axis(4, pretty(range(seq(0:70)), 7), col = "red", col.axis = "red", las = 1)
+
+# Plot sample size axis
+mtext("Number of samples", side = 1, col = "blue", line = 2.5)  
+axis(1, pretty(range(step), 10), col = "blue", col.axis = "blue")
+
+# Add Legend
+legend("top", legend = c("Time", "Memory"), text.col = c("black", "red"), lty = c(1, 2), pch = c(16, 15), col = c("black", "red"), cex = 0.8)
+```
+
+## Figure B
+Run MutSpot using 6 cores
+```{r}
+# Runtime obtained from info_full_200_6cores.txt, info_full_500_6cores.txt and info_full_1000_6cores.txt.
+# Memory usage obtained from out_200_6cores.log, out_500_6cores.log and out_1000_6cores.log.
+time = c(2.617, 3.383, 3.483)
+mem = c(57.046, 59.326, 61.097)
+step = c(200, 500, 1000)
+
+par(mar = c(5, 5, 2, 5))
+
+# Plot runtime axis
+plot(step, time, pch = 16, axes = FALSE, ylim = c(0, 15), xlab = "", ylab = "", type = "b", col = "black", main = "cores = 6")
+axis(2, pretty(range(seq(0:15)), 3), col = "black", las = 1)
+mtext("Time taken (hours)", side = 2, line = 2.5)
+box()
+
+par(new = TRUE)
+
+# Plot memory usage axis
+plot(step, mem, pch = 15, xlab = "", ylab = "", ylim = c(0, 70), axes = FALSE, type = "b", col = "red", lty = 2)
+mtext("Memory usage (Gb)", side = 4, col = "red", line = 4) 
+axis(4, pretty(range(seq(0:70)), 7), col = "red", col.axis = "red", las = 1)
+
+# Plot sample size axis
+mtext("Number of samples", side = 1, col = "blue", line = 2.5)  
+axis(1, pretty(range(step), 10), col = "blue", col.axis = "blue")
+
+# Add Legend
+legend("top", legend = c("Time", "Memory"), text.col = c("black", "red"), lty = c(1, 2), pch = c(16, 15), col = c("black", "red"), cex = 0.8)
+```

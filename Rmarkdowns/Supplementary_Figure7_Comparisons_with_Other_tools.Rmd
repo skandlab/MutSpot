@@ -1,0 +1,361 @@
+---
+title: "Supplementary Figure 7 - Comparisons between MutSpot and other tools"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 7, which consists of 8 parts.
+
+```{r, echo = FALSE}
+suppressWarnings(suppressMessages(library(GenomicRanges)))
+suppressWarnings(suppressMessages(library(RColorBrewer)))
+suppressWarnings(suppressMessages(library(VennDiagram)))
+```
+
+## Figure A-D
+Comparisons between MutSpot and other tools on gastric samples
+```{r, eval = FALSE}
+active = read.delim("activeDriverWGS_results_roi4.txt", stringsAsFactors = FALSE)
+onco = read.delim("gastric_snv_OcodriveFML-oncodrivefml.tsv", stringsAsFactors = FALSE)
+ncdd = read.delim("ncdDetect_genomicAve_results_roi4.txt", stringsAsFactors = FALSE)
+
+roi1 = read.delim("gastric_rois_min4.bed", stringsAsFactors = FALSE, header = FALSE)
+roi1$V2 = roi1$V2 + 1
+
+output.dir = "./"
+mut.regions = readRDS(paste(output.dir, "temp-1.RDS", sep = ""))
+maf.snv = readRDS(paste(output.dir, "temp-2.RDS", sep = ""))
+genome.size = readRDS(paste(output.dir, "temp-12.RDS", sep = ""))
+rois.to.run = readRDS(paste(output.dir, "temp-9.RDS", sep = ""))
+
+roi1 = with(roi1, GRanges(V1, IRanges(V2, V3)))
+roi1$GENE_ID = paste("roi", c(1:length(roi1)), sep = "")
+roi1 = as.data.frame(roi1)
+onco = merge(onco, roi1, by = "GENE_ID")
+onco = with(onco, GRanges(seqnames, IRanges(start, end), fdr = Q_VALUE))
+sum(onco$fdr <= 0.01)
+
+# MutSpot
+hs = read.delim("snv_hotspots_min4.tsv", stringsAsFactors = FALSE)
+fdr = stats::p.adjust(hs$pval, method = 'BH') * genome.size / nrow(hs)
+fdr = sapply(fdr, function(x) min(x, 1))
+hs$fdr = fdr
+hs = with(hs, GRanges(chrom, IRanges(start, end), fdr = fdr))
+sum(hs$fdr <= 0.01)
+
+mut.rec.hotspot2 = hs
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut", c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+hs2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(hs2$fdr <= 0.01)
+hs2a = hs2[which(hs2$fdr <= 0.01)]
+write.table(as.data.frame(hs2), file = "gastric_hs2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+# OnocDriveFML
+mut.rec.hotspot2 = onco
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut",c(1:nrow(mut.rec.hotspot2)),sep="")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+onco2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(onco2$fdr <= 0.01)
+onco2a = onco2[which(onco2$fdr <= 0.01)]
+write.table(as.data.frame(onco2a), file = "gastric_onco2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+# ActiveDriverWGS
+fdr = stats::p.adjust(active$pp_element, method = 'BH') * genome.size / nrow(active)
+fdr = sapply(fdr, function(x) min(x, 1))
+active$fdr = fdr
+active = merge(active, roi1, by.x = "id", by.y = "GENE_ID")
+active = with(active, GRanges(seqnames, IRanges(start, end), fdr = fdr))
+
+mut.rec.hotspot2 = active
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut",c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+active2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(active2$fdr <= 0.01)
+active2a = active2[which(active2$fdr <=0.01)]
+write.table(as.data.frame(active2a),file = "gastric_active2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+# NcdDetect
+roi2 = mut.regions[rois.to.run]
+roi2 = as.data.frame(roi2)
+roi2$ID = paste("roi", c(1:nrow(roi2)), sep = "")
+
+ncdd = merge(ncdd, roi2, by.x = "roi", by.y = "ID")
+fdr = stats::p.adjust(ncdd$pval, method = 'BH') * genome.size / nrow(ncdd)
+fdr = sapply(fdr, function(x) min(x, 1))
+ncdd$fdr = fdr
+ncdd = with(ncdd, GRanges(seqnames, IRanges(start, end), fdr = fdr))
+
+mut.rec.hotspot2 = ncdd
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut",c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+ncdd2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(ncdd2$fdr <= 0.01)
+ncdd2a = ncdd2[which(ncdd2$fdr <= 0.01)]
+write.table(as.data.frame(ncdd2a), file = "gastric_ncdd2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+```
+
+```{r}
+ncdd2a = read.delim("gastric_ncdd2a_0.01.txt", stringsAsFactors = FALSE)
+ncdd2a$type = paste(ncdd2a$seqnames, ncdd2a$start, ncdd2a$end, sep = "-")
+hs2a = read.delim("gastric_hs2a_0.01.txt", stringsAsFactors = FALSE)
+hs2a$type = paste(hs2a$seqnames, hs2a$start, hs2a$end, sep = "-")
+onco2a = read.delim("gastric_onco2a_0.01.txt", stringsAsFactors = FALSE)
+onco2a$type = paste(onco2a$seqnames, onco2a$start, onco2a$end, sep = "-")
+active2a = read.delim("gastric_active2a_0.01.txt", stringsAsFactors = FALSE)
+active2a$type = paste(active2a$seqnames, active2a$start, active2a$end, sep = "-")
+
+set1 <- hs2a$type
+set2 <- onco2a$type
+set3 <- active2a$type
+set5 <- ncdd2a$type
+
+myCol <- brewer.pal(5, "Pastel2")
+
+venn.diagram(
+  x = list(set1, set2, set3, set5),
+  category.names = c("a", "b", "c", "e"),
+  filename = 'suppl_fig7_d.png',
+  output = TRUE,
+  fill = myCol[c(1:3, 5)]
+)
+
+venn.diagram(
+  x = list(set1, set2),
+  category.names = c("a", "b" ),
+  filename = 'suppl_fig7_a.png',
+  output = TRUE,
+  fill = myCol[1:2]
+)
+
+venn.diagram(
+  x = list(set1, set3),
+  category.names = c("a", "c" ),
+  filename = 'suppl_fig7_b.png',
+  output = TRUE,
+  fill = myCol[c(1, 3)]
+)
+
+venn.diagram(
+  x = list(set1, set5),
+  category.names = c("a", "e" ),
+  filename = 'suppl_fig7_c.png',
+  output = TRUE,
+  fill = myCol[c(1, 5)]
+)
+```
+
+## Figure E-H
+Comparisons between MutSpot and other tools on melanoma samples
+```{r, eval = FALSE}
+active = read.delim("activeDriverWGS_results_melanoma.txt", stringsAsFactors = FALSE)
+onco = read.delim("melanoma_snv_OncodriveFML-oncodrivefml.tsv", stringsAsFactors = FALSE)
+ncdd = read.delim("ncdDetect_genomicAve_results_melanoma.txt", stringsAsFactors = FALSE)
+
+# MutSpot
+output.dir="/home/rstudio/melanoma/motif_TF_context2_31bp/results/"
+mut.regions = readRDS(paste(output.dir, "temp-1.RDS", sep = ""))
+maf.snv = readRDS(paste(output.dir, "temp-2.RDS", sep = ""))
+genome.size = readRDS(paste(output.dir, "temp-12.RDS", sep = ""))
+rois.to.run = readRDS(paste(output.dir, "temp-9.RDS", sep = ""))
+
+hs = read.delim("/home/rstudio/melanoma/motif_TF_context2_31bp/results/snv_hotspots_merged.tsv", stringsAsFactors = FALSE)
+hs2 = with(hs, GRanges(chrom, IRanges(start, end), fdr = fdr))
+sum(hs2$fdr <= 0.01)
+hs2a = hs2[which(hs2$fdr <= 0.01)]
+write.table(as.data.frame(hs2a), file = "melanoma_hs2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+roi1 = read.delim("melanoma_rois_min4_31bp.bed", stringsAsFactors = FALSE, header = FALSE)
+roi1$V2 = roi1$V2 + 1
+
+roi1 = with(roi1, GRanges(V1, IRanges(V2, V3)))
+roi1$GENE_ID = paste("roi", c(1:length(roi1)), sep = "")
+roi1 = as.data.frame(roi1)
+onco = merge(onco, roi1, by = "GENE_ID")
+onco = with(onco, GRanges(seqnames, IRanges(start, end), fdr = Q_VALUE))
+sum(onco$fdr <= 0.01)
+
+# OnocDriveFML
+mut.rec.hotspot2 = onco
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut", c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+onco2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(onco2$fdr <= 0.01)
+onco2a = onco2[which(onco2$fdr <= 0.01)]
+write.table(as.data.frame(onco2a), file = "melanoma_onco2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+# ActiveDriverWGS
+fdr = stats::p.adjust(active$pp_element, method = 'BH') * genome.size / nrow(active)
+fdr = sapply(fdr, function(x) min(x, 1))
+active$fdr = fdr
+active = merge(active, roi1, by.x = "id", by.y = "GENE_ID")
+active = with(active, GRanges(seqnames, IRanges(start, end), fdr = fdr))
+
+mut.rec.hotspot2 = active
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut", c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+active2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(active2$fdr <= 0.01)
+active2a = active2[which(active2$fdr <= 0.01)]
+write.table(as.data.frame(active2a), file = "melanoma_active2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+# NcdDetect
+roi2 = mut.regions[rois.to.run]
+roi2 = as.data.frame(roi2)
+roi2$ID = paste("roi", c(1:nrow(roi2)), sep = "")
+
+ncdd = merge(ncdd, roi2, by.x = "roi", by.y = "ID")
+
+fdr = stats::p.adjust(ncdd$pval, method = 'BH') * genome.size / nrow(ncdd)
+fdr = sapply(fdr, function(x) min(x, 1))
+ncdd$fdr = fdr
+ncdd = with(ncdd, GRanges(seqnames, IRanges(start, end), fdr = fdr))
+
+mut.rec.hotspot2 = ncdd
+mut.rec.hotspot2 = as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2$ID = paste("mut", c(1:nrow(mut.rec.hotspot2)), sep = "")
+mut.rec.hotspot2 = with(mut.rec.hotspot2, GenomicRanges::GRanges(seqnames, IRanges::IRanges(start, end), fdr = fdr, ID = ID))
+hotspots = IRanges::reduce(mut.rec.hotspot2)
+hotspots$hs = paste("hs", 1:length(hotspots), sep = "")
+
+ovl = IRanges::findOverlaps(mut.rec.hotspot2, hotspots)
+mut.rec.hotspot2 = mut.rec.hotspot2[S4Vectors::queryHits(ovl)]
+mut.rec.hotspot2$hs = hotspots[S4Vectors::subjectHits(ovl)]$hs
+mut.rec.hotspot2$region.start = IRanges::start(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2$region.end = IRanges::end(hotspots[S4Vectors::subjectHits(ovl)])
+mut.rec.hotspot2 = GenomicRanges::as.data.frame(mut.rec.hotspot2)
+mut.rec.hotspot2 = mut.rec.hotspot2[order(mut.rec.hotspot2$fdr, decreasing = FALSE), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[!duplicated(mut.rec.hotspot2$hs), ]
+mut.rec.hotspot2 = mut.rec.hotspot2[ ,c("seqnames", "region.start", "region.end", "fdr", "ID")]
+ncdd2 = with(mut.rec.hotspot2, GRanges(seqnames, IRanges(region.start, region.end), fdr = fdr))
+sum(ncdd2$fdr <= 0.01)
+ncdd2a = ncdd2[which(ncdd2$fdr <= 0.01)]
+write.table(as.data.frame(ncdd2a), file = "melanoma_ncdd2a_0.01.txt", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+```
+
+```{r}
+ncdd2a = read.delim("melanoma_ncdd2a_0.01.txt", stringsAsFactors = FALSE)
+ncdd2a$type = paste(ncdd2a$seqnames, ncdd2a$start, ncdd2a$end, sep = "-")
+hs2a = read.delim("melanoma_hs2a_0.01.txt", stringsAsFactors = FALSE)
+hs2a$type = paste(hs2a$seqnames, hs2a$start, hs2a$end, sep = "-")
+onco2a = read.delim("melanoma_onco2a_0.01.txt", stringsAsFactors = FALSE)
+onco2a$type = paste(onco2a$seqnames, onco2a$start, onco2a$end, sep = "-")
+active2a = read.delim("melanoma_active2a_0.01.txt", stringsAsFactors = FALSE)
+active2a$type = paste(active2a$seqnames, active2a$start, active2a$end, sep = "-")
+
+set1 <- hs2a$type
+set2 <- onco2a$type
+set3 <- active2a$type
+set5 <- ncdd2a$type
+
+myCol <- brewer.pal(5, "Pastel2")
+
+venn.diagram(
+  x = list(set1, set2, set3, set5),
+  category.names = c("a", "b", "c", "e" ),
+  filename = 'suppl_fig7_h.png',
+  output = TRUE,
+  fill = myCol[c(1:3, 5)]
+)
+
+venn.diagram(
+  x = list(set1, set2),
+  category.names = c("a", "b" ),
+  filename = 'suppl_fig7_e.png',
+  output = TRUE,
+  fill = myCol[1:2]
+)
+
+venn.diagram(
+  x = list(set1, set3),
+  category.names = c("a", "c" ),
+  filename = 'suppl_fig7_f.png',
+  output = TRUE,
+  fill = myCol[c(1, 3)]
+)
+
+venn.diagram(
+  x = list(set1, set5),
+  category.names = c("a", "e" ),
+  filename = 'suppl_fig7_g.png',
+  output = TRUE,
+  fill = myCol[c(1, 5)]
+)
+```

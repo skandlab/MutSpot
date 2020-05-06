@@ -1,0 +1,43 @@
+---
+title: "Supplementary Figure 5 - Performance of MutSpot on lymphoma"
+output: html_document
+---
+
+This is the R Markdown for Supplementary Figure 5, which consists of 2 parts.
+
+```{r, echo = FALSE}
+suppressWarnings(suppressMessages(library(MutSpot)))
+```
+
+## Figure A
+SNV hotspots detected by MutSpot on lymphoma samples
+```{r, eval = FALSE}
+MutSpot(snv.mutations = "T-ALL_QC_SNV.MAF",
+        cores = 6,
+        drop = TRUE
+        cutoff.features.new.snv = 0.65,
+        genomic.features = "genomic_features_lymphoma.txt")
+```
+
+```{r}
+hotspots = read.delim("snv_hotspots_merged_lymphoma.tsv", stringsAsFactors = FALSE)
+
+# Adjust manhattan plot cutoff from fdr 0.1 to fdr 0.05 and save as SVG with height = 5 and width = 8
+suppressWarnings(plot_manhattan(hotspots.file = hotspots, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1"))
+```
+
+## Figure B
+Indel hotspots detected by MutSpot on lymphoma samples
+```{r, eval = FALSE}
+MutSpot(snv.mutations = "T-ALL_QC_indel.MAF",
+        cores = 6,
+        drop = TRUE
+        genomic.features = "genomic_features_lymphoma.txt")
+```
+
+```{r}
+hotspots = read.delim("indel_hotspots_merged_lymphoma.tsv", stringsAsFactors = FALSE)
+
+# Adjust manhattan plot cutoff from fdr 0.1 to fdr 0.05 and save as SVG with height = 5 and width = 8
+suppressWarnings(plot_manhattan(hotspots.file = hotspots, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1"))
+```
