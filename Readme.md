@@ -4,7 +4,9 @@ MutSpot
 ## Non-coding MUTation hotSPOT dectection in cancer genomes
 The MutSpot R package systematically and unbiasedly scans cancer whole genomes to detect mutation hotspots. MutSpot first builds a background mutation model that corrects for covariates of mutation probability, such as local nucleotide context, replication timing and epigenomic features. Then MutSpot evaluates the mutation recurrence of focal DNA regions using a Poisson binomial model to account for varying mutation rates across different tumors. Mutation hotspots identified have significantly higher mutation recurrence compared to the background genomic mutation rate, suggesting positive selection in cancer and involvement in tumorigenesis.
 
-Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/articles/s41467-018-03828-2)
+References:
+[Guo et al., Nature Communications, 2018](https://www.nature.com/articles/s41467-018-03828-2)
+[Guo et al., npj Genomic Medicine, 2020](https://www.nature.com/articles/s41525-020-0133-4)
 
 ------------------------------------------------------------------------------------
 
@@ -35,7 +37,7 @@ install_github("skandlab/MutSpot", subdir="MutSpot_Rpackage")
 
 Alternatively, the package may downloaded from Github and installed in R:
 ```{r}
-# Clone/download MutSpot into the current working dirctory with the following command: git clone https://github.com/skandlab/MutSpot.git 
+# Clone/download MutSpot into the current working dirctory with the following command: git clone https://github.com/skandlab/MutSpot.git
 library(devtools)
 install("my/current/directory/MutSpot/MutSpot_Rpackage")
 ```
@@ -93,6 +95,8 @@ MutSpot(snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "ga
 sample.snv.features = "sample_features_table_snv.txt")
 ```
 
+For running MutSpot on genome assembly Ch38, please specify *genome.build = "Ch38"*.
+
 ----------------------------------------------------------------------------------
 
 <a name="arguments"></a>
@@ -108,6 +112,7 @@ sample.snv.features = "sample_features_table_snv.txt")
  min.count                                    | Minimum number of mutated samples in each hotspot (default = 2)
  region.of.interest                           | Restrict hotspot analysis to regions in the given BED file
  cores                                        | Number of cores (default = 1) [The maximum number of cores for Windows users is 1.]
+ genome.build                                 | Genome assembly (default = Ch37)
 
 ----------------------------------------------------------------------------------
 
@@ -132,7 +137,7 @@ Example MAF file:
 | chr1 | 16265287 | 16265287 | G | C | patient1 |
 | chr1 | 17320166 | 17320166 | C | T | patient2 |
 | chr1 | 19497536 | 19497536 | G | C | patient3 |
-| ...  | ...      | ..       |.. |.. | ...      |    
+| ...  | ...      | ..       |.. |.. | ...      |
 
 *There is no header row in a MAF file.*
 
@@ -151,10 +156,10 @@ Example format:
 
  feature_name  | file_path                                               | feature_type | nbins
 -------------- | ------------------------------------------------------- | ------------ | -----
- mean_rep_time | ./features/wgEncodeUwRepliSeqHepg2WaveSignalRep1.bigWig | 1            | 10     
- E094-DNase    | ./features/E094-DNase.bed                               | 0            | NA    
- E094-H3K27ac  | ./features/E094-H3K27ac.bed                             | 0            | NA    
- ...           | ...                                                     | ...          | ...   
+ mean_rep_time | ./features/wgEncodeUwRepliSeqHepg2WaveSignalRep1.bigWig | 1            | 10
+ E094-DNase    | ./features/E094-DNase.bed                               | 0            | NA
+ E094-H3K27ac  | ./features/E094-H3K27ac.bed                             | 0            | NA
+ ...           | ...                                                     | ...          | ...
 
 A binary feature BED file should include the following columns:
 
@@ -164,7 +169,7 @@ A binary feature BED file should include the following columns:
 
 *For binary features, genomic regions that are found in the feature BED file are assigned value of 1, else value of 0*
 
-A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features into the *features* folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the *MutSpot()* function, else he/she may create a similar text file containing the desired features.
+A list of genomic feature files (Transcription factors, DNA secondary structure, Replication timing) can be downloaded from https://github.com/skandlab/MutSpot/tree/master/features/Ch37 or https://github.com/skandlab/MutSpot/tree/master/features/Ch38 into the *features* folder in your working directory. The user may choose to run the analysis using these features by specifying *genomic.features = "./features/genomic_features_genome_default.txt"* in the *MutSpot()* function, else he/she may create a similar text file containing the desired features.
 
 
 #### 3. Sample specific features (optional)
@@ -174,10 +179,10 @@ Example format:
 
  SampleID | subtype | feature1 | feature2
  -------- | ------- | -------- | --------
- patient1 | EBV     | 0.32     | 0.6      
- patient2 | MSI     | 0.41     | 1.5      
- patient3 | GS      | 0.18     | -0.3     
- ...      | ...     | ...      | ...      
+ patient1 | EBV     | 0.32     | 0.6
+ patient2 | MSI     | 0.41     | 1.5
+ patient3 | GS      | 0.18     | -0.3
+ ...      | ...     | ...      | ...
 
 
 #### 4. Region of interest (optional)
@@ -194,7 +199,7 @@ Instead of finding mutation hotspots genome-wide, the user may restrict the hots
   | chr1 | 15786447 | 16265287 |
   | chr1 | 27891466 | 28456878 |
   | chr1 | 42456878 | 45468785 |
-  | ...  | ...      | ..       |   
+  | ...  | ...      | ..       |
 
   *There is no header row in a BED file.*
 
@@ -253,7 +258,7 @@ At the end of the analysis, 3 figures will be generated by MutSpot:
 
 ## Power of size of sampled sites
 
-To test the power of different sizes of sampled sites, users may choose to run an additional analysis which runs feature selection and model fitting on samples of size 20%, 40%, 60%, 80% and 100% of sampled sites. It can be run by specifying *run.to = NULL* and *dilution.analysis = TRUE*. 
+To test the power of different sizes of sampled sites, users may choose to run an additional analysis which runs feature selection and model fitting on samples of size 20%, 40%, 60%, 80% and 100% of sampled sites. It can be run by specifying *run.to = NULL* and *dilution.analysis = TRUE*.
 
 ```{r}
 MutSpot(run.to = NULL, snv.mutations = "subset_snv_mutations_sid.MAF", genomic.features = "genomic_features_ctcf.txt", cores = 2, dilution.analysis = TRUE)
@@ -263,5 +268,3 @@ At the end of this analysis, 3 figures will be generated:
 - Line plot of McFadden's R2 for each subsample's model
 - Line plot of the number of nucleotide/epigenomic features selected by LASSO for each subsample
 - Heatmap of LASSO stability frequency of the nucleotide/epigenomic features selected for each subsample
-
-
