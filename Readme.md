@@ -6,6 +6,7 @@ The MutSpot R package systematically and unbiasedly scans cancer whole genomes t
 
 References:
 [Guo et al., Nature Communications, 2018](https://www.nature.com/articles/s41467-018-03828-2)
+
 [Guo et al., npj Genomic Medicine, 2020](https://www.nature.com/articles/s41525-020-0133-4)
 
 ------------------------------------------------------------------------------------
