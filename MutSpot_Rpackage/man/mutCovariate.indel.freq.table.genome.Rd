@@ -4,8 +4,13 @@
 \alias{mutCovariate.indel.freq.table.genome}
 \title{Prepare covariates matrix for all sites in whole genome/specified region.}
 \usage{
-mutCovariate.indel.freq.table.genome(continuous.features, discrete.features,
-  polyAT, polyCG, sites)
+mutCovariate.indel.freq.table.genome(
+  continuous.features,
+  discrete.features,
+  polyAT,
+  polyCG,
+  sites
+)
 }
 \arguments{
 \item{continuous.features}{Continuous epigenetic features selected for model fitting.}

@@ -97,7 +97,7 @@ MutSpot(snv.mutations = "subset_snv_mutations_sid.MAF", region.of.interest = "ga
 sample.snv.features = "sample_features_table_snv.txt")
 ```
 
-For running MutSpot on genome assembly Ch38, please specify *genome.build = "Ch38"*.
+To run MutSpot on genome assembly Ch38 instead of Ch37, please specify *genome.build = "Ch38"* in the *MutSpot()* function.
 
 ----------------------------------------------------------------------------------
 

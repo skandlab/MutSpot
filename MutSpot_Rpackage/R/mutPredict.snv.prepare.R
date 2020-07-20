@@ -1,6 +1,6 @@
 #' Run mutation recurrence for SNV.
 #' 
-#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
+#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.
 #' @param nucleotide.selected.file Nucleotide context selected for model RDS file.
 #' @param continuous.features.selected.snv.url.file Text file containing URLs of SNV continuous features selected for model.
 #' @param discrete.features.selected.snv.url.file Text file containing URLs of SNV discrete features selected for model.
@@ -13,17 +13,27 @@
 #' @param snv.model.file SNV model.
 #' @param min.count Minimum number of mutated samples in each hotspot, default = 2.
 #' @param hotspot.size Size of each hotspot, default = 21.
-#' @param genome.size Genome size, default = 2533374732.
+#' @param genome.size Genome size, depends on genome build, default = 2533374732, Ch37.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
 #' @param output.dir Save temporary files in given output directory.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Prepare intermediate files for hotspot prediction.
 #' @export
 
-mutPredict.snv.prepare = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), nucleotide.selected.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, sample.specific.features.url.file = NULL, snv.mutations.file, snv.mutations.file2, collapse.regions = FALSE, region.of.interest, cores = 1, snv.model.file, min.count = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, output.dir) {
+mutPredict.snv.prepare = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), nucleotide.selected.file, continuous.features.selected.snv.url.file, discrete.features.selected.snv.url.file, sample.specific.features.url.file = NULL, snv.mutations.file, snv.mutations.file2, collapse.regions = FALSE, region.of.interest, cores = 1, snv.model.file, min.count = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, output.dir, genome.build = "Ch37") {
   
   chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+  if (genome.build == "Ch37") {
+    
   seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
   seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+  
+  } else if (genome.build == "Ch38") {
+    
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+    seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23]
+    
+  }
   
   # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
   mask.regions = readRDS(mask.regions.file)

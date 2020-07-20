@@ -3,10 +3,11 @@
 #' @param roi Each indel hotspot in GRanges.
 #' @param continuous.features.indel Full scores list of indel continuous features selected for model.
 #' @param discrete.features.indel Full scores list of indel discrete features selected for model.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Feature matrix.
 #' @export
 
-mutPredict.indel.get.features <- function(roi, continuous.features.indel, discrete.features.indel) {
+mutPredict.indel.get.features <- function(roi, continuous.features.indel, discrete.features.indel, genome.build = "Ch37") {
   
   # Get a list of sites for each region
   sites = IRanges::tile(roi, width = 1)
@@ -14,7 +15,15 @@ mutPredict.indel.get.features <- function(roi, continuous.features.indel, discre
   
   # Extract DNA sequence for +/-10bp around each site in roi
   seq = GenomicRanges::GRanges(GenomeInfoDb::seqnames(sites), IRanges::IRanges(IRanges::ranges(sites)@start - 5, IRanges::ranges(sites)@start + 5))
+  if (genome.build == "Ch37") {
+    
   seq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg19::Hsapiens, seq)
+  
+  } else if (genome.build == "Ch38") {
+    
+    seq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg38::Hsapiens, seq)
+    
+  }
   seq = as.data.frame(seq)
   
   # Assign continuous epigenetic scores to each site in roi

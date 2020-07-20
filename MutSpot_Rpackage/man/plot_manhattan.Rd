@@ -4,8 +4,12 @@
 \alias{plot_manhattan}
 \title{Plot manhattan.}
 \usage{
-plot_manhattan(hotspots.file, fdr.cutoff = 0.05, color.line = "red",
-  color.dots = "maroon1")
+plot_manhattan(
+  hotspots.file,
+  fdr.cutoff = 0.05,
+  color.line = "red",
+  color.dots = "maroon1"
+)
 }
 \arguments{
 \item{hotspots.file}{Hotspots generated.}

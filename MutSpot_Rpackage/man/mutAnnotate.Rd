@@ -4,20 +4,23 @@
 \alias{mutAnnotate}
 \title{Hotspots annotation.}
 \usage{
-mutAnnotate(hotspots.file, promoter.file = system.file("extdata",
-  "Ensembl75.promoters.coding.bed", package = "MutSpot"),
-  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package =
-  "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed",
-  package = "MutSpot"), other.annotations = NULL)
+mutAnnotate(
+  hotspots.file,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package =
+    "MutSpot"),
+  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"),
+  other.annotations = NULL
+)
 }
 \arguments{
 \item{hotspots.file}{Hotspots to be annotated.}
 
-\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
+\item{promoter.file}{Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.}
 
-\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.}
+\item{utr3.file}{3'UTR regions bed file, depends on genome build, default file = Ensembl75.3UTR.coding.bed, Ch37.}
 
-\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.}
+\item{utr5.file}{5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.}
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 }

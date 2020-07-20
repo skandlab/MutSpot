@@ -4,8 +4,12 @@
 \alias{mutPredict.indel.get.features}
 \title{Mutation hotspot recurrence prediction for indel.}
 \usage{
-mutPredict.indel.get.features(roi, continuous.features.indel,
-  discrete.features.indel)
+mutPredict.indel.get.features(
+  roi,
+  continuous.features.indel,
+  discrete.features.indel,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{roi}{Each indel hotspot in GRanges.}
@@ -13,6 +17,8 @@ mutPredict.indel.get.features(roi, continuous.features.indel,
 \item{continuous.features.indel}{Full scores list of indel continuous features selected for model.}
 
 \item{discrete.features.indel}{Full scores list of indel discrete features selected for model.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Feature matrix.

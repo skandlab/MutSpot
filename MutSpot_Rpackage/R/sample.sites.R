@@ -2,22 +2,31 @@
 #' 
 #' @param snv.mutations.file SNV mutations MAF file.
 #' @param indel.mutations.file Indel mutations MAF file.
-#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
-#' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
+#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.
+#' @param all.sites.file All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.
 #' @param region.of.interest Region of interest bed file, default = NULL.
 #' @param sample To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.
 #' @param cores Number of cores, default = 1.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return A list contatining SNV mutations in region of interest, sampled mutated and non-mutated SNV sites, indel mutations in region of interest and sampled mutated and non-mutated indel sites.
 #' @export
 
-sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = TRUE, cores = 1) {
+sample.sites = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = TRUE, cores = 1, genome.build = "Ch37") {
 
   max.sites = 2000000 * 1.12
   min.sites = 4000 * 1.12
   
   # Chr1-ChrX
   chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
+  if (genome.build == "Ch37") {
+    
   seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+  
+  } else if (genome.build == "Ch38") {
+    
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+    
+  }
   
   # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
   mask.regions = readRDS(mask.regions.file)

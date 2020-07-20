@@ -4,8 +4,14 @@
 \alias{mutCovariate.snv.freq.table.muts}
 \title{Prepare covariates matrix for mutated sites in a specfic chromosome.}
 \usage{
-mutCovariate.snv.freq.table.muts(continuous.features, discrete.features,
-  precompute.motif.pos, nucleotide.selected, sample.specific.features, sites)
+mutCovariate.snv.freq.table.muts(
+  continuous.features,
+  discrete.features,
+  precompute.motif.pos,
+  nucleotide.selected,
+  sample.specific.features,
+  sites
+)
 }
 \arguments{
 \item{continuous.features}{Continuous epigenetic features selected for model fitting.}

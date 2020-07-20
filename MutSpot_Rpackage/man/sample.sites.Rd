@@ -4,25 +4,33 @@
 \alias{sample.sites}
 \title{Sample non-mutated sites and extract mutations in region of interest.}
 \usage{
-sample.sites(snv.mutations.file, indel.mutations.file,
-  mask.regions.file = system.file("extdata", "mask_regions.RDS", package =
-  "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package
-  = "MutSpot"), region.of.interest = NULL, sample = TRUE, cores = 1)
+sample.sites(
+  snv.mutations.file,
+  indel.mutations.file,
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
+  all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"),
+  region.of.interest = NULL,
+  sample = TRUE,
+  cores = 1,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{snv.mutations.file}{SNV mutations MAF file.}
 
 \item{indel.mutations.file}{Indel mutations MAF file.}
 
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.}
 
-\item{all.sites.file}{All sites in whole genome RDS file, default file = all_sites.RDS.}
+\item{all.sites.file}{All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.}
 
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
 
 \item{sample}{To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.}
 
 \item{cores}{Number of cores, default = 1.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 A list contatining SNV mutations in region of interest, sampled mutated and non-mutated SNV sites, indel mutations in region of interest and sampled mutated and non-mutated indel sites.

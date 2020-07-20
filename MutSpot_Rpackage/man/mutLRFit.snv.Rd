@@ -4,11 +4,17 @@
 \alias{mutLRFit.snv}
 \title{Fit logistic regression prediction model for SNV.}
 \usage{
-mutLRFit.snv(mutCovariate.table.snv.file, mutCovariate.count.snv.file,
+mutLRFit.snv(
+  mutCovariate.table.snv.file,
+  mutCovariate.count.snv.file,
   continuous.features.selected.snv.url.file,
-  discrete.features.selected.snv.url.file, nucleotide.selected.file,
-  sample.specific.features.url.file = NULL, fit.sparse = FALSE,
-  drop = FALSE, output.dir)
+  discrete.features.selected.snv.url.file,
+  nucleotide.selected.file,
+  sample.specific.features.url.file = NULL,
+  fit.sparse = FALSE,
+  drop = FALSE,
+  output.dir
+)
 }
 \arguments{
 \item{mutCovariate.table.snv.file}{RDS file, SNV covariates sparse matrix.}

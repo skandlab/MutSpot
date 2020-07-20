@@ -11,10 +11,11 @@
 #' @param cores Number of cores, default = 1.
 #' @param cutoff Frequency cutoff/threshold to determine epigenetic features used in prediction model, ranges from 0.5 to 1, default = 0.75.
 #' @param feature.dir Directory containing binned feature bed files.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return A list containing frequency of SNV epigenetic features selected through lasso, SNV continuous and discrete features that passed the threshold, frequency of indel epigenetic features selected through lasso, indel continuous and discrete features that passed the threshold.
 #' @export
 
-epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, cores = 1, cutoff = 0.75, feature.dir) {
+epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, cores = 1, cutoff = 0.75, feature.dir, genome.build = "Ch37") {
   
   # Bin bigwig files
   if (!is.null(genomic.features)) {
@@ -38,7 +39,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep = ""))
           
-          continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+          continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"], genome.build = genome.build)
           
           write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
@@ -74,7 +75,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
             
             print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep = ""))
             
-            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"], genome.build = genome.build)
             
              write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
             
@@ -110,7 +111,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
             
             print(paste("Binning ", continuous.features[x, "feature_name"], " into ", continuous.features[x, "nbins"], " bins", sep = ""))
             
-            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"])
+            continuous.features.binned = bin.continuous(feature.name = continuous.features[x, "feature_name"], feature.url = continuous.features[x, "file_path"], nbins = continuous.features[x, "nbins"], genome.build = genome.build)
             
             write.table(continuous.features.binned, file = paste(feature.dir, continuous.features[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
             
@@ -274,7 +275,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           print(paste("Binning ", fixed.continuous[x, "feature_name"], " into ", fixed.continuous[x, "nbins"], " bins", sep = ""))
           
-          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
+          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"], genome.build = genome.build)
           
           write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
@@ -354,7 +355,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           print(paste("Binning ", fixed.continuous[x, "feature_name"], " into ", fixed.continuous[x, "nbins"], " bins", sep = ""))
           
-          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
+          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"], genome.build = genome.build)
           
           write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           
@@ -414,7 +415,7 @@ epigenetic.selection = function(sampled.sites.snv.file, sampled.sites.indel.file
           
           print(paste("Binning ", fixed.continuous[x, "feature_name"], " into ", fixed.continuous[x, "nbins"], " bins", sep = ""))
           
-          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"])
+          fixed.continuous.binned = bin.continuous(feature.name = fixed.continuous[x, "feature_name"], feature.url = fixed.continuous[x, "file_path"], nbins = fixed.continuous[x, "nbins"], genome.build = genome.build)
           
           write.table(fixed.continuous.binned, file = paste(feature.dir, fixed.continuous[x, "feature_name"], ".bed", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
           

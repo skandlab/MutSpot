@@ -8,12 +8,13 @@
 #' @param color.dots Color hotspots that passed given FDR cutoff, default = maroon1.
 #' @param color.muts Color points, default = orange.
 #' @param top.no Number of top hotspots to plot, default = 3.
-#' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.
-#' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.
-#' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.
+#' @param promoter.file Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.
+#' @param utr3.file 3'UTR regions bed file, depends on genome build, default file = Ensembl75.3UTR.coding.bed, Ch37.
+#' @param utr5.file 5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.
 #' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
 #' @param debug To delete temporary files or not, default = FALSE.
 #' @param cores Number of cores, default = 1.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Dataframe containing predicted hotspots significance.
 #' @export
 
@@ -21,7 +22,7 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
                                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"),
                                  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), 
                                  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), 
-                                 other.annotations = NULL, debug = FALSE, cores = 1) {
+                                 other.annotations = NULL, debug = FALSE, cores = 1, genome.build = "Ch37") {
   
   if (!"temp-1.RDS" %in% list.files(output.dir)) {
     
@@ -71,7 +72,7 @@ mutPredict.snv.run.lr = function(output.dir, merge.hotspots = TRUE, snv.mutation
       x.idx = which(names(mut.regions) == x)[1]
       
       # Extract features for all sites in roi, note roi here is a GRange object, not GRangeList
-      roi.feat.snv = mutPredict.snv.get.features(GenomicRanges::reduce(mut.regions[x.idx]), continuous.selected.features.snv, discrete.selected.features.snv, sel.motif)
+      roi.feat.snv = mutPredict.snv.get.features(GenomicRanges::reduce(mut.regions[x.idx]), continuous.selected.features.snv, discrete.selected.features.snv, sel.motif, genome.build = genome.build)
       z=colnames(roi.feat.snv)[1]
       
       x.len.snv = nrow(roi.feat.snv)

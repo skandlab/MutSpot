@@ -4,7 +4,7 @@
 \alias{bin.continuous}
 \title{Divide continuous feature scores into specified number of bins.}
 \usage{
-bin.continuous(feature.name, feature.url, nbins)
+bin.continuous(feature.name, feature.url, nbins, genome.build = "Ch37")
 }
 \arguments{
 \item{feature.name}{Continuous feature name.}
@@ -12,6 +12,8 @@ bin.continuous(feature.name, feature.url, nbins)
 \item{feature.url}{URL of continuous feature.}
 
 \item{nbins}{Number of bins to divide continuous feature score into.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Binned continuous feature scores.

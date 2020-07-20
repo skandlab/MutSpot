@@ -4,8 +4,13 @@
 \alias{plot_feature_importance}
 \title{Plot feature importance.}
 \usage{
-plot_feature_importance(LRmodel, mutCovariate.table.file, mutation.type,
-  output.dir, feature.names)
+plot_feature_importance(
+  LRmodel,
+  mutCovariate.table.file,
+  mutation.type,
+  output.dir,
+  feature.names
+)
 }
 \arguments{
 \item{LRmodel}{Prediction model.}

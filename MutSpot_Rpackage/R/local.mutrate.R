@@ -2,10 +2,11 @@
 #' 
 #' @param snv.mutations.file SNV mutations MAF file.
 #' @param indel.mutations.file Indel mutations MAF file.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return A list containing binned SNV local mutation rates and binned indel local mutation rates.
 #' @export
 
-local.mutrate = function(snv.mutations.file, indel.mutations.file) {
+local.mutrate = function(snv.mutations.file, indel.mutations.file, genome.build = "Ch37") {
   # local.mutrate = function(snv.mutations.file, indel.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "mutrec2"), cores = 1){
     
   # If SNV mutations available, else skip this
@@ -17,7 +18,15 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file) {
     maf.snv.mutations <- maf.to.granges(snv.mutations.file)
     
     # Chr1-ChrX
+    if (genome.build == "Ch37") {
+      
     seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.snv.mutations)))]
+    
+    } else if (genome.build == "Ch38") {
+      
+      seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.snv.mutations)))]
+      
+    }
     nind.snv = length(unique(maf.snv.mutations$sid))
     
     # Tile genome into equally sized bins (100Kb)
@@ -82,7 +91,15 @@ local.mutrate = function(snv.mutations.file, indel.mutations.file) {
     maf.indel.mutations <- maf.to.granges(indel.mutations.file)
     
     # Chr1-ChrX
+    if (genome.build == "Ch37") {
+      
     seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.indel.mutations)))]
+    
+    } else if (genome.build == "Ch38") {
+      
+      seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[intersect(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23], as.character(GenomeInfoDb::seqnames(maf.indel.mutations)))]
+      
+    }
     nind.indel = length(unique(maf.indel.mutations$sid))
     
     # Tile genome into equally sized bins (100kb)

@@ -18,6 +18,7 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 <br/>[Step 5: Compute feature matrix](#compute-feature-matrix)
 <br/>[Step 6: Fit prediction model](#fit-prediction-model)
 <br/>[Step 7: Predict hotspots](#predict-hotspots)
+<br/>[Power of size of sampled sites](#dilution-analysis)
 
 ------------------------------------------------------------------------------------
 
@@ -71,6 +72,8 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 | color.muts | String | Color points in individual hotspot plot | orange |
 | top.no | Numeric | Number of top hotspots to visualize individually | 3 |
 | debug | Logical | To keep intermediate output files or not | FALSE |
+| dilution.analysis | To run dilution test or not | FALSE |
+| genome.build | Reference genome build | Ch37 |
 
 ----------------------------------------------------------------------------------
 
@@ -85,6 +88,8 @@ Reference: [Guo et al., Nature Communications, 2018](https://www.nature.com/arti
 | 5 | 5.1, 5.2, 5.3, 5.4, 5.5 |
 | 6 | 6 |
 | 7 | 7 |
+
+To run MutSpot on genome assembly Ch38 instead of Ch37, please specify *genome.build = "Ch38"* in the *MutSpot()* function.
 
 ------------------------------------------------------------------------------------
 
@@ -378,5 +383,26 @@ Output generated in Step 7:
 | indel_hotspots_annotated.tsv | Indel hotspots with annotated regions | Chromosome, Start position, End position, P-value, Length of hotspot, Background p-value, Number of mutated samples, FDR, Promoter, 3'UTR, 5'UTR |
 | indel_manhattan.pdf | Each point represents a hotspot. Colored ones are significant. Line represents FDR cutoff. Y-axis shows log p-value and x-axis shows genomic position | | |
 | indel_hotspot_*.pdf | Each point represents a hotspot. Colored ones are significant. Line represents FDR cutoff. Y-axis shows log p-value and x-axis shows genomic position | | |
+
+----------------------------------------------------------------------------------------------------
+
+<a name="dilution-analysis"></a>
+
+#### Power of size of sampled sites
+
+To test the power of different sizes of sampled sites, users may choose to run an additional analysis which runs feature selection and model fitting on samples of size 20%, 40%, 60%, 80% and 100% of sampled sites (subsamples). It can be run by specifying *run.to = NULL* and *dilution.analysis = TRUE*.
+
+```{r}
+MutSpot(run.to = NULL, snv.mutations = "subset_snv_mutations_sid.MAF", indel.mutations = "subset_indel_mutations_sid.MAF", region.of.interest = "gastric_ctcf_motif.bed", cores = 2, genomic.features = "genomic_features_ctcf.txt", sample.snv.features = "sample_features_table_snv.txt", sample.indel.features = "sample_features_table_indel.txt", dilution.analysis = TRUE)
+```
+
+
+Output generated from this power analysis:
+
+| Filename | Description | Required fields |
+|----------|-------------|-----------------|
+| dilution_R2.pdf | Line plot of McFadden's R2 for each subsample's model | | |
+| number_features_selected_line.pdf | Line plot of the number of nucleotide/epigenomic features selected by LASSO for each subsample | | |
+| stability_freq_heatmap.pdf | Heatmap of LASSO stability frequency of the nucleotide/epigenomic features selected for each subsample | | |
 
 ----------------------------------------------------------------------------------------------------

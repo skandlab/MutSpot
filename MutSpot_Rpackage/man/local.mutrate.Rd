@@ -4,12 +4,14 @@
 \alias{local.mutrate}
 \title{Calculate local mutation rate.}
 \usage{
-local.mutrate(snv.mutations.file, indel.mutations.file)
+local.mutrate(snv.mutations.file, indel.mutations.file, genome.build = "Ch37")
 }
 \arguments{
 \item{snv.mutations.file}{SNV mutations MAF file.}
 
 \item{indel.mutations.file}{Indel mutations MAF file.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 A list containing binned SNV local mutation rates and binned indel local mutation rates.

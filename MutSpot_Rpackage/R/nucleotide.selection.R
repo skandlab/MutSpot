@@ -4,10 +4,11 @@
 #' @param indel.mutations.file Indel mutations MAF file.
 #' @param cutoff Frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1, default = 0.90.
 #' @param cores Number of cores, default = 1.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return A list containing frequency of nucleotide contexts selected through lasso, nucleotide contexts that passed the threshold and polyATs filtered indel mutations.
 #' @export
 
-nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cutoff = 0.90, cores = 1) {
+nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cutoff = 0.90, cores = 1, genome.build = "Ch37") {
   
   # If SNV mutations available, else skip this
   if (!is.null(sampled.sites.snv.file)) {
@@ -21,7 +22,15 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     gr2 = GenomicRanges::GRanges(as.character(GenomeInfoDb::seqnames(gr)), IRanges::IRanges(IRanges::start(gr)-2, IRanges::end(gr)+2), mut = gr$mut)
     
     # Extract sequence for all sites in gr2
+    if (genome.build == "Ch37") {
+      
     extrSeq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg19::Hsapiens,gr2)
+    
+    } else if (genome.build == "Ch38") {
+      
+      extrSeq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg38::Hsapiens,gr2)
+      
+    }
     dnaSeq = GenomicRanges::as.data.frame(gr2)
     z = as(extrSeq,"DNAStringSet") 
     dnaSeq = cbind(dnaSeq, as.character(z))
@@ -156,7 +165,15 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     
     # Chr1-ChrX
     chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
+    if (genome.build == "Ch37") {
+      
     seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+    
+    } else if (genome.build == "Ch38") {
+
+      seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+      
+    }
     
     # Define indel mutations
     maf.mutations <- maf.to.granges(indel.mutations.file)
@@ -166,7 +183,15 @@ nucleotide.selection = function(sampled.sites.snv.file, indel.mutations.file, cu
     maf.mutations = maf.mutations+9
     
     # Extract sequence for all sites in maf.mutations
+    if (genome.build == "Ch37") {
+      
     extrSeq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg19::Hsapiens, maf.mutations)
+    
+    } else if (genome.build == "Ch38") {
+      
+      extrSeq = IRanges::Views(BSgenome.Hsapiens.UCSC.hg38::Hsapiens, maf.mutations)
+      
+    }
     z = as(extrSeq, "DNAStringSet") 
     dnaSeq = GenomicRanges::as.data.frame(maf.mutations)
     dnaSeq$dna = as.character(z)

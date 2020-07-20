@@ -1,23 +1,33 @@
 #' Compile covariates matrix for all chromosomes together.
 #' 
-#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
-#' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
+#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.
+#' @param all.sites.file All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.
 #' @param snv.mutations.file SNV mutations found in region of interest MAF file.
 #' @param sample.specific.features.url.file Text file containing sample specific SNV features, default = NULL.
 #' @param region.of.interest Region of interest bed file, default = NULL.
 #' @param cores Number of cores, default = 1.
 #' @param snv.mutations.file2 SNV mutations MAF file.
 #' @param chrom.dir Directory containing feature matrix of each chromosome.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Full covariates matrix for all chromosomes together.
 #' @export
 
-mutCovariate.snv.compile = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), snv.mutations.file, sample.specific.features.url.file = NULL, region.of.interest, cores = 1, snv.mutations.file2, chrom.dir){
+mutCovariate.snv.compile = function(mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), snv.mutations.file, sample.specific.features.url.file = NULL, region.of.interest, cores = 1, snv.mutations.file2, chrom.dir, genome.build = "Ch37"){
 
   # Chr1-X
   chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+  if (genome.build == "Ch37") {
+    
 seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
 seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
 
+  } else if (genome.build == "Ch38") {
+  
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+    seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23]
+    
+  }
+  
 # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
 mask.regions = readRDS(mask.regions.file)
 mask.regions = mask.regions[as.character(GenomeInfoDb::seqnames(mask.regions)) %in% seqnames]

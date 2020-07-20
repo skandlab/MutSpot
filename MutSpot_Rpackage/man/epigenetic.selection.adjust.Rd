@@ -4,15 +4,22 @@
 \alias{epigenetic.selection.adjust}
 \title{Select epigentic features through LASSO.}
 \usage{
-epigenetic.selection.adjust(feature.stabs.snv.file, feature.stabs.indel.file,
+epigenetic.selection.adjust(
+  feature.stabs.snv.file,
+  feature.stabs.indel.file,
   continuous.features.selected.snv.url.file,
   discrete.features.selected.snv.url.file,
   continuous.features.selected.indel.url.file,
-  discrete.features.selected.indel.url.file, new.cutoff.snv, new.cutoff.indel,
-  top.features = NULL, features.sds,
+  discrete.features.selected.indel.url.file,
+  new.cutoff.snv,
+  new.cutoff.indel,
+  top.features = NULL,
+  features.sds,
   genomic.features.snv = genomic.features.snv,
   genomic.features.indel = genomic.features.indel,
-  genomic.features = genomic.features, feature.dir = feature.dir)
+  genomic.features = genomic.features,
+  feature.dir = feature.dir
+)
 }
 \arguments{
 \item{feature.stabs.snv.file}{RDS file containing frequency of SNV epigenetic features selected through lasso.}

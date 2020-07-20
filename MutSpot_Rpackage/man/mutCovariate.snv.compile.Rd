@@ -4,16 +4,22 @@
 \alias{mutCovariate.snv.compile}
 \title{Compile covariates matrix for all chromosomes together.}
 \usage{
-mutCovariate.snv.compile(mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"),
-  all.sites.file = system.file("extdata", "all_sites.RDS", package =
-  "MutSpot"), snv.mutations.file, sample.specific.features.url.file = NULL,
-  region.of.interest, cores = 1, snv.mutations.file2, chrom.dir)
+mutCovariate.snv.compile(
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
+  all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"),
+  snv.mutations.file,
+  sample.specific.features.url.file = NULL,
+  region.of.interest,
+  cores = 1,
+  snv.mutations.file2,
+  chrom.dir,
+  genome.build = "Ch37"
+)
 }
 \arguments{
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.}
 
-\item{all.sites.file}{All sites in whole genome RDS file, default file = all_sites.RDS.}
+\item{all.sites.file}{All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.}
 
 \item{snv.mutations.file}{SNV mutations found in region of interest MAF file.}
 
@@ -26,6 +32,8 @@ mutCovariate.snv.compile(mask.regions.file = system.file("extdata",
 \item{snv.mutations.file2}{SNV mutations MAF file.}
 
 \item{chrom.dir}{Directory containing feature matrix of each chromosome.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Full covariates matrix for all chromosomes together.

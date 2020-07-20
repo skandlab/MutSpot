@@ -4,8 +4,12 @@
 \alias{create.lasso.input}
 \title{Create covariates and response matrices as input for LASSO.}
 \usage{
-create.lasso.input(sampled.sites.file, genomic.features.file, mutation.type,
-  cores = 1)
+create.lasso.input(
+  sampled.sites.file,
+  genomic.features.file,
+  mutation.type,
+  cores = 1
+)
 }
 \arguments{
 \item{sampled.sites.file}{Sampled mutated and non-mutated sites RDS file.}

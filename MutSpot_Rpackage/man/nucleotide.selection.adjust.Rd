@@ -4,8 +4,11 @@
 \alias{nucleotide.selection.adjust}
 \title{Select nucleotide context for SNVs after adjusting threshold.}
 \usage{
-nucleotide.selection.adjust(nucleotide.stabs.file, new.cutoff,
-  top.nucleotide = NULL)
+nucleotide.selection.adjust(
+  nucleotide.stabs.file,
+  new.cutoff,
+  top.nucleotide = NULL
+)
 }
 \arguments{
 \item{nucleotide.stabs.file}{RDS file containing frequency of nucleotide contexts selected through lasso.}

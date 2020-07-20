@@ -1,9 +1,9 @@
 #' Hotspots annotation.
 #'
 #' @param hotspots.file Hotspots to be annotated.
-#' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.
-#' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.
-#' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.
+#' @param promoter.file Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.
+#' @param utr3.file 3'UTR regions bed file, depends on genome build, default file = Ensembl75.3UTR.coding.bed, Ch37.
+#' @param utr5.file 5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.
 #' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
 #' @return Annotated hotspots.
 #' @export

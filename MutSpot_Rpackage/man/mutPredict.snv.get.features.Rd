@@ -4,8 +4,13 @@
 \alias{mutPredict.snv.get.features}
 \title{Mutation hotspot recurrence prediction for SNV.}
 \usage{
-mutPredict.snv.get.features(roi, continuous.features.snv, discrete.features.snv,
-  motifs)
+mutPredict.snv.get.features(
+  roi,
+  continuous.features.snv,
+  discrete.features.snv,
+  motifs,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{roi}{Each SNV hotspot in GRanges.}
@@ -15,6 +20,8 @@ mutPredict.snv.get.features(roi, continuous.features.snv, discrete.features.snv,
 \item{discrete.features.snv}{Full scores list of SNV discrete features selected for model.}
 
 \item{motifs}{Selected nucleotide contexts to be extracted.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Feature matrix.

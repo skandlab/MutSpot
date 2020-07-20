@@ -4,17 +4,27 @@
 \alias{mutPredict.indel.prepare}
 \title{Mutation hotspot recurrence prediction for indel.}
 \usage{
-mutPredict.indel.prepare(mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"),
+mutPredict.indel.prepare(
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
   continuous.features.selected.indel.url.file,
   discrete.features.selected.indel.url.file,
-  sample.specific.features.url.file = NULL, indel.mutations.file,
-  indel.mutations.file2, indel.model.file, collapse.regions = FALSE,
-  region.of.interest, cores = 1, min.count = 2, hotspot.size = 21,
-  genome.size = 2533374732, hotspots = TRUE, output.dir)
+  sample.specific.features.url.file = NULL,
+  indel.mutations.file,
+  indel.mutations.file2,
+  indel.model.file,
+  collapse.regions = FALSE,
+  region.of.interest,
+  cores = 1,
+  min.count = 2,
+  hotspot.size = 21,
+  genome.size = 2533374732,
+  hotspots = TRUE,
+  output.dir,
+  genome.build = "Ch37"
+)
 }
 \arguments{
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.}
 
 \item{continuous.features.selected.indel.url.file}{Text file containing URLs of indel continuous features selected for model.}
 
@@ -38,11 +48,13 @@ mutPredict.indel.prepare(mask.regions.file = system.file("extdata",
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Genome size, default = 2533374732.}
+\item{genome.size}{Genome size, depends on genome build, default = 2533374732, Ch37.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
 \item{output.dir}{Save plot in given output directory.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Prepare intermediate files for hotspot prediction.

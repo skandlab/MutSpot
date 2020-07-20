@@ -4,24 +4,39 @@
 \alias{mutPredict.indel}
 \title{Mutation hotspot recurrence prediction for indel.}
 \usage{
-mutPredict.indel(mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"),
+mutPredict.indel(
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
   continuous.features.selected.indel.url.file,
   discrete.features.selected.indel.url.file,
-  sample.specific.features.url.file = NULL, indel.mutations.file,
-  indel.mutations.file2, indel.model.file, collapse.regions = FALSE,
-  region.of.interest, cores = 1, min.count = 2, hotspot.size = 21,
-  genome.size = 2533374732, hotspots = TRUE, merge.hotspots = TRUE,
-  output.dir, fdr.cutoff = 0.05, color.line = "red",
-  color.dots = "maroon1", color.muts = "orange", top.no = 3,
-  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
-  package = "MutSpot"), utr3.file = system.file("extdata",
-  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
-  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
-  "MutSpot"), other.annotations = NULL, debug = FALSE)
+  sample.specific.features.url.file = NULL,
+  indel.mutations.file,
+  indel.mutations.file2,
+  indel.model.file,
+  collapse.regions = FALSE,
+  region.of.interest,
+  cores = 1,
+  min.count = 2,
+  hotspot.size = 21,
+  genome.size = 2533374732,
+  hotspots = TRUE,
+  merge.hotspots = TRUE,
+  output.dir,
+  fdr.cutoff = 0.05,
+  color.line = "red",
+  color.dots = "maroon1",
+  color.muts = "orange",
+  top.no = 3,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package =
+    "MutSpot"),
+  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"),
+  other.annotations = NULL,
+  debug = FALSE,
+  genome.build = "Ch37"
+)
 }
 \arguments{
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.}
 
 \item{continuous.features.selected.indel.url.file}{Text file containing URLs of indel continuous features selected for model.}
 
@@ -45,7 +60,7 @@ mutPredict.indel(mask.regions.file = system.file("extdata",
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Genome size, default = 2533374732.}
+\item{genome.size}{Genome size, depends on genome build, default = 2533374732, Ch37.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
@@ -63,15 +78,17 @@ mutPredict.indel(mask.regions.file = system.file("extdata",
 
 \item{top.no}{Number of top hotspots to plot, default = 3.}
 
-\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
+\item{promoter.file}{Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.}
 
-\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.}
+\item{utr3.file}{3'UTR regions bed file, depends on genome build, default file = Ensembl75.3UTR.coding.bed, Ch37.}
 
-\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.}
+\item{utr5.file}{5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.}
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 
 \item{debug}{To delete temporary files or not, default = FALSE.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Dataframe containing predicted hotspots significance with hotspots information for indel/merged/annotated and hotspots manhattan and top hits figures.

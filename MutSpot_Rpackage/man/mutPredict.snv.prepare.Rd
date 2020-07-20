@@ -4,17 +4,28 @@
 \alias{mutPredict.snv.prepare}
 \title{Run mutation recurrence for SNV.}
 \usage{
-mutPredict.snv.prepare(mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"), nucleotide.selected.file,
+mutPredict.snv.prepare(
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
+  nucleotide.selected.file,
   continuous.features.selected.snv.url.file,
   discrete.features.selected.snv.url.file,
-  sample.specific.features.url.file = NULL, snv.mutations.file,
-  snv.mutations.file2, collapse.regions = FALSE, region.of.interest,
-  cores = 1, snv.model.file, min.count = 2, hotspot.size = 21,
-  genome.size = 2533374732, hotspots = TRUE, output.dir)
+  sample.specific.features.url.file = NULL,
+  snv.mutations.file,
+  snv.mutations.file2,
+  collapse.regions = FALSE,
+  region.of.interest,
+  cores = 1,
+  snv.model.file,
+  min.count = 2,
+  hotspot.size = 21,
+  genome.size = 2533374732,
+  hotspots = TRUE,
+  output.dir,
+  genome.build = "Ch37"
+)
 }
 \arguments{
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.}
 
 \item{nucleotide.selected.file}{Nucleotide context selected for model RDS file.}
 
@@ -40,11 +51,13 @@ mutPredict.snv.prepare(mask.regions.file = system.file("extdata",
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Genome size, default = 2533374732.}
+\item{genome.size}{Genome size, depends on genome build, default = 2533374732, Ch37.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
 \item{output.dir}{Save temporary files in given output directory.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Prepare intermediate files for hotspot prediction.

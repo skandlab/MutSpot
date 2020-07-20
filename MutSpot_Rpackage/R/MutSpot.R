@@ -5,8 +5,8 @@
 #' @param chromosomes Character vector defining which chromosomes to compute feature matrix on, default = chr1-chrX.
 #' @param snv.mutations SNV mutations MAF file, default = NULL.
 #' @param indel.mutations Indel mutations MAF file, default = NULL.
-#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
-#' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
+#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default = mask_regions.RDS, Ch37.
+#' @param all.sites.file All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.
 #' @param region.of.interest Region of interest bed file, default = NULL.
 #' @param sample To sample for non-mutated sites or to use all sites in region of interest, default = TRUE.
 #' @param cores Number of cores, default = 1.
@@ -30,12 +30,12 @@
 #' @param min.count.snv Minimum number of mutated samples in each SNV hotspot, default = 2.
 #' @param min.count.indel Minimum number of mutated samples in each indel hotspot, default = 2.
 #' @param hotspot.size Size of each hotspot, default = 21.
-#' @param genome.size Genome size, default = 2533374732.
+#' @param genome.size Genome size, depends on genome build, default = 2533374732, Ch37.
 #' @param hotspots To run hotspot analysis or region-based analysis, default = TRUE.
 #' @param collapse.regions To collapse region of interest or not, default = FALSE.
-#' @param promoter.file Promoter regions bed file, default file = Ensembl75.promoters.coding.bed
-#' @param utr3.file 3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed
-#' @param utr5.file 5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed
+#' @param promoter.file Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.
+#' @param utr3.file 3'UTR regions bed file, depends on genome.build, default file = Ensembl75.3UTR.coding.bed, Ch37.
+#' @param utr5.file 5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.
 #' @param other.annotations Text file containing URLs of additional regions to be annotated, default = NULL.
 #' @param fdr.cutoff FDR cutoff, default = 0.05.
 #' @param color.line Color given FDR cutoff, default = red.
@@ -45,13 +45,26 @@
 #' @param top.no Number of top hotspots to plot, default = 3.
 #' @param debug To keep intermediate output files or not, default = FALSE.
 #' @param dilution.analysis To run dilution test or not, default = FALSE.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Corresponding output from each step in MutSpot analysis.
 #' @export
 
 MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7), working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL, indel.mutations = NULL, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"), all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"), region.of.interest = NULL, sample = T, cores = 1, cutoff.nucleotide = 0.90, cutoff.nucleotide.new = NULL, top.nucleotide = NULL, genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, sample.snv.features = NULL, sample.indel.features = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL, top.features = NULL, fit.sparse = FALSE, drop = FALSE, min.count.snv = 2, min.count.indel = 2, hotspot.size = 21, genome.size = 2533374732, hotspots = TRUE, collapse.regions = FALSE,
-                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE,dilution.analysis = FALSE) {
+                  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package = "MutSpot"), utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"), utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05, color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE, color.muts = "orange", top.no = 3, debug = FALSE, dilution.analysis = FALSE, genome.build = "Ch37") {
   
-  # set working directory
+  # Set default files according to genome.build
+  if (genome.build == "Ch38") {
+    
+  mask.regions.file = system.file("extdata", "mask_regions_hg38.RDS", package = "MutSpot")
+  all.sites.file = system.file("extdata", "all_sites_hg38.RDS", package = "MutSpot")
+  genome.size = 2797357708
+  promoter.file = system.file("extdata", "promoter_hg38.bed", package = "MutSpot")
+  utr3.file = system.file("extdata", "utr3_hg38.bed", package = "MutSpot")
+  utr5.file = system.file("extdata", "utr5_hg38.bed", package = "MutSpot")
+  
+  }
+  
+  # Set working directory
   if (is.null(working.dir)) {
     
     working.dir = getwd()
@@ -101,11 +114,17 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
       install.packages("BiocManager")
       
     }
-    if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+    if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch37") {
       
       print("install [BSgenome.Hsapiens.UCSC.hg19]")
       BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
 
+    }
+    if ("BSgenome.Hsapiens.UCSC.hg38" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch38") {
+      
+      print("install [BSgenome.Hsapiens.UCSC.hg38]")
+      BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
+      
     }
     if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
       
@@ -122,11 +141,18 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
     
       } else if(grepl("R version 3.2", R.Version()$version.string)) {
         
-        if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+        if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch37") {
           
           print("install [BSgenome.Hsapiens.UCSC.hg19]")
           source("http://bioconductor.org/biocLite.R")
           biocLite("BSgenome.Hsapiens.UCSC.hg19")
+          
+        }
+        if ("BSgenome.Hsapiens.UCSC.hg38" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch38") {
+          
+          print("install [BSgenome.Hsapiens.UCSC.hg38]")
+          source("http://bioconductor.org/biocLite.R")
+          biocLite("BSgenome.Hsapiens.UCSC.hg38")
           
         }
         if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
@@ -146,12 +172,19 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
         
       } else {
     
-  if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE) {
+  if ("BSgenome.Hsapiens.UCSC.hg19" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch37") {
     
     print("install [BSgenome.Hsapiens.UCSC.hg19]")
     source("https://bioconductor.org/biocLite.R")
     biocLite("BSgenome.Hsapiens.UCSC.hg19")
     
+  }
+  if ("BSgenome.Hsapiens.UCSC.hg38" %in% rownames(installed.packages()) == FALSE & genome.build == "Ch38") {
+          
+          print("install [BSgenome.Hsapiens.UCSC.hg38]")
+          source("https://bioconductor.org/biocLite.R")
+          biocLite("BSgenome.Hsapiens.UCSC.hg38")
+          
   }
   if("Biostrings" %in% rownames(installed.packages()) == FALSE) {
     
@@ -221,7 +254,15 @@ if (substr(working.dir, nchar(working.dir), nchar(working.dir)) != "/") {
   
   ## Load all required packages ##
   suppressWarnings(suppressMessages(library(Biostrings)))
+  if (genome.build == "Ch37") {
+    
   suppressWarnings(suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19)))
+    
+  } else if (genome.build == "Ch38") {
+    
+    suppressWarnings(suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38)))
+    
+  }
   suppressWarnings(suppressMessages(library(GenomicRanges)))
   suppressWarnings(suppressMessages(library(data.table)))
   suppressWarnings(suppressMessages(library(ggplot2)))
@@ -245,7 +286,7 @@ if (1 %in% run.to) {
     
   print("Sample sites from SNV/indel")
   
-sample_sites = sample.sites(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations, mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, region.of.interest = region.of.interest, sample = sample, cores = cores)
+sample_sites = sample.sites(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations, mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, region.of.interest = region.of.interest, sample = sample, cores = cores, genome.build = genome.build)
 
 # Save SNV mutations in specified region as MAF file
 if (!is.null(sample_sites[[1]])) {
@@ -359,7 +400,7 @@ local.mutrate.indel.file = paste(features.dir, "localmutrate_indel.bed", sep = "
     
     print("Calculate local mutation rates for SNV/indel")
     
-local_mutrate = local.mutrate(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations)
+local_mutrate = local.mutrate(snv.mutations.file = snv.mutations, indel.mutations.file = indel.mutations, genome.build = genome.build)
 
 # Save binned SNV local mutation rate as bed file
 if (!is.null(local_mutrate[[1]])) {
@@ -390,7 +431,7 @@ if (3.1 %in% run.to) {
   
   print("Select nucleotide context for SNV and filter polyAT from indel")
     
-nucleotide_selection = nucleotide.selection(sampled.sites.snv.file = sampled.sites.snv.file, indel.mutations.file = indel.mutations.int, cutoff = cutoff.nucleotide, cores = cores)
+nucleotide_selection = nucleotide.selection(sampled.sites.snv.file = sampled.sites.snv.file, indel.mutations.file = indel.mutations.int, cutoff = cutoff.nucleotide, cores = cores, genome.build = genome.build)
 
 # # Check for need to change threshold
 # print(head(nucleotide_selection[[1]][order(nucleotide_selection[[1]]$f, decreasing=TRUE), ]))
@@ -466,7 +507,7 @@ if (4.1 %in% run.to) {
   print("Select epigenetic features for SNV/indel")
   
     ## Step 4I ##
-epigenetic_selection = epigenetic.selection(sampled.sites.snv.file = sampled.sites.snv.file, sampled.sites.indel.file = sampled.sites.indel.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv, genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed, cores = cores, cutoff = cutoff.features, feature.dir = features.dir)
+epigenetic_selection = epigenetic.selection(sampled.sites.snv.file = sampled.sites.snv.file, sampled.sites.indel.file = sampled.sites.indel.file, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel, genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv, genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed, cores = cores, cutoff = cutoff.features, feature.dir = features.dir, genome.build = genome.build)
 
 # Check for need to change threshold for SNVs
 # if (!is.null(epigenetic_selection[[1]])) {
@@ -754,8 +795,17 @@ if (5.1 %in% run.to) {
     
     # Chr1-X
     chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+    if (genome.build == "Ch37") {
+      
     seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
     seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    
+    } else if (genome.build == "Ch38") {
+      
+      seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+      seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23]
+      
+    }
     
     # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
     mask.regions = readRDS(mask.regions.file)
@@ -885,7 +935,15 @@ if (5.1 %in% run.to) {
     # Tabulate covariates for mutations
     GenomeInfoDb::seqlevels(mut.masked) = as.character(unique(GenomeInfoDb::seqnames(mut.masked)))
     mut.chr = GenomicRanges::split(mut.masked, GenomeInfoDb::seqnames(mut.masked))
+    if (genome.build == "Ch37") {
+      
     chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
+    
+    } else if (genome.build == "Ch38") {
+
+      chrs <- names(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]
+      
+    }
     mut.chr = mut.chr[names(mut.chr) %in% chrs]
     
     for (chr.interest in paste("chr", chromosomes, sep="")) {
@@ -918,30 +976,74 @@ if (5.1 %in% run.to) {
           print(paste(chr.interest, nucleotide.selected[i, "sequence"], nucleotide.selected[i, "type"], sep = ":"))
           if (nucleotide.selected$type[i] %in% c("oneMer", "threeMer", "fiveMer")) {
             
+            if (genome.build == "Ch37") {
+              
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] <- unique(c(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])), BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))))
+            
+            } else if (genome.build == "Ch38") {
+              
+              precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] <- unique(c(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]])), BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]]))))
+              
+            }
             
           } else if (nucleotide.selected$type[i] == "threeRight") {
             
+            if (genome.build == "Ch37") {
+              
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 1
+            
+            } else if (genome.build == "Ch38") {
+              
+              a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]])))
+              b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]]))) + 1
+              
+            }
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
             
           } else if (nucleotide.selected$type[i] == "threeLeft") {
             
+            if (genome.build == "Ch37") {
+              
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 1
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            
+            } else if (genome.build == "Ch38") {
+              
+              a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]]))) + 1
+              b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]])))
+              
+            }
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
             
           }  else if (nucleotide.selected$type[i] == "fiveRight") {
             
+            if (genome.build == "Ch37") {
+              
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 2
+            
+            } else if (genome.build == "Ch38") {
+              
+              a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]])))
+              b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]]))) + 2
+              
+            }
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
             
           } else if (nucleotide.selected$type[i] == "fiveLeft") {
             
+            if (genome.build == "Ch37") {
+              
             a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]]))) + 2
             b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[chr.interest]])))
+            
+            } else if (genome.build == "Ch38") {
+              
+              a <- unique(BSgenome::start(Biostrings::matchPattern(nucleotide.selected[i, "sequence"], BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]]))) + 2
+              b <- unique(BSgenome::start(Biostrings::matchPattern(as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(nucleotide.selected[i, "sequence"]))), BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[chr.interest]])))
+              
+            }
             precompute.motif.pos[[paste(nucleotide.selected[i, "type"], nucleotide.selected[i, "sequence"], sep = "")]] = unique(c(a, b))
             
           }
@@ -1015,8 +1117,17 @@ if (5.1 %in% run.to) {
     indel.mutations.file2 = indel.mutations
     
     chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+    if (genome.build == "Ch37") {
+      
     seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
     seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+    
+    } else if (genome.build == "Ch38") {
+      
+      seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+      seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23]
+      
+    }
     
     # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
     mask.regions = readRDS(mask.regions.file)
@@ -1040,7 +1151,15 @@ if (5.1 %in% run.to) {
     }
     
     # Extract all polyA, poly C, poly G and poly T positions in a specific chromosome
+    if (genome.build == "Ch37") {
+      
     chrs <- names(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]
+    
+    } else if (genome.build == "Ch38") {
+      
+      chrs <- names(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]
+      
+    }
     
     # Read feature file paths
     if (!is.null(continuous.features.selected.indel.url.file)) {
@@ -1160,8 +1279,17 @@ if (5.1 %in% run.to) {
     
     for (chr.interest in paste("chr", chromosomes, sep="")) {
       
+      if (genome.build == "Ch37") {
+        
       polyA <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("AAAAA",
                                                                                          BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      
+      } else if (genome.build == "Ch38") {
+        
+        polyA <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("AAAAA",
+                                                                                           BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[x]])))
+        
+      }
       names(polyA) <- chr.interest
       polyAs = parallel::mclapply(chr.interest, FUN = function(x) {
         
@@ -1172,8 +1300,17 @@ if (5.1 %in% run.to) {
       }, mc.cores = cores)
       polyAs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyAs))
       
+      if (genome.build == "Ch37") {
+        
       polyC <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("CCCCC",
                                                                                          BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      
+      } else if (genome.build == "Ch38") {
+        
+        polyC <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("CCCCC",
+                                                                                           BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[x]])))
+        
+      }
       names(polyC) <- chr.interest
       polyCs = parallel::mclapply(chr.interest, FUN = function(x) {
         
@@ -1184,8 +1321,17 @@ if (5.1 %in% run.to) {
       }, mc.cores = cores)
       polyCs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyCs))
       
+      if (genome.build == "Ch37") {
+        
       polyG <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("GGGGG",
                                                                                          BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      
+      } else if (genome.build == "Ch38") {
+        
+        polyG <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("GGGGG",
+                                                                                           BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[x]])))
+        
+      }
       names(polyG) <- chr.interest
       polyGs = parallel::mclapply(chr.interest, FUN = function(x) {
         
@@ -1196,8 +1342,17 @@ if (5.1 %in% run.to) {
       }, mc.cores = cores)
       polyGs = BiocGenerics::unlist(GenomicRanges::GRangesList(polyGs))
       
+      if (genome.build == "Ch37") {
+        
       polyT <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("TTTTT",
                                                                                          BSgenome.Hsapiens.UCSC.hg19::Hsapiens[[x]])))
+      
+      } else if (genome.build == "Ch38") {
+        
+        polyT <- lapply(chr.interest, function(x) BSgenome::start(Biostrings::matchPattern("TTTTT",
+                                                                                           BSgenome.Hsapiens.UCSC.hg38::Hsapiens[[x]])))
+        
+      }
       names(polyT) <- chr.interest
       polyTs = parallel::mclapply(chr.interest, FUN = function(x) {
         
@@ -1281,7 +1436,7 @@ if (5.2 %in% run.to) {
   
   if ((!is.null(continuous.features.selected.snv.url.file) | !is.null(discrete.features.selected.snv.url.file) | !is.null(sample.snv.features) | !is.null(nucleotide.selected.file)) & !is.null(sampled.sites.snv.file)) {
   
-mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, snv.mutations.file = snv.mutations.int, sample.specific.features.url.file = sample.snv.features, region.of.interest = region.of.interest, cores = cores, snv.mutations.file2 = snv.mutations, chrom.dir = output.dir)
+mutCovariate_snv_compile = mutCovariate.snv.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, snv.mutations.file = snv.mutations.int, sample.specific.features.url.file = sample.snv.features, region.of.interest = region.of.interest, cores = cores, snv.mutations.file2 = snv.mutations, chrom.dir = output.dir, genome.build = genome.build)
 
 saveRDS(mutCovariate_snv_compile, file = mutCovariate.snv.output.file)
 
@@ -1333,7 +1488,7 @@ if (5.4 %in% run.to) {
   
   if ((!is.null(continuous.features.selected.indel.url.file) | !is.null(discrete.features.selected.indel.url.file) | !is.null(sample.indel.features)) & !is.null(sampled.sites.indel.file)) {
     
-mutCovariate_indel_compile = mutCovariate.indel.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, indel.mutations.file = indel.mutations.int, sample.specific.features.url.file = sample.indel.features, region.of.interest = region.of.interest, cores = cores, indel.mutations.file2 = indel.mutations, chrom.dir = output.dir)
+mutCovariate_indel_compile = mutCovariate.indel.compile(mask.regions.file = mask.regions.file, all.sites.file = all.sites.file, indel.mutations.file = indel.mutations.int, sample.specific.features.url.file = sample.indel.features, region.of.interest = region.of.interest, cores = cores, indel.mutations.file2 = indel.mutations, chrom.dir = output.dir, genome.build = genome.build)
 
 saveRDS(mutCovariate_indel_compile, file = mutCovariate.indel.output.file)
 
@@ -1538,7 +1693,7 @@ if (7 %in% run.to) {
                          fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
                          promoter.file = promoter.file, 
                          utr3.file = utr3.file, utr5.file = utr5.file,
-                         other.annotations = other.annotations, debug = debug)
+                         other.annotations = other.annotations, debug = debug, genome.build = genome.build)
 
   if(!is.null(results.snv[[1]])) {
     
@@ -1568,7 +1723,7 @@ results.indel = mutPredict.indel(mask.regions.file = mask.regions.file, continuo
                              fdr.cutoff = fdr.cutoff, color.line = color.line, color.dots = color.dots, color.muts = color.muts, top.no = top.no,
                              promoter.file = promoter.file, 
                              utr3.file = utr3.file, utr5.file = utr5.file,
-                             other.annotations = other.annotations, debug = debug)
+                             other.annotations = other.annotations, debug = debug, genome.build = genome.build)
 
 if (!is.null(results.indel[[1]])) {
   
@@ -1597,17 +1752,18 @@ if (!is.null(results.indel[[3]])) {
 
 ## Optional: dilution analysis
 if (dilution.analysis) {
-dilution.test(snv.mutations.file=snv.mutations,mask.regions.file = mask.regions.file,all.sites.file = all.sites.file,
-              cores=cores,cutoff.nucleotide=cutoff.nucleotide,cutoff.nucleotide.new=cutoff.nucleotide.new,cutoff.features = cutoff.features,
-              cutoff.features.new.snv=cutoff.features.new.snv,genomic.features.snv=genomic.features.snv,genomic.features.indel=genomic.features.indel,
-              genomic.features=genomic.features,genomic.features.fixed.snv=genomic.features.fixed.snv,
-              genomic.features.fixed.indel=genomic.features.fixed.indel,genomic.features.fixed=genomic.features.fixed,
-              feature.dir=features.dir,mutCovariate.table.snv.file = mutCovariate.snv.output.p1,
+  
+dilution.test(snv.mutations.file = snv.mutations, mask.regions.file = mask.regions.file, all.sites.file = all.sites.file,
+              cores = cores, cutoff.nucleotide = cutoff.nucleotide, cutoff.nucleotide.new = cutoff.nucleotide.new, cutoff.features = cutoff.features,
+              cutoff.features.new.snv = cutoff.features.new.snv, genomic.features.snv = genomic.features.snv, genomic.features.indel = genomic.features.indel,
+              genomic.features = genomic.features, genomic.features.fixed.snv = genomic.features.fixed.snv,
+              genomic.features.fixed.indel = genomic.features.fixed.indel, genomic.features.fixed = genomic.features.fixed,
+              feature.dir = features.dir, mutCovariate.table.snv.file = mutCovariate.snv.output.p1,
               mutCovariate.count.snv.file = mutCovariate.snv.output.p2, 
               continuous.features.selected.snv.url.file = continuous.features.selected.snv.url.file, 
               discrete.features.selected.snv.url.file = discrete.features.selected.snv.url.file, 
-              nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file=sample.snv.features,
-              output.dir = output.dir)
+              nucleotide.selected.file = nucleotide.selected.file, sample.specific.features.url.file = sample.snv.features,
+              output.dir = output.dir, genome.build = genome.build)
 
 }
 

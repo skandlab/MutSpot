@@ -3,15 +3,25 @@
 #' @param feature.name Continuous feature name.
 #' @param feature.url URL of continuous feature.
 #' @param nbins Number of bins to divide continuous feature score into.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return Binned continuous feature scores.
 #' @export
 
-bin.continuous = function(feature.name, feature.url, nbins) {
+bin.continuous = function(feature.name, feature.url, nbins, genome.build = "Ch37") {
   
   
   chrOrder <- c(paste("chr", 1:22, sep = ""), "chrX")
+  if (genome.build == "Ch37") {
+    
   seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
   seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens))[1:23]
+  
+  } else if (genome.build == "Ch38") {
+    
+    seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+    seqnames = GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens))[1:23]
+    
+  }
   
   z = rtracklayer::import(feature.url)
   

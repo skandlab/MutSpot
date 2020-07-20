@@ -4,14 +4,24 @@
 \alias{mutPredict.indel.run.lr}
 \title{Run mutation recurrence for indel.}
 \usage{
-mutPredict.indel.run.lr(output.dir, merge.hotspots = TRUE,
-  indel.mutations.file, fdr.cutoff = 0.05, color.line = "red",
-  color.dots = "maroon1", color.muts = "orange", top.no = 3,
-  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
-  package = "MutSpot"), utr3.file = system.file("extdata",
-  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
-  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
-  "MutSpot"), other.annotations = NULL, debug = FALSE, cores = 1)
+mutPredict.indel.run.lr(
+  output.dir,
+  merge.hotspots = TRUE,
+  indel.mutations.file,
+  fdr.cutoff = 0.05,
+  color.line = "red",
+  color.dots = "maroon1",
+  color.muts = "orange",
+  top.no = 3,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package =
+    "MutSpot"),
+  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"),
+  other.annotations = NULL,
+  debug = FALSE,
+  cores = 1,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{output.dir}{Save plot in given output directory.}
@@ -30,17 +40,19 @@ mutPredict.indel.run.lr(output.dir, merge.hotspots = TRUE,
 
 \item{top.no}{Number of top hotspots to plot, default = 3.}
 
-\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed.}
+\item{promoter.file}{Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.}
 
-\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed.}
+\item{utr3.file}{3'UTR regions bed file, depends on genome build, default file = Ensembl75.3UTR.coding.bed, Ch37.}
 
-\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed.}
+\item{utr5.file}{5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.}
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 
 \item{debug}{To delete temporary files or not, default = FALSE.}
 
 \item{cores}{Number of cores, default = 1.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Dataframe containing predicted hotspots significance.

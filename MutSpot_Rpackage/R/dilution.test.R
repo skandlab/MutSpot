@@ -1,8 +1,8 @@
 #' Dilution analysis.
 #' 
 #' @param snv.mutations.file SNV mutations MAF file.
-#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.
-#' @param all.sites.file All sites in whole genome RDS file, default file = all_sites.RDS.
+#' @param mask.regions.file Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default file = mask_regions.RDS, Ch37.
+#' @param all.sites.file All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.
 #' @param cores Number of cores, default = 1.
 #' @param cutoff.nucleotide Frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1, default = 0.90.
 #' @param cutoff.nucleotide.new Updated frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1.
@@ -22,27 +22,36 @@
 #' @param nucleotide.selected.file Nucleotide context selected for model RDS file.
 #' @param sample.specific.features.url.file Text file containing sample specific SNV features, default = NULL.
 #' @param output.dir Save plots in given output directory.
+#' @param genome.build Reference genome build, default = Ch37.
 #' @return McFadden's R2 for different dilution size.
 #' @export
 
-dilution.test=function(snv.mutations.file,mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
+dilution.test=function(snv.mutations.file, mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
                        all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"),
-                       cores=1,cutoff.nucleotide=0.9,cutoff.nucleotide.new=NULL,cutoff.features = 0.75,cutoff.features.new.snv=NULL,
-                       genomic.features.snv=NULL,genomic.features.indel=NULL,genomic.features=NULL,genomic.features.fixed.snv=NULL,
-                       genomic.features.fixed.indel=NULL,genomic.features.fixed=NULL,feature.dir,
+                       cores = 1, cutoff.nucleotide = 0.9, cutoff.nucleotide.new = NULL, cutoff.features = 0.75, cutoff.features.new.snv = NULL,
+                       genomic.features.snv = NULL, genomic.features.indel = NULL, genomic.features = NULL, genomic.features.fixed.snv = NULL,
+                       genomic.features.fixed.indel = NULL, genomic.features.fixed = NULL, feature.dir,
                        mutCovariate.table.snv.file,
                        mutCovariate.count.snv.file, 
                        continuous.features.selected.snv.url.file, 
                        discrete.features.selected.snv.url.file, 
                        nucleotide.selected.file, 
-                       sample.specific.features.url.file=NULL,output.dir) {
+                       sample.specific.features.url.file = NULL, output.dir, genome.build = "Ch37") {
   
 ## Sample sites (20%, 40%, 60%, 80%)
 dilution.size= c(0.2,0.4,0.6,0.8)
 
 # Chr1-ChrX
 chrOrder <- c(paste("chr", 1:22, sep=""), "chrX")
+if (genome.build == "Ch37") {
+  
 seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg19::Hsapiens)[1:23]]
+
+} else if (genome.build == "Ch38") {
+  
+  seqi = GenomeInfoDb::seqinfo(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[GenomeInfoDb::seqnames(BSgenome.Hsapiens.UCSC.hg38::Hsapiens)[1:23]]
+  
+}
 
 # Define masked region i.e. CDS, immunoglobulin loci and nonmappable
 mask.regions = readRDS(mask.regions.file)

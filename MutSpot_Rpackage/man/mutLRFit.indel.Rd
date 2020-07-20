@@ -4,11 +4,16 @@
 \alias{mutLRFit.indel}
 \title{Fit logistic regression prediction model for indel.}
 \usage{
-mutLRFit.indel(mutCovariate.table.indel.file, mutCovariate.count.indel.file,
+mutLRFit.indel(
+  mutCovariate.table.indel.file,
+  mutCovariate.count.indel.file,
   continuous.features.selected.indel.url.file,
   discrete.features.selected.indel.url.file,
-  sample.specific.features.url.file = NULL, fit.sparse = FALSE,
-  drop = FALSE, output.dir)
+  sample.specific.features.url.file = NULL,
+  fit.sparse = FALSE,
+  drop = FALSE,
+  output.dir
+)
 }
 \arguments{
 \item{mutCovariate.table.indel.file}{RDS file, indel covariates sparse matrix.}

@@ -4,29 +4,55 @@
 \alias{MutSpot}
 \title{Runs all or selected steps in MutSpot analysis.}
 \usage{
-MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
-  working.dir = NULL, chromosomes = c(1:22, "X"), snv.mutations = NULL,
-  indel.mutations = NULL, mask.regions.file = system.file("extdata",
-  "mask_regions.RDS", package = "MutSpot"),
-  all.sites.file = system.file("extdata", "all_sites.RDS", package =
-  "MutSpot"), region.of.interest = NULL, sample = T, cores = 1,
-  cutoff.nucleotide = 0.9, cutoff.nucleotide.new = NULL,
-  top.nucleotide = NULL, genomic.features.snv = NULL,
-  genomic.features.indel = NULL, genomic.features = NULL,
-  genomic.features.fixed.snv = NULL, genomic.features.fixed.indel = NULL,
-  genomic.features.fixed = NULL, sample.snv.features = NULL,
-  sample.indel.features = NULL, cutoff.features = 0.75,
-  cutoff.features.new.snv = NULL, cutoff.features.new.indel = NULL,
-  top.features = NULL, fit.sparse = FALSE, drop = FALSE,
-  min.count.snv = 2, min.count.indel = 2, hotspot.size = 21,
-  genome.size = 2533374732, hotspots = TRUE, collapse.regions = FALSE,
-  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed",
-  package = "MutSpot"), utr3.file = system.file("extdata",
-  "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
-  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package =
-  "MutSpot"), other.annotations = NULL, fdr.cutoff = 0.05,
-  color.line = "red", color.dots = "maroon1", merge.hotspots = TRUE,
-  color.muts = "orange", top.no = 3, debug = FALSE)
+MutSpot(
+  run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
+  working.dir = NULL,
+  chromosomes = c(1:22, "X"),
+  snv.mutations = NULL,
+  indel.mutations = NULL,
+  mask.regions.file = system.file("extdata", "mask_regions.RDS", package = "MutSpot"),
+  all.sites.file = system.file("extdata", "all_sites.RDS", package = "MutSpot"),
+  region.of.interest = NULL,
+  sample = T,
+  cores = 1,
+  cutoff.nucleotide = 0.9,
+  cutoff.nucleotide.new = NULL,
+  top.nucleotide = NULL,
+  genomic.features.snv = NULL,
+  genomic.features.indel = NULL,
+  genomic.features = NULL,
+  genomic.features.fixed.snv = NULL,
+  genomic.features.fixed.indel = NULL,
+  genomic.features.fixed = NULL,
+  sample.snv.features = NULL,
+  sample.indel.features = NULL,
+  cutoff.features = 0.75,
+  cutoff.features.new.snv = NULL,
+  cutoff.features.new.indel = NULL,
+  top.features = NULL,
+  fit.sparse = FALSE,
+  drop = FALSE,
+  min.count.snv = 2,
+  min.count.indel = 2,
+  hotspot.size = 21,
+  genome.size = 2533374732,
+  hotspots = TRUE,
+  collapse.regions = FALSE,
+  promoter.file = system.file("extdata", "Ensembl75.promoters.coding.bed", package =
+    "MutSpot"),
+  utr3.file = system.file("extdata", "Ensembl75.3UTR.coding.bed", package = "MutSpot"),
+  utr5.file = system.file("extdata", "Ensembl75.5UTR.coding.bed", package = "MutSpot"),
+  other.annotations = NULL,
+  fdr.cutoff = 0.05,
+  color.line = "red",
+  color.dots = "maroon1",
+  merge.hotspots = TRUE,
+  color.muts = "orange",
+  top.no = 3,
+  debug = FALSE,
+  dilution.analysis = FALSE,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{run.to}{Numeric vector defining which steps to run, default = 1, 2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7.}
@@ -39,9 +65,9 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
 
 \item{indel.mutations}{Indel mutations MAF file, default = NULL.}
 
-\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, default file = mask_regions.RDS.}
+\item{mask.regions.file}{Regions to mask in genome, for example, non-mappable regions/immunoglobin loci/CDS regions RDS file, depends on genome build, default = mask_regions.RDS, Ch37.}
 
-\item{all.sites.file}{All sites in whole genome RDS file, default file = all_sites.RDS.}
+\item{all.sites.file}{All sites in whole genome RDS file, depends on genome build, default file = all_sites.RDS, Ch37.}
 
 \item{region.of.interest}{Region of interest bed file, default = NULL.}
 
@@ -89,17 +115,17 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
 
 \item{hotspot.size}{Size of each hotspot, default = 21.}
 
-\item{genome.size}{Genome size, default = 2533374732.}
+\item{genome.size}{Genome size, depends on genome build, default = 2533374732, Ch37.}
 
 \item{hotspots}{To run hotspot analysis or region-based analysis, default = TRUE.}
 
 \item{collapse.regions}{To collapse region of interest or not, default = FALSE.}
 
-\item{promoter.file}{Promoter regions bed file, default file = Ensembl75.promoters.coding.bed}
+\item{promoter.file}{Promoter regions bed file, depends on genome build, default file = Ensembl75.promoters.coding.bed, Ch37.}
 
-\item{utr3.file}{3'UTR regions bed file, default file = Ensembl75.3UTR.coding.bed}
+\item{utr3.file}{3'UTR regions bed file, depends on genome.build, default file = Ensembl75.3UTR.coding.bed, Ch37.}
 
-\item{utr5.file}{5'UTR regions bed file, default file = Ensembl75.5UTR.coding.bed}
+\item{utr5.file}{5'UTR regions bed file, depends on genome build, default file = Ensembl75.5UTR.coding.bed, Ch37.}
 
 \item{other.annotations}{Text file containing URLs of additional regions to be annotated, default = NULL.}
 
@@ -116,6 +142,10 @@ MutSpot(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 6, 7),
 \item{top.no}{Number of top hotspots to plot, default = 3.}
 
 \item{debug}{To keep intermediate output files or not, default = FALSE.}
+
+\item{dilution.analysis}{To run dilution test or not, default = FALSE.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 Corresponding output from each step in MutSpot analysis.

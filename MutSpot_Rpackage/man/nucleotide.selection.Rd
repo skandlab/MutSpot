@@ -4,8 +4,13 @@
 \alias{nucleotide.selection}
 \title{Select nucleotide context through LASSO for SNVs and filter polyATs from indel mutations.}
 \usage{
-nucleotide.selection(sampled.sites.snv.file, indel.mutations.file,
-  cutoff = 0.9, cores = 1)
+nucleotide.selection(
+  sampled.sites.snv.file,
+  indel.mutations.file,
+  cutoff = 0.9,
+  cores = 1,
+  genome.build = "Ch37"
+)
 }
 \arguments{
 \item{sampled.sites.snv.file}{Sampled SNV mutated and non-mutated sites RDS file.}
@@ -15,6 +20,8 @@ nucleotide.selection(sampled.sites.snv.file, indel.mutations.file,
 \item{cutoff}{Frequency cutoff/threshold to determine nucleotide contexts used in prediction model, ranges from 0.5 to 1, default = 0.90.}
 
 \item{cores}{Number of cores, default = 1.}
+
+\item{genome.build}{Reference genome build, default = Ch37.}
 }
 \value{
 A list containing frequency of nucleotide contexts selected through lasso, nucleotide contexts that passed the threshold and polyATs filtered indel mutations.

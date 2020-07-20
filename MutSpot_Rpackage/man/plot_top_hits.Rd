@@ -4,8 +4,15 @@
 \alias{plot_top_hits}
 \title{Plot top hotspots.}
 \usage{
-plot_top_hits(hotspots.file, fdr.cutoff = 0.05, color.muts = "orange",
-  mutations.file, mutation.type, top.no = 3, output.dir)
+plot_top_hits(
+  hotspots.file,
+  fdr.cutoff = 0.05,
+  color.muts = "orange",
+  mutations.file,
+  mutation.type,
+  top.no = 3,
+  output.dir
+)
 }
 \arguments{
 \item{hotspots.file}{Hotspots generated.}
