@@ -29,7 +29,7 @@ References:
 
 ## Installation
 
-MutSpot runs on R (requires at least 3.2.0). Install the package from Github using the following R commands.
+MutSpot runs on R (tested on R versions 3.2.0 to 3.6.0). Install the package from Github using the following R commands.
 
 ```{r}
 install.packages("devtools")
