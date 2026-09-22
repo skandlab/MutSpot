@@ -54,8 +54,11 @@ MutSpot = function(run.to = c(1:2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 5.3, 5.4, 5.5, 
   
   # Set default files according to genome.build
   if (genome.build == "Ch38") {
-    
-  mask.regions.file = system.file("extdata", "mask_regions_hg38.RDS", package = "MutSpot")
+  if (missing(mask.regions.file)) {
+    mask.regions.file <- system.file(
+        "extdata", "mask_regions_hg38.RDS", package = "MutSpot"
+    )
+  }  
   all.sites.file = system.file("extdata", "all_sites_hg38.RDS", package = "MutSpot")
   genome.size = 2797357708
   promoter.file = system.file("extdata", "promoter_hg38.bed", package = "MutSpot")
